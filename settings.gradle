@@ -1,0 +1,3 @@
+include 'spring-data-gremlin-core', 'spring-data-gremlin-test', 'spring-data-gremlin-schemagen-jpa', 'spring-data-gremlin-orientdb', 'spring-data-gremlin-tinker', 'spring-data-gremlin-titan'
+rootProject.name = 'spring-data-gremlin'
+
