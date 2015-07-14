@@ -115,6 +115,7 @@ public abstract class BaseRepositoryTest {
             assertNotNull(obj);
             assertTrue(obj.getProperty("city").equals("Newcastle"));
         }
+
     }
 
     @After

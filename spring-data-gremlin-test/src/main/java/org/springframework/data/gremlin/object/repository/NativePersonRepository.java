@@ -1,6 +1,9 @@
 package org.springframework.data.gremlin.object.repository;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.annotation.Query;
+import org.springframework.data.gremlin.object.domain.Location;
 import org.springframework.data.gremlin.object.domain.Person;
 import org.springframework.data.gremlin.repository.GremlinRepositoryWithNativeSupport;
 
@@ -11,4 +14,9 @@ public interface NativePersonRepository extends GremlinRepositoryWithNativeSuppo
 
     @Query(value = "delete vertex from (select from Person where firstName <> ?)", nativeQuery = true, modify = true)
     Integer deleteAllExceptUser(String firstName);
+
+
+    @Query(value = "SELECT expand(in('located_at')) FROM (SELECT FROM Location WHERE [latitude,longitude,$spatial] NEAR [?,?,{\"maxDistance\":?}])", nativeQuery = true)
+    Page<Person> findNear(double latitude, double longitude, double radius, Pageable pageable);
+
 }
