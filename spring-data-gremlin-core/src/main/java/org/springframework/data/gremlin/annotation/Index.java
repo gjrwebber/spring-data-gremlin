@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author Gman
  */
 @Documented
-@Target({ElementType.TYPE, ElementType.FIELD})
+@Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Index {
     /**
