@@ -8,7 +8,7 @@ import java.lang.annotation.*;
  * @author Gman
  */
 @Documented
-@Target(ElementType.TYPE)
+@Target({ElementType.TYPE, ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Index {
     /**
@@ -17,9 +17,17 @@ public @interface Index {
     String[] value() default "";
 
     /**
-     * Defines whether the index is for a unique property
+     * Defines the type of index
      *
      * @return
      */
-    boolean unique() default false;
+    IndexType type() default IndexType.NON_UNIQUE;
+
+    enum IndexType {
+        NONE,
+        UNIQUE,
+        NON_UNIQUE,
+        SPATIAL_LATITUDE,
+        SPATIAL_LONGITUDE
+    }
 }

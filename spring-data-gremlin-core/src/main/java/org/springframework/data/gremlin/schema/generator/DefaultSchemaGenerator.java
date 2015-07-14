@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.gremlin.annotation.Index;
-import org.springframework.data.gremlin.annotation.SpatialIndex;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinPropertyFactory;
@@ -22,7 +21,7 @@ import java.lang.reflect.Modifier;
 import java.util.*;
 
 /**
- * Default {@link SchemaGenerator} using Java reflection along with Index and SpatialIndex annotations.
+ * Default {@link SchemaGenerator} using Java reflection along with Index and Index annotations.
  * <p>
  * This class can and should be extended for custom generation.
  * </p>
@@ -148,9 +147,9 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
 
             // Create the property if it hasn't been created already
             if (property == null) {
-                GremlinProperty.INDEX index = getIndexType(field);
+                Index.IndexType index = getIndexType(field);
                 String indexName = null;
-                if (index == GremlinProperty.INDEX.NON_UNIQUE) {
+                if (index == Index.IndexType.NON_UNIQUE) {
                     indexName = getIndexName(field);
                 }
                 property = propertyFactory.getIndexedProperty(cls, name, index, indexName);
@@ -160,21 +159,13 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         }
     }
 
-    protected GremlinProperty.INDEX getIndexType(Field field) {
-        GremlinProperty.INDEX index = GremlinProperty.INDEX.NONE;
-
-        if (isPropertyIndexed(field)) {
-            if (isSpatialLatitudeIndex(field)) {
-                index = GremlinProperty.INDEX.SPATIAL_LATITUDE;
-            } else if (isSpatialLongitudeIndex(field)) {
-                index = GremlinProperty.INDEX.SPATIAL_LONGITUDE;
-            } else if (isPropertyUnique(field)) {
-                index = GremlinProperty.INDEX.UNIQUE;
-            } else {
-                index = GremlinProperty.INDEX.NON_UNIQUE;
-            }
+    protected Index.IndexType getIndexType(Field field) {
+        Index index = AnnotationUtils.getAnnotation(field, Index.class);
+        if (index != null) {
+            return index.type();
+        } else {
+            return Index.IndexType.NONE;
         }
-        return index;
     }
 
     protected String getIndexName(Field field) {
@@ -203,31 +194,29 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean isPropertyIndexed(Field field) {
-        return AnnotationUtils.getAnnotation(field, Index.class) != null || AnnotationUtils.getAnnotation(field, SpatialIndex.class) != null;
-    }
-
-    protected void validateSpatialIndex(SpatialIndex index) {
-        if (index.latitude() == index.longitude()) {
-            throw new IllegalStateException("SpatialIndex must be exclusively either latitude or longitude. Latitude: " + index.latitude() + ", Longitude: " + index.longitude());
-        }
+        return AnnotationUtils.getAnnotation(field, Index.class) != null;
     }
 
     protected boolean isSpatialLatitudeIndex(Field field) {
-        SpatialIndex spatialIndex = AnnotationUtils.getAnnotation(field, SpatialIndex.class);
-        validateSpatialIndex(spatialIndex);
-        return spatialIndex.latitude();
+        Index index = AnnotationUtils.getAnnotation(field, Index.class);
+        if (index != null) {
+            return index.type() == Index.IndexType.SPATIAL_LATITUDE;
+        }
+        return false;
     }
 
     protected boolean isSpatialLongitudeIndex(Field field) {
-        SpatialIndex spatialIndex = AnnotationUtils.getAnnotation(field, SpatialIndex.class);
-        validateSpatialIndex(spatialIndex);
-        return spatialIndex.longitude();
+        Index index = AnnotationUtils.getAnnotation(field, Index.class);
+        if (index != null) {
+            return index.type() == Index.IndexType.SPATIAL_LONGITUDE;
+        }
+        return false;
     }
 
     protected boolean isPropertyUnique(Field field) {
         Index index = AnnotationUtils.getAnnotation(field, Index.class);
         if (index != null) {
-            return index.unique();
+            return index.type() == Index.IndexType.UNIQUE;
         }
         return false;
     }

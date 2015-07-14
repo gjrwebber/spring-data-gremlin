@@ -3,6 +3,8 @@ package org.springframework.data.gremlin.schema.generator.jpa;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.data.gremlin.annotation.*;
+import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.generator.AnnotatedSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
@@ -128,11 +130,11 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
     }
 
     @Override
-    protected GremlinProperty.INDEX getIndexType(Field field) {
-        GremlinProperty.INDEX index = super.getIndexType(field);
-        if (index == null || index == GremlinProperty.INDEX.NONE) {
+    protected Index.IndexType getIndexType(Field field) {
+        Index.IndexType index = super.getIndexType(field);
+        if (index == null || index == Index.IndexType.NONE) {
             if (isPropertyUnique(field)) {
-                index = GremlinProperty.INDEX.UNIQUE;
+                index = Index.IndexType.UNIQUE;
             }
         }
         return index;

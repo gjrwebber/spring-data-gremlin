@@ -12,7 +12,9 @@ import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.springframework.data.gremlin.schema.*;
+import org.springframework.data.gremlin.annotation.Index;
+import org.springframework.data.gremlin.schema.GremlinSchema;
+import org.springframework.data.gremlin.schema.TestEntity;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
@@ -89,7 +91,7 @@ public class OrientDbSchemaWriterTest {
         when(schema.getClassName()).thenReturn("ClassName");
 
         GremlinProperty property1 = new GremlinProperty(String.class, "bla");
-        property1.setIndex(GremlinProperty.INDEX.UNIQUE);
+        property1.setIndex(Index.IndexType.UNIQUE);
         when(schema.getProperties()).thenReturn(Arrays.asList(property1));
 
 
@@ -151,7 +153,7 @@ public class OrientDbSchemaWriterTest {
         when(schema.getClassName()).thenReturn("ClassName");
 
         GremlinProperty property1 = new GremlinProperty(String.class, "bla");
-        property1.setIndex(GremlinProperty.INDEX.UNIQUE);
+        property1.setIndex(Index.IndexType.UNIQUE);
 
         GremlinLinkProperty property2 = new GremlinLinkProperty(TestEntity.class, "link");
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);

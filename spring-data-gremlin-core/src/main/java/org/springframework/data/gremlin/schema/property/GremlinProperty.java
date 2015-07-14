@@ -2,6 +2,8 @@ package org.springframework.data.gremlin.schema.property;
 
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
+import org.springframework.data.gremlin.annotation.Index;
+import org.springframework.data.gremlin.annotation.Index.IndexType;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
@@ -29,10 +31,10 @@ public class GremlinProperty<C> {
     private GremlinPropertyAccessor accessor;
     private GremlinPropertyMapper propertyMapper;
     private Class<C> type;
-    private INDEX index = INDEX.NONE;
+    private IndexType index = IndexType.NONE;
     private String indexName;
 
-    public GremlinProperty(Class<C> cls, String name, INDEX index, String indexName) {
+    public GremlinProperty(Class<C> cls, String name, IndexType index, String indexName) {
         this(cls, name, new GremlinStandardPropertyMapper());
         this.index = index;
         this.indexName = indexName;
@@ -72,11 +74,11 @@ public class GremlinProperty<C> {
         this.type = type;
     }
 
-    public INDEX getIndex() {
+    public IndexType getIndex() {
         return index;
     }
 
-    public void setIndex(INDEX index) {
+    public void setIndex(IndexType index) {
         this.index = index;
     }
 
@@ -104,14 +106,6 @@ public class GremlinProperty<C> {
 
     public Object loadFromVertex(Vertex vertex) {
         return propertyMapper.loadFromVertex(this, vertex);
-    }
-
-    public enum INDEX {
-        NONE,
-        UNIQUE,
-        NON_UNIQUE,
-        SPATIAL_LATITUDE,
-        SPATIAL_LONGITUDE
     }
 
 }

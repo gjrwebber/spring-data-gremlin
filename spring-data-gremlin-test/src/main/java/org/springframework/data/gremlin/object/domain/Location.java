@@ -1,9 +1,12 @@
 package org.springframework.data.gremlin.object.domain;
 
-import org.springframework.data.gremlin.annotation.SpatialIndex;
+import org.springframework.data.gremlin.annotation.Index;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+
+import static org.springframework.data.gremlin.annotation.Index.IndexType.SPATIAL_LATITUDE;
+import static org.springframework.data.gremlin.annotation.Index.IndexType.SPATIAL_LONGITUDE;
 
 /**
  * Created by gman on 9/06/15.
@@ -14,9 +17,9 @@ public class Location {
     @Id
     private String id;
 
-    @SpatialIndex(latitude = true)
+    @Index(type = SPATIAL_LATITUDE)
     private double latitude;
-    @SpatialIndex(longitude = true)
+    @Index(type = SPATIAL_LONGITUDE)
     private double longitude;
 
     public Location() {

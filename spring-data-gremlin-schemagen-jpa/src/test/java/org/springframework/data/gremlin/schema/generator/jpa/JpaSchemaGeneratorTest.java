@@ -3,6 +3,7 @@ package org.springframework.data.gremlin.schema.generator.jpa;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
+import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.*;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
@@ -41,7 +42,7 @@ public class JpaSchemaGeneratorTest {
 
         assertTrue(propNames.contains("unique"));
         assertEquals(String.class, schema.getProperty("unique").getType());
-        assertTrue(schema.getProperty("unique").getIndex() == GremlinProperty.INDEX.UNIQUE);
+        assertTrue(schema.getProperty("unique").getIndex() == Index.IndexType.UNIQUE);
 
         assertTrue(propNames.contains("value"));
         assertEquals(int.class, schema.getProperty("value").getType());
