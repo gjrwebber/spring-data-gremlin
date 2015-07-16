@@ -5,6 +5,7 @@ Spring data gremlin makes it easier to implement Graph based repositories. This 
 ##Features
 
 - All the great features of [Spring Data](http://projects.spring.io/spring-data)
+- Object to graph mapping functionality
 - Support for [OrientDB](http://orientdb.com) and [TitanDB](http://s3.thinkaurelius.com/docs/titan/current)  out of the box
 - Schema building in supported databases
 - Sophisticated support to build repositories based on Spring and JPA. ([Frames](http://frames.tinkerpop.com) coming soon)
