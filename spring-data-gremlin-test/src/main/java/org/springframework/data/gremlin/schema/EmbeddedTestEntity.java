@@ -1,6 +1,8 @@
 package org.springframework.data.gremlin.schema;
 
-import javax.persistence.Embeddable;
+import com.sun.org.apache.xpath.internal.operations.Mult;
+
+import javax.persistence.*;
 import java.util.Date;
 
 /**
@@ -11,5 +13,8 @@ public class EmbeddedTestEntity {
 
     private String embeddedBla;
     private Date embeddedDate;
+    private int value;
 
+    @Embedded
+    private MultiEmbeddedTestEntity multiEmbed;
 }

@@ -24,6 +24,8 @@ public class TestEntity {
     private LinkedTestEntity linkedEntity;
 
     @Embedded
+    @AttributeOverrides({
+            @AttributeOverride(name = "value", column = @Column(name = "embeddedValue"))})
     private EmbeddedTestEntity embeddedTestEntity;
 
 }

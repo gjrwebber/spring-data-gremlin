@@ -159,7 +159,7 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
 
     @Override
     protected String getPropertyName(Field field, Field rootEmbeddedField) {
-        String name = super.getPropertyName(field, rootEmbeddedField);
+        String name = field.getName();
 
         // If annotated with @Column, use the name parameter of the annotation
         Column column = AnnotationUtils.getAnnotation(field, Column.class);
