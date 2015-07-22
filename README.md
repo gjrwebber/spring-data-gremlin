@@ -212,3 +212,4 @@ public class Configuration {
 
 ##Acknowledgement
 This project would not have been possible without the hard work done by the [spring-data-orientdb](https://github.com/orientechnologies/spring-data-orientdb) team. A lot of code and concepts were reused and reshaped. Thanks.
+
