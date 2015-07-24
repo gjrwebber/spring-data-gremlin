@@ -5,7 +5,7 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
-import org.springframework.data.gremlin.schema.property.GremlinCollectionProperty;
+import org.springframework.data.gremlin.schema.property.GremlinOneToManyProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 
@@ -18,10 +18,10 @@ import java.util.Set;
  *
  * @author Gman
  */
-public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<GremlinCollectionProperty> {
+public class GremlinOneToManyPropertyMapper implements GremlinPropertyMapper<GremlinOneToManyProperty> {
 
     @Override
-    public void copyToVertex(GremlinCollectionProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val) {
+    public void copyToVertex(GremlinOneToManyProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val) {
 
 
         // Get the Set of existing linked vertices for this property
@@ -70,7 +70,7 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
     }
 
     @Override
-    public Object loadFromVertex(GremlinCollectionProperty property, Vertex vertex) {
+    public Object loadFromVertex(GremlinOneToManyProperty property, Vertex vertex) {
         return loadCollection(property.getRelatedSchema(), property, vertex);
     }
 

@@ -10,8 +10,8 @@ import com.tinkerpop.blueprints.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.*;
-import org.springframework.data.gremlin.schema.property.GremlinCollectionProperty;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
+import org.springframework.data.gremlin.schema.property.GremlinOneToManyProperty;
+import org.springframework.data.gremlin.schema.property.GremlinOneToOneProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.schema.writer.AbstractSchemaWriter;
@@ -199,7 +199,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
                 if (prop == null) {
 
                     // If this property is a LINK
-                    if (property instanceof GremlinLinkProperty) {
+                    if (property instanceof GremlinOneToOneProperty) {
 
                         OClass eClass = createClass(oSchema, e, property.getName());
 
@@ -215,7 +215,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
 
                         break;
 
-                    } else if (property instanceof GremlinCollectionProperty) {
+                    } else if (property instanceof GremlinOneToManyProperty) {
 
                         OClass edgeClass = createClass(oSchema, e, property.getName());
 

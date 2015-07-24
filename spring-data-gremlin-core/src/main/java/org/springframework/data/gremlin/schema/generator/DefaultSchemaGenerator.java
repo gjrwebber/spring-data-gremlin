@@ -132,11 +132,11 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
                 }
             } else {
                 accessor = new GremlinFieldPropertyAccessor(field, embeddedFieldAccessor);
-                if (isLinkField(cls, field)) {
-                    property = propertyFactory.getLinkedProperty(cls, name);
-                } else if (isCollectionField(cls, field)) {
+                if (isOneToOneField(cls, field)) {
+                    property = propertyFactory.getOneToOneProperty(cls, name);
+                } else if (isOneToManyField(cls, field)) {
                     cls = getCollectionType(field);
-                    property = propertyFactory.getCollectiondProperty(cls, name);
+                    property = propertyFactory.getOneToManyProperty(cls, name);
                 } else if (isEmbeddedField(cls, field)) {
                     populate(cls, schema, (GremlinFieldPropertyAccessor) accessor);
 
@@ -236,11 +236,11 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         return embedded.contains(cls);
     }
 
-    protected boolean isLinkField(Class<?> cls, Field field) {
+    protected boolean isOneToOneField(Class<?> cls, Field field) {
         return entities.contains(cls);
     }
 
-    protected boolean isCollectionField(Class<?> cls, Field field) {
+    protected boolean isOneToManyField(Class<?> cls, Field field) {
         return Collection.class.isAssignableFrom(cls) && entities.contains(getCollectionType(field));
     }
 
@@ -262,7 +262,7 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
      * @param cls
      * @return
      */
-    protected boolean isLinkClass(Class<?> cls) {
+    protected boolean isEntityClass(Class<?> cls) {
         if (entities == null) {
             LOGGER.warn("Entities is null, this is unusual and is possibly an error. Please add the entity classes to the concrete SchemaBuilder.");
             return false;

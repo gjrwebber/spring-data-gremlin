@@ -3,8 +3,8 @@ package org.springframework.data.gremlin.schema.writer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.GremlinSchema;
-import org.springframework.data.gremlin.schema.property.GremlinCollectionProperty;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
+import org.springframework.data.gremlin.schema.property.GremlinOneToManyProperty;
+import org.springframework.data.gremlin.schema.property.GremlinOneToOneProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
@@ -56,12 +56,12 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                 if (!isPropertyAvailable(vertexClass, property.getName())) {
 
                     // If this property is a LINK
-                    if (property instanceof GremlinLinkProperty) {
+                    if (property instanceof GremlinOneToOneProperty) {
 
                         createEdge((GremlinRelatedProperty) property, vertexClass, CARDINALITY.ONE_TO_ONE);
                         break;
 
-                    } else if (property instanceof GremlinCollectionProperty) {
+                    } else if (property instanceof GremlinOneToManyProperty) {
                         createEdge((GremlinRelatedProperty) property, vertexClass, CARDINALITY.ONE_TO_MANY);
                         break;
 

@@ -2,19 +2,14 @@ package org.springframework.data.gremlin.schema.generator.jpa;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.*;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
-import org.springframework.data.gremlin.schema.property.GremlinProperty;
-import org.springframework.data.gremlin.schema.property.GremlinPropertyFactory;
-import org.springframework.data.gremlin.schema.writer.SchemaWriter;
+import org.springframework.data.gremlin.schema.property.GremlinOneToOneProperty;
 
 import java.util.Collection;
 
 import static org.junit.Assert.*;
 import static org.mockito.Matchers.any;
-import static org.mockito.Mockito.when;
 
 /**
  * Created by gman on 18/05/15.
@@ -48,7 +43,7 @@ public class JpaSchemaGeneratorTest {
         assertEquals(int.class, schema.getProperty("value").getType());
 
         assertTrue(propNames.contains("linkedEntity"));
-        assertTrue(schema.getProperty("linkedEntity") instanceof GremlinLinkProperty);
+        assertTrue(schema.getProperty("linkedEntity") instanceof GremlinOneToOneProperty);
         assertEquals(LinkedTestEntity.class, schema.getProperty("linkedEntity").getType());
 
         assertTrue(propNames.contains("embeddedTestEntity_embeddedBla"));

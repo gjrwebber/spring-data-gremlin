@@ -15,7 +15,7 @@ import org.mockito.Mockito;
 import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.TestEntity;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
+import org.springframework.data.gremlin.schema.property.GremlinOneToOneProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
@@ -112,7 +112,7 @@ public class OrientDbSchemaWriterTest {
         GremlinSchema schema = Mockito.mock(GremlinSchema.class);
         when(schema.getClassName()).thenReturn("ClassName");
 
-        GremlinLinkProperty property3 = new GremlinLinkProperty(TestEntity.class, "link");
+        GremlinOneToOneProperty property3 = new GremlinOneToOneProperty(TestEntity.class, "link");
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
 
@@ -155,7 +155,7 @@ public class OrientDbSchemaWriterTest {
         GremlinProperty property1 = new GremlinProperty(String.class, "bla");
         property1.setIndex(Index.IndexType.UNIQUE);
 
-        GremlinLinkProperty property2 = new GremlinLinkProperty(TestEntity.class, "link");
+        GremlinOneToOneProperty property2 = new GremlinOneToOneProperty(TestEntity.class, "link");
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
 

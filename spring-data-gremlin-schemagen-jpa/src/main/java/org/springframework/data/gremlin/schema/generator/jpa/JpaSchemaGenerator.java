@@ -3,13 +3,11 @@ package org.springframework.data.gremlin.schema.generator.jpa;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.data.gremlin.annotation.*;
 import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.generator.AnnotatedSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGeneratorException;
-import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -216,12 +214,12 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
         return null;
     }
 
-    protected boolean isLinkField(Class<?> cls, Field field) {
-        return isLinkClass(cls) && (AnnotationUtils.getAnnotation(field, OneToOne.class) != null || AnnotationUtils.getAnnotation(field, ManyToOne.class) != null);
+    protected boolean isOneToOneField(Class<?> cls, Field field) {
+        return isEntityClass(cls) && (AnnotationUtils.getAnnotation(field, OneToOne.class) != null || AnnotationUtils.getAnnotation(field, ManyToOne.class) != null);
     }
 
-    protected boolean isCollectionField(Class<?> cls, Field field) {
-        return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, OneToMany.class) != null;
+    protected boolean isOneToManyField(Class<?> cls, Field field) {
+        return super.isOneToManyField(cls, field) && AnnotationUtils.getAnnotation(field, OneToMany.class) != null;
     }
 
     protected boolean isEmbeddedField(Class<?> cls, Field field) {

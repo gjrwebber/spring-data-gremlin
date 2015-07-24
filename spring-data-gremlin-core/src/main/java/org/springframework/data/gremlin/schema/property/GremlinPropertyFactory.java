@@ -21,12 +21,12 @@ public class GremlinPropertyFactory {
         return getIndexedProperty(cls, name, Index.IndexType.UNIQUE, null);
     }
 
-    public <V> GremlinProperty<V> getLinkedProperty(Class<V> cls, String name) {
-        return new GremlinLinkProperty<V>(cls, name);
+    public <V> GremlinProperty<V> getOneToOneProperty(Class<V> cls, String name) {
+        return new GremlinOneToOneProperty<V>(cls, name);
     }
 
-    public <V> GremlinProperty<V> getCollectiondProperty(Class<V> cls, String name) {
-        return new GremlinCollectionProperty<V>(cls, name);
+    public <V> GremlinProperty<V> getOneToManyProperty(Class<V> cls, String name) {
+        return new GremlinOneToManyProperty<V>(cls, name);
     }
 
 }

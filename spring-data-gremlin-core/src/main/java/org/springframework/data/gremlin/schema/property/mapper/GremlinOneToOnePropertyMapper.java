@@ -4,17 +4,17 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
+import org.springframework.data.gremlin.schema.property.GremlinOneToOneProperty;
 
 /**
- * A {@link GremlinPropertyMapper} for mapping {@link GremlinLinkProperty}s.
+ * A {@link GremlinPropertyMapper} for mapping {@link GremlinOneToOneProperty}s.
  *
  * @author Gman
  */
-public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinLinkProperty> {
+public class GremlinOneToOnePropertyMapper implements GremlinPropertyMapper<GremlinOneToOneProperty> {
 
     @Override
-    public void copyToVertex(GremlinLinkProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val) {
+    public void copyToVertex(GremlinOneToOneProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val) {
 
         Vertex linkedVertex = null;
 
@@ -41,7 +41,7 @@ public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinL
     }
 
     @Override
-    public Object loadFromVertex(GremlinLinkProperty property, Vertex vertex) {
+    public Object loadFromVertex(GremlinOneToOneProperty property, Vertex vertex) {
 
         Object val = null;
         for (Edge outEdge : vertex.getEdges(Direction.OUT, property.getName())) {
