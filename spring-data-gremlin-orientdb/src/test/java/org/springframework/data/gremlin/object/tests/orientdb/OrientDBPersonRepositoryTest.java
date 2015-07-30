@@ -12,6 +12,9 @@ import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Iterator;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 /**
  * Created by gman on 24/06/15.
  */
@@ -38,7 +41,7 @@ public class OrientDBPersonRepositoryTest extends AbstractPersonRepositoryTest {
 
     @Test
     public void findPeopleNear() throws Exception {
-        Page<Person> page = nativePersonRepository.findNear(-33, 151, 50, new PageRequest(1, 10));
+        Page<Person> page = nativePersonRepository.findNear(-33, 151, 50, new PageRequest(0, 10));
         Assert.assertEquals(1, page.getTotalElements());
 
         Person person = page.iterator().next();

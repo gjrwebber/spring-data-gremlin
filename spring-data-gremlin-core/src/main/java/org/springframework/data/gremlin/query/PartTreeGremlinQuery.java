@@ -55,7 +55,7 @@ public class PartTreeGremlinQuery extends AbstractGremlinQuery {
 
         Pageable pageable = accessor.getPageable();
         if (pageable != null && !ignorePaging) {
-            pipeline.add(new RangeFilterPipe(pageable.previousOrFirst().getOffset(), pageable.getOffset() - 1));
+            pipeline.add(new RangeFilterPipe(pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1));
         }
         return pipeline;
     }

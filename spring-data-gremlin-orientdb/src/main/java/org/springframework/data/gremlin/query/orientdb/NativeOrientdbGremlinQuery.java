@@ -60,7 +60,7 @@ public class NativeOrientdbGremlinQuery extends AbstractNativeGremlinQuery {
         ParametersParameterAccessor accessor = new ParametersParameterAccessor(parameters, values);
         Pageable pageable = accessor.getPageable();
         if (pageable != null && !ignorePaging) {
-            queryString = String.format("%s SKIP %d LIMIT %d", queryString, pageable.previousOrFirst().getOffset(), pageable.getPageSize());
+            queryString = String.format("%s SKIP %d LIMIT %d", queryString, pageable.getOffset(), pageable.getPageSize());
         }
 
         Object result = orientGraphFactory.graph().command(new OCommandSQL(queryString)).execute(params);

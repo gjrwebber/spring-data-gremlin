@@ -41,6 +41,34 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
     }
 
     @Test
+    public void findAllPersonsPageable() {
+        List<Person> persons = Lists.newArrayList(repository.findAll());
+        assertNotNull(persons);
+        assertEquals(5, persons.size());
+
+        Page<Person> result = repository.findAll(new PageRequest(0, 2));
+
+        assertTrue(result.hasContent());
+        assertEquals(5, result.getTotalElements());
+        assertEquals(3, result.getTotalPages());
+        assertEquals(2, result.getNumberOfElements());
+
+        result = repository.findAll(new PageRequest(1, 2));
+
+        assertTrue(result.hasContent());
+        assertEquals(5, result.getTotalElements());
+        assertEquals(3, result.getTotalPages());
+        assertEquals(2, result.getNumberOfElements());
+
+        result = repository.findAll(new PageRequest(2, 2));
+
+        assertTrue(result.hasContent());
+        assertEquals(5, result.getTotalElements());
+        assertEquals(3, result.getTotalPages());
+        assertEquals(1, result.getNumberOfElements());
+    }
+
+    @Test
     public void countByFirstName() {
         assertEquals(repository.countByFirstName("Vanja"), Long.valueOf(1));
     }
@@ -63,7 +91,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void findByLastNamePageable() {
-        Page<Person> result = repository.findByLastName("Ivanovic", new PageRequest(1, 2));
+        Page<Person> result = repository.findByLastName("Ivanovic", new PageRequest(0, 2));
 
         assertTrue(result.hasContent());
         assertEquals(3, result.getTotalElements());
@@ -75,7 +103,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         }
 
 
-        result = repository.findByLastName("Ivanovic", new PageRequest(2, 2));
+        result = repository.findByLastName("Ivanovic", new PageRequest(1, 2));
 
         assertTrue(result.hasContent());
         assertEquals(3, result.getTotalElements());
@@ -90,7 +118,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void queryLastNamePageable() {
-        Page<Person> result = repository.queryLastName("Ivanovic", new PageRequest(1, 2));
+        Page<Person> result = repository.queryLastName("Ivanovic", new PageRequest(0, 2));
 
         assertTrue(result.hasContent());
         assertEquals(3, result.getTotalElements());
@@ -102,7 +130,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         }
 
 
-        result = repository.findByLastName("Ivanovic", new PageRequest(2, 2));
+        result = repository.queryLastName("Ivanovic", new PageRequest(1, 2));
 
         assertTrue(result.hasContent());
         assertEquals(3, result.getTotalElements());
@@ -131,17 +159,6 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         List<Person> result = repository.findByFirstNameWithParam("Jake");
 
         assertEquals(1, result.size());
-
-        for (Person person : result) {
-            assertEquals(person.getFirstName(), "Jake");
-        }
-    }
-
-    @Test
-    public void findByFirstNamePageable() {
-        List<Person> result = repository.findByFirstName("Jake");
-
-        assertFalse(result.isEmpty());
 
         for (Person person : result) {
             assertEquals(person.getFirstName(), "Jake");
