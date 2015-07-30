@@ -96,18 +96,24 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     protected Object createEdgeClass(String name, Object outVertex, Object inVertex, CARDINALITY cardinality) throws SchemaWriterException {
         OClass edgeClass = getOrCreateClass(oSchema, e, name);
 
-        OProperty out = edgeClass.createProperty("out", OType.LINK);
-        out.setLinkedClass((OClass) outVertex);
+        if(!edgeClass.existsProperty("out")) {
+            OProperty out = edgeClass.createProperty("out", OType.LINK);
+            out.setLinkedClass((OClass) outVertex);
 
-        OProperty in = edgeClass.createProperty("in", OType.LINK);
-        in.setLinkedClass((OClass) inVertex);
+            out.setMax("1");
+            if (cardinality == CARDINALITY.ONE_TO_MANY) {
+                out.setMax(String.valueOf(Integer.MAX_VALUE));
+            }
+        }
 
-        in.setMax("1");
-        out.setMax("1");
-        if (cardinality == CARDINALITY.ONE_TO_MANY) {
-            out.setMax(String.valueOf(Integer.MAX_VALUE));
-        } else if (cardinality == CARDINALITY.MANY_TO_ONE) {
-            in.setMax(String.valueOf(Integer.MAX_VALUE));
+        if(!edgeClass.existsProperty("in")) {
+            OProperty in = edgeClass.createProperty("in", OType.LINK);
+            in.setLinkedClass((OClass) inVertex);
+
+            in.setMax("1");
+            if (cardinality == CARDINALITY.MANY_TO_ONE) {
+                in.setMax(String.valueOf(Integer.MAX_VALUE));
+            }
         }
 
         return edgeClass;
