@@ -51,6 +51,7 @@ public class TinkerpopEnumStringFieldAccessorTest {
             ONE,
             TWO
         }
+
         TEST test = TEST.ONE;
     }
 

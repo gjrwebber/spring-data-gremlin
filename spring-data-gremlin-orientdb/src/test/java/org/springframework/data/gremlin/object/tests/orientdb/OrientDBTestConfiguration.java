@@ -2,14 +2,13 @@ package org.springframework.data.gremlin.object.tests.orientdb;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.gremlin.config.EnableGremlinRepositories;
 import org.springframework.data.gremlin.query.orientdb.NativeOrientdbGremlinQuery;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.GremlinRepositoryContext;
-import org.springframework.data.gremlin.config.EnableGremlinRepositories;
 import org.springframework.data.gremlin.repository.orientdb.OrientDBGraphAdapter;
 import org.springframework.data.gremlin.repository.orientdb.OrientDBGremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinBeanPostProcessor;
-import org.springframework.data.gremlin.schema.property.GremlinPropertyFactory;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.schema.generator.SchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.jpa.JpaSchemaGenerator;
@@ -17,9 +16,9 @@ import org.springframework.data.gremlin.schema.property.encoder.orientdb.OrientD
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.schema.writer.orientdb.OrientDbSchemaWriter;
 import org.springframework.data.gremlin.support.GremlinRepositoryFactoryBean;
-import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.tx.GremlinTransactionManager;
+import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
@@ -33,7 +32,8 @@ public class OrientDBTestConfiguration {
         factory.setUrl("memory:spring-data-orientdb-db");
         factory.setUsername("admin");
         factory.setPassword("admin");
-//        factory.setUrl("remote:/Users/gman/Documents/Work/Tools/orientdb-src/distribution/target/orientdb-community-2.0.9-SNAPSHOT-distribution.dir/orientdb-community-2.0.9-SNAPSHOT/databases/aaa");
+        //        factory.setUrl("remote:/Users/gman/Documents/Work/Tools/orientdb-src/distribution/target/orientdb-community-2.0.9-SNAPSHOT-distribution.dir/orientdb-community-2.0
+        // .9-SNAPSHOT/databases/aaa");
 
         return factory;
     }

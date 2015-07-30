@@ -2,10 +2,10 @@ package org.springframework.data.gremlin.object.repository;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.query.Param;
 import org.springframework.data.gremlin.annotation.Query;
 import org.springframework.data.gremlin.object.domain.Person;
 import org.springframework.data.gremlin.repository.GremlinRepository;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Map;
@@ -16,7 +16,7 @@ public interface PersonRepository extends GremlinRepository<Person> {
     List<Person> findByFirstName(String firstName);
 
     @Query(value = "graph.V().has('firstName', :fn)")
-    List<Person> findByFirstNameWithParam(@Param("fn")String firstName);
+    List<Person> findByFirstNameWithParam(@Param("fn") String firstName);
 
     @Query(value = "graph.V().has('firstName', ?)")
     Page<Person> findByFirstName(String firstName, Pageable pageable);

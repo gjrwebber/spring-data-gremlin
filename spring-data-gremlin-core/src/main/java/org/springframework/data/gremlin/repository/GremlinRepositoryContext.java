@@ -27,12 +27,13 @@ public class GremlinRepositoryContext {
         this(graphFactory, graphAdapter, schemaFactory, schemaWriter, SimpleGremlinRepository.class, null);
     }
 
-    public GremlinRepositoryContext(GremlinGraphFactory graphFactory, GremlinGraphAdapter graphAdapter, GremlinSchemaFactory schemaFactory, SchemaWriter schemaWriter, Class<? extends GremlinRepository> repositoryType) {
+    public GremlinRepositoryContext(GremlinGraphFactory graphFactory, GremlinGraphAdapter graphAdapter, GremlinSchemaFactory schemaFactory, SchemaWriter schemaWriter,
+                                    Class<? extends GremlinRepository> repositoryType) {
         this(graphFactory, graphAdapter, schemaFactory, schemaWriter, repositoryType, null);
     }
 
-    public GremlinRepositoryContext(GremlinGraphFactory graphFactory, GremlinGraphAdapter graphAdapter, GremlinSchemaFactory schemaFactory, SchemaWriter schemaWriter, Class<? extends GremlinRepository> repositoryType,
-                                    Class<? extends AbstractNativeGremlinQuery> nativeQueryType) {
+    public GremlinRepositoryContext(GremlinGraphFactory graphFactory, GremlinGraphAdapter graphAdapter, GremlinSchemaFactory schemaFactory, SchemaWriter schemaWriter,
+                                    Class<? extends GremlinRepository> repositoryType, Class<? extends AbstractNativeGremlinQuery> nativeQueryType) {
         this.graphFactory = graphFactory;
         this.graphAdapter = graphAdapter;
         this.schemaFactory = schemaFactory;

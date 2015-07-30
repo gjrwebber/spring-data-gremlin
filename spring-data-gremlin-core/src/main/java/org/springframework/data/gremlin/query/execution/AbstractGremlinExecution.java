@@ -3,12 +3,15 @@ package org.springframework.data.gremlin.query.execution;
 import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.query.CompositeResult;
-import org.springframework.data.gremlin.utils.GenericsUtil;
-import org.springframework.data.repository.query.DefaultParameters;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
+import org.springframework.data.gremlin.utils.GenericsUtil;
+import org.springframework.data.repository.query.DefaultParameters;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Query execution strategies.

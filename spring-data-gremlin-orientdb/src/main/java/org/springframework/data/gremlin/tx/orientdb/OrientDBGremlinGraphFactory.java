@@ -48,7 +48,7 @@ public class OrientDBGremlinGraphFactory extends AbstractGremlinGraphFactory<Ori
     @Override
     public void beginTx(OrientGraph graph) {
         // No need to begin the transaction as it is auto started.
-//                graph.getRawGraph().getTransaction().begin();
+        //                graph.getRawGraph().getTransaction().begin();
     }
 
     @Override

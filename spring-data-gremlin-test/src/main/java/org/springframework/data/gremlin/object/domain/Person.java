@@ -7,7 +7,8 @@ import java.util.Set;
 public class Person {
 
     public enum AWESOME {
-        YES, NO;
+        YES,
+        NO;
     }
 
     @Id

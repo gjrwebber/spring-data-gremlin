@@ -41,8 +41,8 @@ public class TitanTestConfiguration {
         }
         TitanGremlinGraphFactory factory = new TitanGremlinGraphFactory();
         factory.setUrl("inmemory");
-//        factory.setUsername("admin");
-//        factory.setPassword("admin");
+        //        factory.setUsername("admin");
+        //        factory.setPassword("admin");
 
         return factory;
     }

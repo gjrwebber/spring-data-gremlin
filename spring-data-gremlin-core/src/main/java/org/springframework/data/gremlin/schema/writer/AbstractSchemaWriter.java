@@ -3,10 +3,13 @@ package org.springframework.data.gremlin.schema.writer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.GremlinSchema;
-import org.springframework.data.gremlin.schema.property.*;
+import org.springframework.data.gremlin.schema.property.GremlinCollectionProperty;
+import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
+import org.springframework.data.gremlin.schema.property.GremlinProperty;
+import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 
-import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.*;
+import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.CARDINALITY;
 
 /**
  * An abstract {@link SchemaWriter} for implementing databases to extend for easy integration.
@@ -58,8 +61,8 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                         if (property instanceof GremlinLinkProperty) {
                             createEdgeClass(property.getName(), vertexClass, relatedVertex, relatedProperty.getCardinality());
 
-//                        } else if (property instanceof GremlinLinkFromProperty) {
-//                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
+                            //                        } else if (property instanceof GremlinLinkFromProperty) {
+                            //                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
 
                         } else if (property instanceof GremlinCollectionProperty) {
                             createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());

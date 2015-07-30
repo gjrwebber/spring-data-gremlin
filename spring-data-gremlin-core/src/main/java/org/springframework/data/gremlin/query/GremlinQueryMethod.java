@@ -1,9 +1,9 @@
 package org.springframework.data.gremlin.query;
 
 import org.springframework.core.annotation.AnnotationUtils;
+import org.springframework.data.gremlin.annotation.Query;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
-import org.springframework.data.gremlin.annotation.Query;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;

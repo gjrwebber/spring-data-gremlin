@@ -16,7 +16,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 

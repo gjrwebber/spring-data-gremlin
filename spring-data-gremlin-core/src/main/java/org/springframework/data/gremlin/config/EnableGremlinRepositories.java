@@ -2,8 +2,8 @@ package org.springframework.data.gremlin.config;
 
 import org.springframework.context.annotation.ComponentScan.Filter;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import org.springframework.data.gremlin.support.GremlinRepositoryFactoryBean;
+import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 
 import java.lang.annotation.*;
 

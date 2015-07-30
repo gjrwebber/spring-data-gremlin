@@ -7,7 +7,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.gremlin.object.domain.Location;
 import org.springframework.data.gremlin.query.CompositeResult;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 

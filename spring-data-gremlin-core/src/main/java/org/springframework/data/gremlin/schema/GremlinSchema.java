@@ -153,7 +153,6 @@ public class GremlinSchema<V> {
     public boolean isWritable() { return schemaType == GremlinSchema.SCHEMA_TYPE.ENTITY;}
 
 
-
     public void copyToVertex(GremlinGraphAdapter graphAdapter, Vertex vertex, Object obj) {
         cascadeCopyToVertex(graphAdapter, vertex, obj, new HashSet<GremlinSchema>());
     }

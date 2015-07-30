@@ -42,16 +42,16 @@ public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinL
                 // No linked vertex yet, create it
                 linkedVertex = graphAdapter.createVertex(property.getRelatedSchema());
             }
-            if(direction == Direction.OUT) {
+            if (direction == Direction.OUT) {
                 graphAdapter.addEdge(null, vertex, linkedVertex, property.getName());
             } else {
                 graphAdapter.addEdge(null, linkedVertex, vertex, property.getName());
             }
         }
 
-            // Updates or saves the val into the linkedVertex
-            cascadingSchemas.add(property.getSchema());
-            property.getRelatedSchema().cascadeCopyToVertex(graphAdapter, linkedVertex, val, cascadingSchemas, property.getSchema());
+        // Updates or saves the val into the linkedVertex
+        cascadingSchemas.add(property.getSchema());
+        property.getRelatedSchema().cascadeCopyToVertex(graphAdapter, linkedVertex, val, cascadingSchemas, property.getSchema());
     }
 
     @Override

@@ -30,8 +30,8 @@ public class GremlinPropertyFactory {
         return new GremlinCollectionProperty<V>(cls, name);
     }
 
-//    public <V> GremlinProperty<V> getCollectionInProperty(Class<V> cls, String name) {
-//        return new GremlinCollectionProperty<V>(cls, name, new GremlinCollectionInPropertyMapper());
-//    }
+    //    public <V> GremlinProperty<V> getCollectionInProperty(Class<V> cls, String name) {
+    //        return new GremlinCollectionProperty<V>(cls, name, new GremlinCollectionInPropertyMapper());
+    //    }
 
 }

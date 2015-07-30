@@ -3,7 +3,6 @@ package org.springframework.data.gremlin.object.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.annotation.Query;
-import org.springframework.data.gremlin.object.domain.Location;
 import org.springframework.data.gremlin.object.domain.Person;
 import org.springframework.data.gremlin.repository.GremlinRepositoryWithNativeSupport;
 

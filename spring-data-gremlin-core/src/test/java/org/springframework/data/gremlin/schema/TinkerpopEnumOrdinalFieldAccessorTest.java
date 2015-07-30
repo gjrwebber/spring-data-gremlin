@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinEnumOrdinalFieldPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Created by gman on 18/05/15.
@@ -51,6 +51,7 @@ public class TinkerpopEnumOrdinalFieldAccessorTest {
             ONE,
             TWO
         }
+
         TEST test = TEST.ONE;
     }
 

@@ -139,7 +139,7 @@ public class OrientDbSchemaWriterTest {
         writer.writeSchema(dbf, schema);
         verify(oSchema).getOrCreateClass("ClassName", v);
         verify(oSchema).getOrCreateClass("link", e);
-//        verify(oSchema).getOrCreateClass("other", e);
+        //        verify(oSchema).getOrCreateClass("other", e);
         verify(outClazz).createProperty("out", OType.LINK);
         verify(outClazz).createProperty("in", OType.LINK);
         verify(outProperty).setLinkedClass(clazz);

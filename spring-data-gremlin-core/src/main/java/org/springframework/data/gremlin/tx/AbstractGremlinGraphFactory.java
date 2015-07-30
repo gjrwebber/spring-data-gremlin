@@ -7,8 +7,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import javax.annotation.PostConstruct;
 
-import static org.springframework.util.Assert.notNull;
-
 /**
  * An abstract factory for creating {@link Graph} objects for concrete implementations.
  *

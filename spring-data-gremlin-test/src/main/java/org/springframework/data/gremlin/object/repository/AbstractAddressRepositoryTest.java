@@ -4,17 +4,13 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.gremlin.object.domain.Address;
-import org.springframework.data.gremlin.object.domain.Location;
-import org.springframework.data.gremlin.query.CompositeResult;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class AbstractAddressRepositoryTest extends BaseRepositoryTest {

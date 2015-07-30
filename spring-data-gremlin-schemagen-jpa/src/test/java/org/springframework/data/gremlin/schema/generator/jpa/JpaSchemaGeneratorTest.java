@@ -3,13 +3,15 @@ package org.springframework.data.gremlin.schema.generator.jpa;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.gremlin.annotation.Index;
-import org.springframework.data.gremlin.schema.*;
+import org.springframework.data.gremlin.schema.EmbeddedTestEntity;
+import org.springframework.data.gremlin.schema.GremlinSchema;
+import org.springframework.data.gremlin.schema.LinkedTestEntity;
+import org.springframework.data.gremlin.schema.TestEntity;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 
 import java.util.Collection;
 
 import static org.junit.Assert.*;
-import static org.mockito.Matchers.any;
 
 /**
  * Created by gman on 18/05/15.

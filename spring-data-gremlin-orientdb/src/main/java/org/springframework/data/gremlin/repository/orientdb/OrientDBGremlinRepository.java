@@ -1,6 +1,5 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import org.slf4j.Logger;
@@ -11,9 +10,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.SimpleGremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinSchema;
-import org.springframework.data.gremlin.schema.writer.SchemaWriter;
-import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
+import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;

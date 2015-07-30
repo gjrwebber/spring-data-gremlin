@@ -1,11 +1,8 @@
 package org.springframework.data.gremlin.schema.property;
 
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
-import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.annotation.Index.IndexType;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
-import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;

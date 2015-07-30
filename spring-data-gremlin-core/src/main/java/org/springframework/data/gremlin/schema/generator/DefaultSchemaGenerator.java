@@ -142,11 +142,11 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
                     }
                 } else if (isCollectionField(cls, field)) {
                     cls = getCollectionType(field);
-//                    if (isLinkOutward(cls, field)) {
-                        property = propertyFactory.getCollectionProperty(cls, name);
-//                    } else {
-//                        property = propertyFactory.getCollectionInProperty(cls, name);
-//                    }
+                    //                    if (isLinkOutward(cls, field)) {
+                    property = propertyFactory.getCollectionProperty(cls, name);
+                    //                    } else {
+                    //                        property = propertyFactory.getCollectionInProperty(cls, name);
+                    //                    }
                 } else if (isEmbeddedField(cls, field)) {
                     populate(cls, schema, (GremlinFieldPropertyAccessor) accessor);
 
@@ -298,7 +298,8 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean acceptType(Class<?> cls) {
-        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || entities.contains(cls) ||
+        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || entities.contains(
+                cls) ||
                embedded.contains(cls);
     }
 

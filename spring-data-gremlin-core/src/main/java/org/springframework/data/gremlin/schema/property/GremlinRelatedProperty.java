@@ -1,6 +1,5 @@
 package org.springframework.data.gremlin.schema.property;
 
-import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinBeanPostProcessor;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;
