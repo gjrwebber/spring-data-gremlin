@@ -37,9 +37,12 @@ public class NativeOrientdbGremlinQuery extends AbstractNativeGremlinQuery {
         String queryString = query;
         for (Object obj : parameters) {
             Parameter param = (Parameter) obj;
+            Object val = values[param.getIndex()];
+            if (val == null || val instanceof Pageable) {
+                continue;
+            }
             String paramName = param.getName();
             String placeholder = param.getPlaceholder();
-            Object val = values[param.getIndex()];
             if (paramName == null) {
                 paramName = "placeholder_" + param.getIndex();
                 queryString = queryString.replaceFirst("\\?", paramName);
@@ -63,8 +66,13 @@ public class NativeOrientdbGremlinQuery extends AbstractNativeGremlinQuery {
             queryString = String.format("%s SKIP %d LIMIT %d", queryString, pageable.getOffset(), pageable.getPageSize());
         }
 
-        Object result = orientGraphFactory.graph().command(new OCommandSQL(queryString)).execute(params);
-        return result;
+        try {
+            Object result = orientGraphFactory.graph().command(new OCommandSQL(queryString)).execute(params);
+            return result;
+        } catch (RuntimeException e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
     private static SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
