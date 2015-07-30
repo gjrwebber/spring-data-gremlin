@@ -16,7 +16,7 @@ public interface NativePersonRepository extends GremlinRepositoryWithNativeSuppo
     Integer deleteAllExceptUser(String firstName);
 
 
-    @Query(value = "SELECT expand(in('located_at')) FROM (SELECT FROM Location WHERE [latitude,longitude,$spatial] NEAR [?,?,{\"maxDistance\":?}])", nativeQuery = true)
+    @Query(value = "SELECT expand(out('located_at')) FROM (SELECT FROM Location WHERE [latitude,longitude,$spatial] NEAR [?,?,{\"maxDistance\":?}])", nativeQuery = true)
     Page<Person> findNear(double latitude, double longitude, double radius, Pageable pageable);
 
 }

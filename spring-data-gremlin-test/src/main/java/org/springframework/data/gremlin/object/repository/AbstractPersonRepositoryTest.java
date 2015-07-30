@@ -349,6 +349,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         assertEquals(5, graham.getLocations().size());
 
         Location location = new Location(-60, 120);
+        locationRepository.save(location);
         graham.getLocations().add(location);
         repository.save(graham);
 
@@ -382,4 +383,17 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         assertEquals(4, locations.size());
     }
 
+
+    @Test
+    public void testEnum() {
+        Person graham = repository.findByFirstName("Graham").get(0);
+
+        assertEquals(Person.AWESOME.YES, graham.getAwesome());
+
+        graham.setAwesome(Person.AWESOME.NO);
+        repository.save(graham);
+
+        graham = repository.findByFirstName("Graham").get(0);
+        assertEquals(Person.AWESOME.NO, graham.getAwesome());
+    }
 }

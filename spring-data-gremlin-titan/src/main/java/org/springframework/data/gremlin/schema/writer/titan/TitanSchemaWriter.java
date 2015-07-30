@@ -7,12 +7,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
+import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.schema.writer.AbstractSchemaWriter;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.schema.writer.SchemaWriterException;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.tx.titan.TitanGremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.*;
 
 /**
  * A concrete {@link SchemaWriter} for an OrientDB database.

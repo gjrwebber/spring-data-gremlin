@@ -6,6 +6,10 @@ import java.util.Set;
 @Entity
 public class Person {
 
+    public enum AWESOME {
+        YES, NO;
+    }
+
     @Id
     private String id;
 
@@ -13,7 +17,7 @@ public class Person {
 
     private String lastName;
 
-    @OneToOne
+    @ManyToOne
     @Column(name = "lives_at")
     private Address address;
 
@@ -22,6 +26,9 @@ public class Person {
     private Set<Location> locations;
 
     private Boolean active;
+
+    @Enumerated(EnumType.STRING)
+    private AWESOME awesome = AWESOME.YES;
 
     public Person() {
     }
@@ -36,6 +43,7 @@ public class Person {
         this.lastName = lastName;
         this.address = address;
         this.active = active;
+        address.getPeople().add(this);
     }
 
     public String getId() {
@@ -84,5 +92,13 @@ public class Person {
 
     public void setLocations(Set<Location> locations) {
         this.locations = locations;
+    }
+
+    public AWESOME getAwesome() {
+        return awesome;
+    }
+
+    public void setAwesome(AWESOME awesome) {
+        this.awesome = awesome;
     }
 }

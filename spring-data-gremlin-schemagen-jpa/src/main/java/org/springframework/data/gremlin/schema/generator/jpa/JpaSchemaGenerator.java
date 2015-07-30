@@ -8,6 +8,7 @@ import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.generator.AnnotatedSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGeneratorException;
+import org.springframework.data.gremlin.schema.property.GremlinPropertyFactory;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -66,7 +67,7 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
     }
 
     public JpaSchemaGenerator(GremlinPropertyEncoder idEncoder) {
-        super(idEncoder);
+        super(idEncoder, new JpaGremlinPropertyFactory());
     }
 
     /**
@@ -214,12 +215,37 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
         return null;
     }
 
-    protected boolean isOneToOneField(Class<?> cls, Field field) {
+    protected boolean isLinkField(Class<?> cls, Field field) {
         return isEntityClass(cls) && (AnnotationUtils.getAnnotation(field, OneToOne.class) != null || AnnotationUtils.getAnnotation(field, ManyToOne.class) != null);
     }
 
-    protected boolean isOneToManyField(Class<?> cls, Field field) {
-        return super.isOneToManyField(cls, field) && AnnotationUtils.getAnnotation(field, OneToMany.class) != null;
+    @Override
+    protected boolean isLinkOutward(Class<?> cls, Field field) {
+        OneToOne oneToOne = AnnotationUtils.getAnnotation(field, OneToOne.class);
+        //        if (oneToOne == null) {
+        //            throw new IllegalStateException("Expected @OneToOne, but was null!");
+        //        }
+        if (oneToOne != null) {
+            return oneToOne.mappedBy().length() == 0;
+        }
+
+
+        ManyToOne manyToOne = AnnotationUtils.getAnnotation(field, ManyToOne.class);
+        if (manyToOne != null) {
+            return true;
+        }
+
+        OneToMany oneToMany = AnnotationUtils.getAnnotation(field, OneToMany.class);
+        if (oneToMany != null) {
+            return false;
+        }
+
+        return true;
+
+    }
+
+    protected boolean isCollectionField(Class<?> cls, Field field) {
+        return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, OneToMany.class) != null;
     }
 
     protected boolean isEmbeddedField(Class<?> cls, Field field) {

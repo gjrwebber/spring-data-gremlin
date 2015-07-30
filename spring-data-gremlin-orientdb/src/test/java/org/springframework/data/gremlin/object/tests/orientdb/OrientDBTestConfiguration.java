@@ -33,7 +33,7 @@ public class OrientDBTestConfiguration {
         factory.setUrl("memory:spring-data-orientdb-db");
         factory.setUsername("admin");
         factory.setPassword("admin");
-//        factory.setUrl("remote:/Users/gman/Documents/Work/Tools/orientdb-src/distribution/target/orientdb-community-2.0.9-SNAPSHOT-distribution.dir/orientdb-community-2.0.9-SNAPSHOT/databases/orientdb-test");
+//        factory.setUrl("remote:/Users/gman/Documents/Work/Tools/orientdb-src/distribution/target/orientdb-community-2.0.9-SNAPSHOT-distribution.dir/orientdb-community-2.0.9-SNAPSHOT/databases/aaa");
 
         return factory;
     }

@@ -75,6 +75,10 @@ public class NativeOrientdbGremlinQuery extends AbstractNativeGremlinQuery {
             return "'" + formatter.format(val) + "'";
         } else if (val instanceof String) {
             return "'" + val + "'";
+        } else if (val instanceof Double) {
+            return val + "d";
+        } else if (val instanceof Float) {
+            return val + "f";
         } else {
             return val.toString();
         }

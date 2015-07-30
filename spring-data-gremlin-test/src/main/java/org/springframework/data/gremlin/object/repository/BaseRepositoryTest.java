@@ -101,7 +101,7 @@ public abstract class BaseRepositoryTest {
 
         GremlinPipeline<Graph, Vertex> pipe = new GremlinPipeline<Graph, Vertex>(graph).V().or(new GremlinPipeline().has("firstName", "Jake"), new GremlinPipeline().has("firstName", "Graham"));
 
-        assertTrue("Nothing in Pipe!", pipe.hasNext());
+        assertTrue("No Jake or Graham in Pipe!", pipe.hasNext());
         for (Vertex obj : pipe) {
             assertNotNull(obj);
             assertTrue(obj.getProperty("firstName").equals("Graham") || obj.getProperty("firstName").equals("Jake"));
@@ -110,7 +110,7 @@ public abstract class BaseRepositoryTest {
 
         GremlinPipeline<Object, ? extends Element> linkedPipe = new GremlinPipeline<Object, Element>(graph).V().outE("lives_at").inV().has("city", "Newcastle");
 
-        assertTrue("Nothing in Pipe!", linkedPipe.hasNext());
+        assertTrue("No lives_at in Pipe!", linkedPipe.hasNext());
         for (Element obj : linkedPipe) {
             assertNotNull(obj);
             assertTrue(obj.getProperty("city").equals("Newcastle"));

@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
+import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
@@ -62,6 +63,7 @@ public class GremlinSchema<V> {
         properties.add(property);
         propertyMap.put(property.getName(), property);
         fieldToPropertyMap.put(property.getAccessor().getField().getName(), property);
+        property.setSchema(this);
     }
 
     public GremlinProperty getPropertyForFieldname(String fieldname) {
@@ -153,7 +155,22 @@ public class GremlinSchema<V> {
 
 
     public void copyToVertex(GremlinGraphAdapter graphAdapter, Vertex vertex, Object obj) {
+        cascadeCopyToVertex(graphAdapter, vertex, obj, new HashSet<GremlinSchema>());
+    }
+
+    public void cascadeCopyToVertex(GremlinGraphAdapter graphAdapter, Vertex vertex, Object obj, Set<GremlinSchema> cascadingSchemas, GremlinSchema cascadingFromSchema) {
+        cascadingSchemas.add(cascadingFromSchema);
+        cascadeCopyToVertex(graphAdapter, vertex, obj, cascadingSchemas);
+
+    }
+
+    private void cascadeCopyToVertex(GremlinGraphAdapter graphAdapter, Vertex vertex, Object obj, Set<GremlinSchema> cascadingSchemas) {
+
         for (GremlinProperty property : getProperties()) {
+
+            if (ifAlreadyCascaded(property, cascadingSchemas)) {
+                continue;
+            }
 
             try {
 
@@ -161,7 +178,7 @@ public class GremlinSchema<V> {
                 Object val = accessor.get(obj);
 
                 if (val != null) {
-                    property.copyToVertex(graphAdapter, vertex, val);
+                    property.copyToVertex(graphAdapter, vertex, val, cascadingSchemas);
                 }
             } catch (RuntimeException e) {
                 LOGGER.warn(String.format("Could not save property %s of %s", property, obj.toString()), e);
@@ -170,6 +187,15 @@ public class GremlinSchema<V> {
     }
 
     public V loadFromVertex(Vertex vertex) {
+        return cascadeLoadFromVertex(vertex, new HashSet<GremlinSchema>());
+    }
+
+    public V cascadeLoadFromVertex(Vertex vertex, Set<GremlinSchema> cascadingSchemas, GremlinSchema cascadingFromSchema) {
+        cascadingSchemas.add(cascadingFromSchema);
+        return cascadeLoadFromVertex(vertex, cascadingSchemas);
+    }
+
+    public V cascadeLoadFromVertex(Vertex vertex, Set<GremlinSchema> cascadingSchemas) {
 
         V obj;
         try {
@@ -182,8 +208,12 @@ public class GremlinSchema<V> {
         }
         for (GremlinProperty property : getProperties()) {
 
+            if (ifAlreadyCascaded(property, cascadingSchemas)) {
+                continue;
+            }
+
             try {
-                Object val = property.loadFromVertex(vertex);
+                Object val = property.loadFromVertex(vertex, cascadingSchemas);
                 GremlinPropertyAccessor accessor = property.getAccessor();
                 accessor.set(obj, val);
             } catch (Exception e) {
@@ -191,6 +221,10 @@ public class GremlinSchema<V> {
             }
         }
         return obj;
+    }
+
+    private boolean ifAlreadyCascaded(GremlinProperty property, Set<GremlinSchema> cascadingSchemas) {
+        return property instanceof GremlinRelatedProperty && cascadingSchemas.contains(((GremlinRelatedProperty) property).getRelatedSchema());
     }
 
     public String getVertexId(Object obj) {

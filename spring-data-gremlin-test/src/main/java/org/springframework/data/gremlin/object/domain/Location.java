@@ -4,6 +4,7 @@ import org.springframework.data.gremlin.annotation.Index;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.persistence.OneToOne;
 
 import static org.springframework.data.gremlin.annotation.Index.IndexType.SPATIAL_LATITUDE;
 import static org.springframework.data.gremlin.annotation.Index.IndexType.SPATIAL_LONGITUDE;

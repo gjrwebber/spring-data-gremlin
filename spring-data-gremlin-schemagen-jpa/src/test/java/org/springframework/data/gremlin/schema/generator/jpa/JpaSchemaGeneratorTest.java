@@ -4,7 +4,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.*;
-import org.springframework.data.gremlin.schema.property.GremlinOneToOneProperty;
+import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 
 import java.util.Collection;
 
@@ -43,7 +43,7 @@ public class JpaSchemaGeneratorTest {
         assertEquals(int.class, schema.getProperty("value").getType());
 
         assertTrue(propNames.contains("linkedEntity"));
-        assertTrue(schema.getProperty("linkedEntity") instanceof GremlinOneToOneProperty);
+        assertTrue(schema.getProperty("linkedEntity") instanceof GremlinLinkProperty);
         assertEquals(LinkedTestEntity.class, schema.getProperty("linkedEntity").getType());
 
         assertTrue(propNames.contains("embeddedTestEntity_embeddedBla"));

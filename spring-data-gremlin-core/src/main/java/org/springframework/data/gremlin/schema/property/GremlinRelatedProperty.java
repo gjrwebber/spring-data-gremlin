@@ -27,11 +27,19 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
         NONE
     }
 
+    public enum CARDINALITY {
+        ONE_TO_ONE,
+        ONE_TO_MANY,
+        MANY_TO_ONE
+    }
+
     private GremlinSchema<C> relatedSchema;
+    private CARDINALITY cardinality;
     private CASCADE_TYPE cascadeType;
 
-    public GremlinRelatedProperty(Class<C> cls, String name, GremlinPropertyMapper propertyMapper) {
+    public GremlinRelatedProperty(Class<C> cls, String name, GremlinPropertyMapper propertyMapper, CARDINALITY cardinality) {
         super(cls, name, propertyMapper);
+        this.cardinality = cardinality;
     }
 
     public GremlinSchema<C> getRelatedSchema() {
@@ -48,5 +56,9 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
 
     public void setCascadeType(CASCADE_TYPE cascadeType) {
         this.cascadeType = cascadeType;
+    }
+
+    public CARDINALITY getCardinality() {
+        return cardinality;
     }
 }
