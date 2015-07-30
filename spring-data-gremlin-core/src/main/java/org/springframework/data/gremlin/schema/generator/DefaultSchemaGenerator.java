@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.generator;
 
+import com.tinkerpop.blueprints.Direction;
 import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,15 +34,16 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSchemaGenerator.class);
     private Set<Class<?>> entities;
     private Set<Class<?>> embedded;
-    private GremlinPropertyFactory propertyFactory = new GremlinPropertyFactory();
+    private GremlinPropertyFactory propertyFactory;
     private GremlinPropertyEncoder idEncoder;
 
     public DefaultSchemaGenerator() {
-        this(null);
+        this(null, new GremlinPropertyFactory());
     }
 
-    public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder) {
+    public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, GremlinPropertyFactory propertyFactory) {
         this.idEncoder = idEncoder;
+        this.propertyFactory = propertyFactory;
     }
 
     /**
@@ -133,10 +135,18 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
             } else {
                 accessor = new GremlinFieldPropertyAccessor(field, embeddedFieldAccessor);
                 if (isLinkField(cls, field)) {
-                    property = propertyFactory.getLinkedProperty(cls, name);
+                    if (isLinkOutward(cls, field)) {
+                        property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
+                    } else {
+                        property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
+                    }
                 } else if (isCollectionField(cls, field)) {
                     cls = getCollectionType(field);
-                    property = propertyFactory.getCollectiondProperty(cls, name);
+//                    if (isLinkOutward(cls, field)) {
+                        property = propertyFactory.getCollectionProperty(cls, name);
+//                    } else {
+//                        property = propertyFactory.getCollectionInProperty(cls, name);
+//                    }
                 } else if (isEmbeddedField(cls, field)) {
                     populate(cls, schema, (GremlinFieldPropertyAccessor) accessor);
 
@@ -240,6 +250,10 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         return entities.contains(cls);
     }
 
+    protected boolean isLinkOutward(Class<?> cls, Field field) {
+        return true;
+    }
+
     protected boolean isCollectionField(Class<?> cls, Field field) {
         return Collection.class.isAssignableFrom(cls) && entities.contains(getCollectionType(field));
     }
@@ -262,7 +276,7 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
      * @param cls
      * @return
      */
-    protected boolean isLinkClass(Class<?> cls) {
+    protected boolean isEntityClass(Class<?> cls) {
         if (entities == null) {
             LOGGER.warn("Entities is null, this is unusual and is possibly an error. Please add the entity classes to the concrete SchemaBuilder.");
             return false;
@@ -284,7 +298,8 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean acceptType(Class<?> cls) {
-        return cls == Enum.class || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || entities.contains(cls) || embedded.contains(cls);
+        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || entities.contains(cls) ||
+               embedded.contains(cls);
     }
 
     @Override

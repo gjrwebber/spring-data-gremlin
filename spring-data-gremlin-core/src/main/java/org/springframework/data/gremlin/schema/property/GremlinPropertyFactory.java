@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.property;
 
+import com.tinkerpop.blueprints.Direction;
 import org.springframework.data.gremlin.annotation.Index;
 
 /**
@@ -21,12 +22,16 @@ public class GremlinPropertyFactory {
         return getIndexedProperty(cls, name, Index.IndexType.UNIQUE, null);
     }
 
-    public <V> GremlinProperty<V> getLinkedProperty(Class<V> cls, String name) {
-        return new GremlinLinkProperty<V>(cls, name);
+    public <V> GremlinProperty<V> getLinkProperty(Class<V> cls, String name, Direction direction) {
+        return new GremlinLinkProperty<V>(cls, name, direction);
     }
 
-    public <V> GremlinProperty<V> getCollectiondProperty(Class<V> cls, String name) {
+    public <V> GremlinProperty<V> getCollectionProperty(Class<V> cls, String name) {
         return new GremlinCollectionProperty<V>(cls, name);
     }
+
+//    public <V> GremlinProperty<V> getCollectionInProperty(Class<V> cls, String name) {
+//        return new GremlinCollectionProperty<V>(cls, name, new GremlinCollectionInPropertyMapper());
+//    }
 
 }

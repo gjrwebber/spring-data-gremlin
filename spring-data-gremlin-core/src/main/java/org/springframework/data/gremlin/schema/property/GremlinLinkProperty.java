@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.property;
 
+import com.tinkerpop.blueprints.Direction;
 import org.springframework.data.gremlin.schema.property.mapper.GremlinLinkPropertyMapper;
 
 /**
@@ -9,7 +10,7 @@ import org.springframework.data.gremlin.schema.property.mapper.GremlinLinkProper
  */
 public class GremlinLinkProperty<C> extends GremlinRelatedProperty<C> {
 
-    public GremlinLinkProperty(Class<C> cls, String name) {
-        super(cls, name, new GremlinLinkPropertyMapper());
+    public GremlinLinkProperty(Class<C> cls, String name, Direction direction) {
+        super(cls, name, new GremlinLinkPropertyMapper(direction), CARDINALITY.ONE_TO_ONE);
     }
 }
