@@ -35,6 +35,8 @@ public interface GremlinGraphFactory<T extends Graph> {
 
     T openGraph();
 
+    void shutdown(T graph);
+
     String getUrl();
 
     void setUrl(String url);
@@ -54,4 +56,5 @@ public interface GremlinGraphFactory<T extends Graph> {
     int getMaxPoolSize();
 
     void setMaxPoolSize(int maxPoolSize);
+
 }

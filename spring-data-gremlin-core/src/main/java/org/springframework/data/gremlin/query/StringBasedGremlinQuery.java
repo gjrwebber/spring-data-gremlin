@@ -4,11 +4,11 @@ import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import com.tinkerpop.pipes.util.Pipeline;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
+import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.repository.query.DefaultParameters;
 import org.springframework.data.repository.query.Parameter;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
-import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
-import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -68,7 +68,7 @@ public class StringBasedGremlinQuery extends AbstractGremlinQuery {
         ParametersParameterAccessor accessor = new ParametersParameterAccessor(parameters, values);
         Pageable pageable = accessor.getPageable();
         if (pageable != null && !ignorePaging) {
-            queryString = String.format("%s[%d..%d]", queryString, pageable.previousOrFirst().getOffset(), pageable.getOffset() - 1);
+            queryString = String.format("%s[%d..%d]", queryString, pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
         }
 
         try {

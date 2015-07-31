@@ -1,9 +1,8 @@
 package org.springframework.data.gremlin.object.domain;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToOne;
+import javax.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Address {
@@ -20,6 +19,10 @@ public class Address {
     @OneToOne
     @Column(name = "of_area")
     private Area area;
+
+    @OneToMany(mappedBy = "address")
+    @Column(name = "lives_at")
+    private Set<Person> people;
 
     public Address() {}
 
@@ -68,5 +71,16 @@ public class Address {
 
     public void setArea(Area area) {
         this.area = area;
+    }
+
+    public Set<Person> getPeople() {
+        if (people == null) {
+            people = new HashSet<Person>();
+        }
+        return people;
+    }
+
+    public void setPeople(Set<Person> people) {
+        this.people = people;
     }
 }

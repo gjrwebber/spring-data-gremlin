@@ -9,5 +9,6 @@ import java.lang.annotation.Annotation;
  */
 public interface AnnotatedSchemaGenerator extends SchemaGenerator {
     Class<? extends Annotation> getEntityAnnotationType();
+
     Class<? extends Annotation> getEmbeddedAnnotationType();
 }

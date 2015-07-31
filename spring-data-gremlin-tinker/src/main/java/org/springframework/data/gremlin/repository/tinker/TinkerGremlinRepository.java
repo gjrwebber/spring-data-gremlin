@@ -1,8 +1,6 @@
 package org.springframework.data.gremlin.repository.tinker;
 
-import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -59,16 +57,16 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     @Override
     public Page<T> findAll(Pageable pageable) {
         List<T> result = new ArrayList<T>();
-        int count = 0;
-        int prevOffset = pageable.previousOrFirst().getOffset();
-        int offset = pageable.getOffset();
+        int total = 0;
+        int prevOffset = pageable.getOffset();
+        int offset = pageable.getOffset() + pageable.getPageSize();
         for (Vertex vertex : getVertices()) {
-            if (count >= prevOffset && count < offset) {
+            if (total >= prevOffset && total < offset) {
                 result.add(schema.loadFromVertex(vertex));
-                count++;
             }
+            total++;
         }
-        return new PageImpl<T>(result, pageable, count);
+        return new PageImpl<T>(result, pageable, total);
     }
 
     @Override

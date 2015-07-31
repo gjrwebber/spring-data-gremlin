@@ -9,6 +9,8 @@ import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 
+import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.CARDINALITY;
+
 /**
  * An abstract {@link SchemaWriter} for implementing databases to extend for easy integration.
  *
@@ -17,11 +19,6 @@ import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 public abstract class AbstractSchemaWriter implements SchemaWriter {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AbstractSchemaWriter.class);
-
-    public enum CARDINALITY {
-        ONE_TO_ONE,
-        ONE_TO_MANY
-    }
 
     @Override
     public void writeSchema(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
@@ -55,15 +52,21 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                 // If prop is null, it does not exist, so let's create it
                 if (!isPropertyAvailable(vertexClass, property.getName())) {
 
-                    // If this property is a LINK
-                    if (property instanceof GremlinLinkProperty) {
+                    if (property instanceof GremlinRelatedProperty) {
 
-                        createEdge((GremlinRelatedProperty) property, vertexClass, CARDINALITY.ONE_TO_ONE);
-                        break;
+                        GremlinRelatedProperty relatedProperty = (GremlinRelatedProperty) property;
+                        Object relatedVertex = createVertexClass(relatedProperty.getRelatedSchema());
 
-                    } else if (property instanceof GremlinCollectionProperty) {
-                        createEdge((GremlinRelatedProperty) property, vertexClass, CARDINALITY.ONE_TO_MANY);
-                        break;
+                        // If this property is a LINK
+                        if (property instanceof GremlinLinkProperty) {
+                            createEdgeClass(property.getName(), vertexClass, relatedVertex, relatedProperty.getCardinality());
+
+                            //                        } else if (property instanceof GremlinLinkFromProperty) {
+                            //                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
+
+                        } else if (property instanceof GremlinCollectionProperty) {
+                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
+                        }
 
                     } else {
                         // Standard property, primitive, String, Enum, byte[]
@@ -96,14 +99,6 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
         }
     }
 
-
-    private Object createEdge(GremlinRelatedProperty property, Object fromVertex, CARDINALITY cardinality) throws Exception {
-
-        Object toVertex = createVertexClass(property.getRelatedSchema());
-        Object edgeClass = createEdgeClass(property.getName(), fromVertex, toVertex, cardinality);
-
-        return edgeClass;
-    }
 
     protected abstract boolean isPropertyAvailable(Object vertexClass, String name);
 

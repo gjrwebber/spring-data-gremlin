@@ -1,6 +1,5 @@
 package org.springframework.data.gremlin.schema.writer.orientdb;
 
-import com.orientechnologies.orient.core.exception.OSchemaException;
 import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
@@ -9,16 +8,15 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.tinkerpop.blueprints.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.gremlin.schema.*;
-import org.springframework.data.gremlin.schema.property.GremlinCollectionProperty;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
+import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
-import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.schema.writer.AbstractSchemaWriter;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.schema.writer.SchemaWriterException;
-import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
+import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
+
+import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.CARDINALITY;
 
 /**
  * A concrete {@link SchemaWriter} for an OrientDB database.
@@ -78,10 +76,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
 
     @Override
     protected Object createVertexClass(GremlinSchema schema) throws Exception {
-
-        LOGGER.info("CREATING CLASS: " + schema.getClassName());
-        OClass vClass = createClass(oSchema, v, schema.getClassName());
-        LOGGER.info("CREATED CLASS: " + schema.getClassName());
+        OClass vClass = getOrCreateClass(oSchema, v, schema.getClassName());
         return vClass;
     }
 
@@ -99,18 +94,26 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
 
     @Override
     protected Object createEdgeClass(String name, Object outVertex, Object inVertex, CARDINALITY cardinality) throws SchemaWriterException {
-        OClass edgeClass = createClass(oSchema, e, name);
+        OClass edgeClass = getOrCreateClass(oSchema, e, name);
 
-        OProperty out = edgeClass.createProperty("out", OType.LINK);
-        out.setLinkedClass((OClass) outVertex);
+        if(!edgeClass.existsProperty("out")) {
+            OProperty out = edgeClass.createProperty("out", OType.LINK);
+            out.setLinkedClass((OClass) outVertex);
 
-        OProperty in = edgeClass.createProperty("in", OType.LINK);
-        in.setLinkedClass((OClass) inVertex);
+            out.setMax("1");
+            if (cardinality == CARDINALITY.ONE_TO_MANY) {
+                out.setMax(String.valueOf(Integer.MAX_VALUE));
+            }
+        }
 
-        in.setMax("1");
-        out.setMax("1");
-        if (cardinality == CARDINALITY.ONE_TO_MANY) {
-            in.setMax(String.valueOf(Integer.MAX_VALUE));
+        if(!edgeClass.existsProperty("in")) {
+            OProperty in = edgeClass.createProperty("in", OType.LINK);
+            in.setLinkedClass((OClass) inVertex);
+
+            in.setMax("1");
+            if (cardinality == CARDINALITY.MANY_TO_ONE) {
+                in.setMax(String.valueOf(Integer.MAX_VALUE));
+            }
         }
 
         return edgeClass;
@@ -171,7 +174,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         }
     }
 
-    private OClass createClass(OSchema oSchema, OClass superclass, String classname) throws SchemaWriterException {
+    private OClass getOrCreateClass(OSchema oSchema, OClass superclass, String classname) throws SchemaWriterException {
         OClass newClass = oSchema.getOrCreateClass(classname, superclass);
         if (!newClass.getSuperClass().getName().equals(superclass.getName())) {
             String msg = String.format("Could not create %s '%s' of type %s. A conflicting %s exists of type %s", getClassType(superclass), classname, superclass.getName(), getClassType(superclass),
@@ -184,94 +187,94 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     private String getClassType(OClass type) {
         return (type.getName().equals("E")) ? "property" : "class";
     }
-
-    private void writeProperties(OrientDBGremlinGraphFactory dbf, OSchema oSchema, OClass vClass, OClass v, OClass e, GremlinSchema<?> schema) throws SchemaWriterException {
-        GremlinProperty latitude = null;
-        GremlinProperty longitude = null;
-        for (GremlinProperty property : schema.getProperties()) {
-
-            Class<?> cls = property.getType();
-
-            try {
-                OProperty prop = vClass.getProperty(property.getName());
-
-                // If prop is null, it does not exist, so let's create it
-                if (prop == null) {
-
-                    // If this property is a LINK
-                    if (property instanceof GremlinLinkProperty) {
-
-                        OClass eClass = createClass(oSchema, e, property.getName());
-
-                        if (eClass.getProperty("out") == null) {
-                            OProperty out = eClass.createProperty("out", OType.LINK);
-                            out.setLinkedClass(vClass);
-                        }
-                        if (eClass.getProperty("in") == null) {
-                            OProperty in = eClass.createProperty("in", OType.LINK);
-                            OClass linkedClass = createClass(oSchema, v, ((GremlinRelatedProperty) property).getRelatedSchema().getClassName());
-                            in.setLinkedClass(linkedClass);
-                        }
-
-                        break;
-
-                    } else if (property instanceof GremlinCollectionProperty) {
-
-                        OClass edgeClass = createClass(oSchema, e, property.getName());
-
-                        if (edgeClass.getProperty("out") == null) {
-                            OProperty out = edgeClass.createProperty("out", OType.LINK);
-                            out.setLinkedClass(vClass);
-                        }
-                        if (edgeClass.getProperty("in") == null) {
-                            OProperty in = edgeClass.createProperty("in", OType.LINK);
-                            OClass linkedClass = createClass(oSchema, v, ((GremlinRelatedProperty) property).getRelatedSchema().getClassName());
-                            in.setLinkedClass(linkedClass);
-                        }
-
-                        break;
-
-                    } else {
-                        // Standard property, primitive, String, Enum, byte[]
-                        OType oType = OType.getTypeByClass(cls);
-                        if (oType != null) {
-
-                            prop = vClass.createProperty(property.getName(), oType);
-                            switch (property.getIndex()) {
-                            case UNIQUE:
-                                prop.createIndex(OClass.INDEX_TYPE.UNIQUE);
-                                break;
-                            case NON_UNIQUE:
-                                prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
-                                break;
-                            case SPATIAL_LATITUDE:
-                                latitude = property;
-                                break;
-
-                            case SPATIAL_LONGITUDE:
-                                longitude = property;
-                                break;
-                            }
-                        }
-                    }
-                }
-            } catch (OSchemaException e1) {
-                LOGGER.warn(String.format("Could not create property %s of type %s", property, cls), e1);
-            }
-        }
-
-        if (latitude != null && longitude != null) {
-            String indexName = schema.getClassName() + ".lat_lon";
-            if (dbf.graphNoTx().getIndex(indexName, Vertex.class) == null) {
-                try {
-                    dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(),
-                                                                          longitude.getName()))).execute();
-                } catch (Exception e1) {
-                    e1.printStackTrace();
-                }
-
-            }
-        }
-    }
+    //
+    //    private void writeProperties(OrientDBGremlinGraphFactory dbf, OSchema oSchema, OClass vClass, OClass v, OClass e, GremlinSchema<?> schema) throws SchemaWriterException {
+    //        GremlinProperty latitude = null;
+    //        GremlinProperty longitude = null;
+    //        for (GremlinProperty property : schema.getProperties()) {
+    //
+    //            Class<?> cls = property.getType();
+    //
+    //            try {
+    //                OProperty prop = vClass.getProperty(property.getName());
+    //
+    //                // If prop is null, it does not exist, so let's create it
+    //                if (prop == null) {
+    //
+    //                    // If this property is a LINK
+    //                    if (property instanceof GremlinLinkProperty) {
+    //
+    //                        OClass eClass = getOrCreateClass(oSchema, e, property.getName());
+    //
+    //                        if (eClass.getProperty("out") == null) {
+    //                            OProperty out = eClass.createProperty("out", OType.LINK);
+    //                            out.setLinkedClass(vClass);
+    //                        }
+    //                        if (eClass.getProperty("in") == null) {
+    //                            OProperty in = eClass.createProperty("in", OType.LINK);
+    //                            OClass linkedClass = getOrCreateClass(oSchema, v, ((GremlinRelatedProperty) property).getRelatedSchema().getClassName());
+    //                            in.setLinkedClass(linkedClass);
+    //                        }
+    //
+    //                        break;
+    //
+    //                    } else if (property instanceof GremlinCollectionProperty) {
+    //
+    //                        OClass edgeClass = getOrCreateClass(oSchema, e, property.getName());
+    //
+    //                        if (edgeClass.getProperty("out") == null) {
+    //                            OProperty out = edgeClass.createProperty("out", OType.LINK);
+    //                            out.setLinkedClass(vClass);
+    //                        }
+    //                        if (edgeClass.getProperty("in") == null) {
+    //                            OProperty in = edgeClass.createProperty("in", OType.LINK);
+    //                            OClass linkedClass = getOrCreateClass(oSchema, v, ((GremlinRelatedProperty) property).getRelatedSchema().getClassName());
+    //                            in.setLinkedClass(linkedClass);
+    //                        }
+    //
+    //                        break;
+    //
+    //                    } else {
+    //                        // Standard property, primitive, String, Enum, byte[]
+    //                        OType oType = OType.getTypeByClass(cls);
+    //                        if (oType != null) {
+    //
+    //                            prop = vClass.createProperty(property.getName(), oType);
+    //                            switch (property.getIndex()) {
+    //                            case UNIQUE:
+    //                                prop.createIndex(OClass.INDEX_TYPE.UNIQUE);
+    //                                break;
+    //                            case NON_UNIQUE:
+    //                                prop.createIndex(OClass.INDEX_TYPE.NOTUNIQUE);
+    //                                break;
+    //                            case SPATIAL_LATITUDE:
+    //                                latitude = property;
+    //                                break;
+    //
+    //                            case SPATIAL_LONGITUDE:
+    //                                longitude = property;
+    //                                break;
+    //                            }
+    //                        }
+    //                    }
+    //                }
+    //            } catch (OSchemaException e1) {
+    //                LOGGER.warn(String.format("Could not create property %s of type %s", property, cls), e1);
+    //            }
+    //        }
+    //
+    //        if (latitude != null && longitude != null) {
+    //            String indexName = schema.getClassName() + ".lat_lon";
+    //            if (dbf.graphNoTx().getIndex(indexName, Vertex.class) == null) {
+    //                try {
+    //                    dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(),
+    //                                                                          longitude.getName()))).execute();
+    //                } catch (Exception e1) {
+    //                    e1.printStackTrace();
+    //                }
+    //
+    //            }
+    //        }
+    //    }
 
 }

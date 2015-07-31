@@ -1,7 +1,5 @@
 package org.springframework.data.gremlin.repository;
 
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -13,5 +11,4 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author Gman
  */
 @NoRepositoryBean
-public interface GremlinRepository<T> extends PagingAndSortingRepository<T, String> {
-}
+public interface GremlinRepository<T> extends PagingAndSortingRepository<T, String> { }

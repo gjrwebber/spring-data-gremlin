@@ -7,7 +7,7 @@ import java.lang.annotation.Annotation;
 
 /**
  * {@link org.springframework.context.annotation.ImportBeanDefinitionRegistrar} to enable {@link EnableGremlinRepositories} annotation.
- * 
+ *
  * @author Gman
  */
 public class GremlinRepositoryRegistrar extends RepositoryBeanDefinitionRegistrarSupport {

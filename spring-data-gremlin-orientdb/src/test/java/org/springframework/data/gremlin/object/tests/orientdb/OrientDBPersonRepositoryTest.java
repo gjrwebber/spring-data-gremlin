@@ -4,15 +4,16 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.object.domain.Person;
 import org.springframework.data.gremlin.object.repository.AbstractPersonRepositoryTest;
 import org.springframework.data.gremlin.object.repository.NativePersonRepository;
 import org.springframework.test.context.ContextConfiguration;
 
 import java.util.Iterator;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by gman on 24/06/15.
@@ -40,7 +41,7 @@ public class OrientDBPersonRepositoryTest extends AbstractPersonRepositoryTest {
 
     @Test
     public void findPeopleNear() throws Exception {
-        Page<Person> page = nativePersonRepository.findNear(-33, 151, 50, new PageRequest(1, 10));
+        Page<Person> page = nativePersonRepository.findNear(-33, 151, 50, new PageRequest(0, 10));
         Assert.assertEquals(1, page.getTotalElements());
 
         Person person = page.iterator().next();

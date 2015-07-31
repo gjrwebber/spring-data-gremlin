@@ -43,16 +43,19 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
 
     @Override
     public void commitTx(TitanGraph graph) {
-        graph.getManagementSystem().commit();
+        graph.commit();
     }
 
     @Override
     public void rollbackTx(TitanGraph graph) {
-        graph.getManagementSystem().rollback();
+        graph.rollback();
     }
 
     @Override
     public TitanGraph openGraph() {
+        if (graph == null || graph.isClosed()) {
+            createPool();
+        }
         return graph;
     }
 

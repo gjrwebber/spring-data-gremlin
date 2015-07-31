@@ -7,13 +7,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gremlin.schema.GremlinSchema;
-import org.springframework.data.gremlin.schema.property.GremlinProperty;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Created by gman on 27/06/15.
+ * Base class for creating verticies and edges on the Graph. This class can be
+ * subclassed for concrete implementations if need be.
  */
 public class GremlinGraphAdapter<G extends Graph> {
 
@@ -56,8 +55,9 @@ public class GremlinGraphAdapter<G extends Graph> {
     }
 
     @Transactional(readOnly = false)
-    public void addEdge(Object o, Vertex vertex, Vertex linkedVertex, String name) {
-        graphFactory.graph().addEdge(null, vertex, linkedVertex, name);
+    public Edge addEdge(Object o, Vertex outVertex, Vertex inVertex, String name) {
+        Edge edge = outVertex.addEdge(name, inVertex);
+        return edge;
     }
 
     @Transactional(readOnly = false)
@@ -68,46 +68,6 @@ public class GremlinGraphAdapter<G extends Graph> {
     @Transactional(readOnly = false)
     public void removeVertex(Vertex vertexToDelete) {
         graphFactory.graph().removeVertex(vertexToDelete);
-    }
-    public <V> void copyToVertex(GremlinSchema<V> schema, Vertex vertex, Object obj) {
-        for (GremlinProperty property : schema.getProperties()) {
-
-            try {
-
-                GremlinPropertyAccessor accessor = property.getAccessor();
-                Object val = accessor.get(obj);
-
-                if (val != null) {
-                    property.copyToVertex(this, vertex, val);
-                }
-            } catch (RuntimeException e) {
-                LOGGER.warn(String.format("Could not save property %s of %s", property, obj.toString()), e);
-            }
-        }
-    }
-
-    public <V> V loadFromVertex(GremlinSchema<V> schema, Vertex vertex) {
-
-        V obj;
-        try {
-            obj = schema.getClassType().newInstance();
-
-            GremlinPropertyAccessor idAccessor = schema.getIdAccessor();
-            idAccessor.set(obj, encodeId(vertex.getId().toString()));
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not instantiate new " + schema.getClassType(), e);
-        }
-        for (GremlinProperty property : schema.getProperties()) {
-
-            try {
-                Object val = property.loadFromVertex(vertex);
-                GremlinPropertyAccessor accessor = property.getAccessor();
-                accessor.set(obj, val);
-            } catch (Exception e) {
-                LOGGER.warn(String.format("Could not save property %s of %s", property, obj.toString()));
-            }
-        }
-        return obj;
     }
 
     public String encodeId(String id) {

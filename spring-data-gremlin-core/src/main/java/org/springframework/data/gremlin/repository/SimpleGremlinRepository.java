@@ -16,7 +16,6 @@ import org.springframework.transaction.support.TransactionSynchronizationAdapter
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import org.springframework.util.StringUtils;
 
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -47,7 +46,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
     @Transactional(readOnly = false)
     public Vertex create(Graph graph, final T object) {
         final Vertex vertex = graphAdapter.createVertex(graph, schema.getClassName());
-        graphAdapter.copyToVertex(schema, vertex, object);
+        schema.copyToVertex(graphAdapter, vertex, object);
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
@@ -71,7 +70,6 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
                 throw new IllegalStateException(String.format("Could not save %s with id %s, as it does not exist.", object, id));
             }
             schema.copyToVertex(graphAdapter, vertex, object);
-            return object;
         }
         return object;
     }

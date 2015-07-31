@@ -7,7 +7,8 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.gremlin.object.domain.Location;
 import org.springframework.data.gremlin.query.CompositeResult;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.Assert.*;
 
@@ -40,13 +41,13 @@ public abstract class AbstractLocationRepositoryTest extends BaseRepositoryTest 
 
     @Test
     public void should_find_locations_pageable() throws Exception {
-        Page<Location> locations = nativeLocationRepository.find(-33.0003, 151.0003, 1000, new PageRequest(1, 2));
+        Page<Location> locations = nativeLocationRepository.find(-33.0003, 151.0003, 1000, new PageRequest(0, 2));
         assertNotNull(locations);
         assertEquals(5, locations.getTotalElements());
         assertEquals(3, locations.getTotalPages());
         assertEquals(2, locations.getNumberOfElements());
 
-        locations = nativeLocationRepository.find(-33.0003, 151.0003, 1000, new PageRequest(3, 2));
+        locations = nativeLocationRepository.find(-33.0003, 151.0003, 1000, new PageRequest(2, 2));
         assertNotNull(locations);
         assertEquals(5, locations.getTotalElements());
         assertEquals(3, locations.getTotalPages());
@@ -67,7 +68,7 @@ public abstract class AbstractLocationRepositoryTest extends BaseRepositoryTest 
 
     @Test
     public void should_find_locations_with_distance_pageable() throws Exception {
-        Page<Map<String, Object>> locations = nativeLocationRepository.findNear(-33.0003, 151.0003, 0.05, new PageRequest(1, 2));
+        Page<Map<String, Object>> locations = nativeLocationRepository.findNear(-33.0003, 151.0003, 0.05, new PageRequest(0, 2));
         assertNotNull(locations);
         assertEquals(1, locations.getNumberOfElements());
         Object distance = locations.iterator().next().get("distance");
@@ -94,7 +95,7 @@ public abstract class AbstractLocationRepositoryTest extends BaseRepositoryTest 
 
     @Test
     public void should_find_composite_pageable() throws Exception {
-        Page<CompositeResult<Location>> composites = nativeLocationRepository.findComposite(-33.0003, 151.0003, 0.05, new PageRequest(1, 2));
+        Page<CompositeResult<Location>> composites = nativeLocationRepository.findComposite(-33.0003, 151.0003, 0.05, new PageRequest(0, 2));
         assertNotNull(composites);
         assertEquals(1, composites.getNumberOfElements());
         CompositeResult<Location> result = composites.iterator().next();

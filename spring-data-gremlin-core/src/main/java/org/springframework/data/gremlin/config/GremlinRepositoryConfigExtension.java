@@ -1,7 +1,7 @@
 package org.springframework.data.gremlin.config;
 
-import org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport;
 import org.springframework.data.gremlin.support.GremlinRepositoryFactoryBean;
+import org.springframework.data.repository.config.RepositoryConfigurationExtensionSupport;
 
 /**
  * {@link org.springframework.data.repository.config.RepositoryConfigurationExtension} for Gremlin.

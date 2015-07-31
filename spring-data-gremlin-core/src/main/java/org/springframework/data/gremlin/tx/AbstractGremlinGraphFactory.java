@@ -7,8 +7,6 @@ import org.springframework.transaction.support.TransactionSynchronizationManager
 
 import javax.annotation.PostConstruct;
 
-import static org.springframework.util.Assert.notNull;
-
 /**
  * An abstract factory for creating {@link Graph} objects for concrete implementations.
  *
@@ -60,6 +58,11 @@ public abstract class AbstractGremlinGraphFactory<T extends Graph> implements Gr
      * @return the &gt;T&lt; Graph
      */
     public abstract T openGraph();
+
+    @Override
+    public void shutdown(T graph) {
+        graph.shutdown();
+    }
 
     @Override
     public T graph() {

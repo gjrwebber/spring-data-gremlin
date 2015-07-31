@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaProxy;
 import com.orientechnologies.orient.core.metadata.schema.OType;
+import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.impls.orient.OrientEdgeType;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
@@ -112,7 +113,7 @@ public class OrientDbSchemaWriterTest {
         GremlinSchema schema = Mockito.mock(GremlinSchema.class);
         when(schema.getClassName()).thenReturn("ClassName");
 
-        GremlinLinkProperty property3 = new GremlinLinkProperty(TestEntity.class, "link");
+        GremlinLinkProperty property3 = new GremlinLinkProperty(TestEntity.class, "link", Direction.OUT);
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
 
@@ -138,7 +139,7 @@ public class OrientDbSchemaWriterTest {
         writer.writeSchema(dbf, schema);
         verify(oSchema).getOrCreateClass("ClassName", v);
         verify(oSchema).getOrCreateClass("link", e);
-//        verify(oSchema).getOrCreateClass("other", e);
+        //        verify(oSchema).getOrCreateClass("other", e);
         verify(outClazz).createProperty("out", OType.LINK);
         verify(outClazz).createProperty("in", OType.LINK);
         verify(outProperty).setLinkedClass(clazz);
@@ -155,7 +156,7 @@ public class OrientDbSchemaWriterTest {
         GremlinProperty property1 = new GremlinProperty(String.class, "bla");
         property1.setIndex(Index.IndexType.UNIQUE);
 
-        GremlinLinkProperty property2 = new GremlinLinkProperty(TestEntity.class, "link");
+        GremlinLinkProperty property2 = new GremlinLinkProperty(TestEntity.class, "link", Direction.OUT);
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
 

@@ -14,6 +14,8 @@ import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.tx.titan.TitanGremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.CARDINALITY;
+
 /**
  * A concrete {@link SchemaWriter} for an OrientDB database.
  *
@@ -28,7 +30,7 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
     public void initialise(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
 
         try {
-            TitanGraph graph = ((TitanGremlinGraphFactory)tgf).graph();
+            TitanGraph graph = ((TitanGremlinGraphFactory) tgf).graph();
             mgmt = graph.getManagementSystem();
 
         } catch (RuntimeException e) {
@@ -46,7 +48,7 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
 
     @Override
     protected boolean isPropertyAvailable(Object vertexClass, String name) {
-        Object prop = ((VertexLabel)vertexClass).getProperty(name);
+        Object prop = ((VertexLabel) vertexClass).getProperty(name);
         return prop != null;
     }
 
@@ -64,7 +66,7 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
         try {
             mgmt.rollback();
         } catch (Exception e1) {
-            LOGGER.error("Could not rollback: "+e1.getMessage(), e1);
+            LOGGER.error("Could not rollback: " + e1.getMessage(), e1);
         }
 
     }
@@ -79,7 +81,7 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
             multiplicity = Multiplicity.ONE2MANY;
         }
 
-        EdgeLabel edgeLabel =  mgmt.makeEdgeLabel(name).directed().multiplicity(multiplicity).make();
+        EdgeLabel edgeLabel = mgmt.makeEdgeLabel(name).directed().multiplicity(multiplicity).make();
         return edgeLabel;
     }
 

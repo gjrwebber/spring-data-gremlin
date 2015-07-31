@@ -1,10 +1,10 @@
 package org.springframework.data.gremlin.support;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gremlin.repository.GremlinRepository;
+import org.springframework.data.gremlin.repository.GremlinRepositoryContext;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.core.support.TransactionalRepositoryFactoryBeanSupport;
-import org.springframework.data.gremlin.repository.GremlinRepositoryContext;
-import org.springframework.data.gremlin.repository.GremlinRepository;
 
 /**
  * Special adapter for Springs {@link org.springframework.beans.factory.FactoryBean} interface to allow easy setup of

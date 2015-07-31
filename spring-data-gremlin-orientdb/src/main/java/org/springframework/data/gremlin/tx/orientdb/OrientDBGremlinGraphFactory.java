@@ -47,20 +47,17 @@ public class OrientDBGremlinGraphFactory extends AbstractGremlinGraphFactory<Ori
 
     @Override
     public void beginTx(OrientGraph graph) {
-        // No need to begin the transaction as it is auto started.
-        //        graph.getRawGraph().getTransaction().begin();
+        graph.begin();
     }
 
     @Override
     public void commitTx(OrientGraph graph) {
-        graph.getRawGraph().getTransaction().commit();
+        graph.commit();
     }
 
     @Override
     public void rollbackTx(OrientGraph graph) {
-        if (graph.getRawGraph().getTransaction().amountOfNestedTxs() > 0) {
-            graph.getRawGraph().getTransaction().rollback();
-        }
+        graph.rollback();
     }
 
     @Override
@@ -80,4 +77,5 @@ public class OrientDBGremlinGraphFactory extends AbstractGremlinGraphFactory<Ori
             LOGGER.warn("Cannot create database on remote connections.");
         }
     }
+
 }

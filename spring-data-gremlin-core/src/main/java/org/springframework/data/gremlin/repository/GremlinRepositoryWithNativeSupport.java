@@ -1,6 +1,5 @@
 package org.springframework.data.gremlin.repository;
 
-import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.repository.NoRepositoryBean;
 import org.springframework.data.repository.PagingAndSortingRepository;
 
@@ -12,5 +11,4 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author Gman
  */
 @NoRepositoryBean
-public interface GremlinRepositoryWithNativeSupport<T> extends GremlinRepository<T> {
-}
+public interface GremlinRepositoryWithNativeSupport<T> extends GremlinRepository<T> { }

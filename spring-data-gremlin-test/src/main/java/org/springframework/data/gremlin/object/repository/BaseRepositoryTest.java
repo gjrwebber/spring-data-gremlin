@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.object.repository;
 
+import com.google.common.collect.Lists;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gremlin.object.TestService;
 import org.springframework.data.gremlin.object.domain.Address;
 import org.springframework.data.gremlin.object.domain.Area;
 import org.springframework.data.gremlin.object.domain.Location;
@@ -23,12 +25,12 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.transaction.TransactionConfiguration;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import static org.junit.Assert.*;
 
@@ -38,7 +40,6 @@ import static org.junit.Assert.*;
 @TestExecutionListeners(
         inheritListeners = false,
         listeners = { DependencyInjectionTestExecutionListener.class })
-@Transactional
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class BaseRepositoryTest {
     private static final Logger logger = LoggerFactory.getLogger(BaseRepositoryTest.class);
@@ -55,9 +56,11 @@ public abstract class BaseRepositoryTest {
     @Autowired
     protected GremlinGraphFactory factory;
 
+    @Autowired
+    protected TestService testService;
+
     @Before
     public void before() {
-        Graph graph = factory.graph();
 
         Address address = new Address("Australia", "Newcastle", "Scenic Dr", new Area("2291"));
         addressRepository.save(address);
@@ -76,6 +79,7 @@ public abstract class BaseRepositoryTest {
         repository.save(new Person("Lara", "Ivanovic", address, true));
         repository.save(new Person("Jake", "Webber", address, false));
         repository.save(new Person("Sandra", "Ivanovic", new Address("Australia", "Sydney", "Wilson St", new Area("2043")), false));
+        Graph graph = factory.graph();
 
         Iterable<Vertex> addresses = graph.query().has("street").vertices();
         assertNotNull(addresses);
@@ -101,7 +105,7 @@ public abstract class BaseRepositoryTest {
 
         GremlinPipeline<Graph, Vertex> pipe = new GremlinPipeline<Graph, Vertex>(graph).V().or(new GremlinPipeline().has("firstName", "Jake"), new GremlinPipeline().has("firstName", "Graham"));
 
-        assertTrue("Nothing in Pipe!", pipe.hasNext());
+        assertTrue("No Jake or Graham in Pipe!", pipe.hasNext());
         for (Vertex obj : pipe) {
             assertNotNull(obj);
             assertTrue(obj.getProperty("firstName").equals("Graham") || obj.getProperty("firstName").equals("Jake"));
@@ -110,12 +114,13 @@ public abstract class BaseRepositoryTest {
 
         GremlinPipeline<Object, ? extends Element> linkedPipe = new GremlinPipeline<Object, Element>(graph).V().outE("lives_at").inV().has("city", "Newcastle");
 
-        assertTrue("Nothing in Pipe!", linkedPipe.hasNext());
+        assertTrue("No lives_at in Pipe!", linkedPipe.hasNext());
         for (Element obj : linkedPipe) {
             assertNotNull(obj);
             assertTrue(obj.getProperty("city").equals("Newcastle"));
         }
 
+        factory.commitTx(graph);
     }
 
     @After
