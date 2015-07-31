@@ -44,7 +44,9 @@ public class Person {
         this.lastName = lastName;
         this.address = address;
         this.active = active;
-        address.getPeople().add(this);
+        if (address != null) {
+            address.getPeople().add(this);
+        }
     }
 
     public String getId() {

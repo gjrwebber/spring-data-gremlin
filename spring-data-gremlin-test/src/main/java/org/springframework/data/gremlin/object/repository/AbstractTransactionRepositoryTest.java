@@ -21,7 +21,7 @@ public class AbstractTransactionRepositoryTest extends BaseRepositoryTest {
 
         List<Person> peopele = Lists.newArrayList(repository.findAll());
         int beforeRollback = peopele.size();
-        testService.create(new Person("Graham", "Webber", new Address("asdf", "asdf", "asdf", new Area("asdf")), true));
+        testService.create(new Person("Graham", "Webber", null, true));
 
         peopele = Lists.newArrayList(repository.findAll());
         assertEquals(beforeRollback+1, peopele.size());
