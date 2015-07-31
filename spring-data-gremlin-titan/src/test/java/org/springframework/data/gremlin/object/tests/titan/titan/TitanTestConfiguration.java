@@ -6,6 +6,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.data.gremlin.config.EnableGremlinRepositories;
+import org.springframework.data.gremlin.object.TestService;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.GremlinRepositoryContext;
 import org.springframework.data.gremlin.repository.GremlinRepositoryWithNativeSupport;
@@ -80,5 +81,10 @@ public class TitanTestConfiguration {
     @Bean
     public GremlinRepositoryContext databaseContext(GremlinGraphFactory graphFactory, GremlinGraphAdapter graphAdapter, GremlinSchemaFactory schemaFactory, SchemaWriter schemaWriter) {
         return new GremlinRepositoryContext(graphFactory, graphAdapter, schemaFactory, schemaWriter, TitanGremlinRepository.class);
+    }
+
+    @Bean
+    public TestService testService() {
+        return new TestService();
     }
 }

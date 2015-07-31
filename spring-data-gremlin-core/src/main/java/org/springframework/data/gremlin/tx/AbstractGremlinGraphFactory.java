@@ -60,6 +60,11 @@ public abstract class AbstractGremlinGraphFactory<T extends Graph> implements Gr
     public abstract T openGraph();
 
     @Override
+    public void shutdown(T graph) {
+        graph.shutdown();
+    }
+
+    @Override
     public T graph() {
         T graph = (T) TransactionSynchronizationManager.getResource(this);
         if (graph == null) {

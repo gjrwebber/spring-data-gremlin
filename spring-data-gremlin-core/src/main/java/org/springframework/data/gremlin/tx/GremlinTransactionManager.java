@@ -54,7 +54,8 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
     protected boolean isExistingTransaction(Object transaction) throws TransactionException {
         GremlinTransaction tx = (GremlinTransaction) transaction;
 
-        return tx.getGraph() != null && graphFactory.isActive(tx.getGraph());
+        boolean existing = tx.getGraph() != null && graphFactory.isActive(tx.getGraph());
+        return existing;
     }
 
     /* (non-Javadoc)
@@ -113,6 +114,14 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
      */
     @Override
     protected void doCleanupAfterCompletion(Object transaction) {
+        GremlinTransaction tx = (GremlinTransaction) transaction;
+
+        if (tx.getGraph() == null || graphFactory.isClosed(tx.getGraph())) {
+            LOGGER.debug("closing transaction, db.hashCode() = {}", tx.getGraph().hashCode());
+            graphFactory.shutdown(tx.getGraph());
+        }
+
+        TransactionSynchronizationManager.unbindResource(graphFactory);
     }
 
     /* (non-Javadoc)
