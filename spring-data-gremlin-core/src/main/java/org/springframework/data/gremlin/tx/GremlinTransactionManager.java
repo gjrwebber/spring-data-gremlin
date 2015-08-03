@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.tx;
 
-import com.tinkerpop.blueprints.Graph;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.TransactionDefinition;
@@ -142,7 +142,7 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
         GremlinTransaction tx = (GremlinTransaction) transaction;
 
         if (!graphFactory.isClosed(tx.getGraph())) {
-            tx.getGraph().shutdown();
+            graphFactory.shutdown(tx.getGraph());
         }
 
         Graph oldGraph = (Graph) suspendedResources;

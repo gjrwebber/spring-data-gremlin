@@ -1,7 +1,7 @@
 package org.springframework.data.gremlin.repository;
 
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -65,7 +65,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
         if (StringUtils.isEmpty(id)) {
             create(graph, object);
         } else {
-            Vertex vertex = graph.getVertex(schema.decodeId(id));
+            Vertex vertex = graphAdapter.getVertex(schema.decodeId(id));
             if (vertex == null) {
                 throw new IllegalStateException(String.format("Could not save %s with id %s, as it does not exist.", object, id));
             }
@@ -138,7 +138,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
     @Override
     public void delete(String id) {
         Vertex v = graphAdapter.findVertexById(id);
-        dbf.graph().removeVertex(v);
+        graphAdapter.removeVertex(v);
     }
 
     @Transactional(readOnly = false)

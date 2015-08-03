@@ -1,14 +1,15 @@
 package org.springframework.data.gremlin.query;
 
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-import com.tinkerpop.pipes.filter.RangeFilterPipe;
-import com.tinkerpop.pipes.util.Pipeline;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.repository.query.DefaultParameters;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
 import org.springframework.data.repository.query.parser.PartTree;
+
+import java.util.ArrayList;
 
 /**
  * A concrete {@link AbstractGremlinQuery} implementation based on a {@link PartTree}.
@@ -46,18 +47,17 @@ public class PartTreeGremlinQuery extends AbstractGremlinQuery {
      */
     @Override
     @SuppressWarnings("rawtypes")
-    protected Pipeline doRunQuery(DefaultParameters parameters, Object[] values, boolean ignorePaging) {
+    protected Object doRunQuery(DefaultParameters parameters, Object[] values, boolean ignorePaging) {
         ParametersParameterAccessor accessor = new ParametersParameterAccessor(parameters, values);
 
         GremlinQueryCreator creator = new GremlinQueryCreator(dbf, schemaFactory, tree, accessor);
 
-        GremlinPipeline pipeline = creator.createQuery();
-
+        GraphTraversalSource pipeline = creator.createQuery();
         Pageable pageable = accessor.getPageable();
         if (pageable != null && !ignorePaging) {
-            pipeline.add(new RangeFilterPipe(pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1));
+            return pipeline.V().range(pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
         }
-        return pipeline;
+        return pipeline.V();
     }
 
     /* (non-Javadoc)

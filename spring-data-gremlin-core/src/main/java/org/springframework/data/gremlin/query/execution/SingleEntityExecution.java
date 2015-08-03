@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.query.execution;
 
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
@@ -50,10 +50,7 @@ public class SingleEntityExecution extends AbstractGremlinExecution {
 
         if (mappedType.isAssignableFrom(Map.class)) {
 
-            Map<String, Object> map = new HashMap<String, Object>();
-            for (String key : vertex.getPropertyKeys()) {
-                map.put(key, vertex.getProperty(key));
-            }
+            Map<String, Object> map = vertexToMap(vertex);
             return map;
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);

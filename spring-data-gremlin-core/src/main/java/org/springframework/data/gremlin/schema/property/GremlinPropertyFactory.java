@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.schema.property;
 
-import com.tinkerpop.blueprints.Direction;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.springframework.data.gremlin.annotation.Index;
 
 /**

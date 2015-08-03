@@ -1,12 +1,13 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Direction;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 
+import java.util.Iterator;
 import java.util.Set;
 
 /**
@@ -28,10 +29,13 @@ public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinL
         Vertex linkedVertex = null;
 
         // get the current edge for this property
-        Iterable<Edge> edges = vertex.getEdges(direction, property.getName());
-        if (edges.iterator().hasNext()) {
-            Edge edge = edges.iterator().next();
-            linkedVertex = edge.getVertex(direction.opposite());
+        Iterator<Edge> edges = vertex.edges(direction, property.getName());
+        if (edges.hasNext()) {
+            Edge edge = edges.next();
+            Iterator<Vertex> vertices = edge.vertices(direction.opposite());
+            if (vertices != null && vertices.hasNext()) {
+                linkedVertex = vertices.next();
+            }
         } else {
             // No current edge, get it
             String id = property.getRelatedSchema().getVertexId(val);
@@ -58,9 +62,14 @@ public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinL
     public Object loadFromVertex(GremlinLinkProperty property, Vertex vertex, Set<GremlinSchema> cascadingSchemas) {
 
         Object val = null;
-        for (Edge outEdge : vertex.getEdges(direction, property.getName())) {
-            Vertex inVertex = outEdge.getVertex(direction.opposite());
-            val = property.getRelatedSchema().cascadeLoadFromVertex(inVertex, cascadingSchemas, property.getSchema());
+        Iterator<Edge> edges = vertex.edges(direction, property.getName());
+        while (edges.hasNext()) {
+
+            Iterator<Vertex> vertices = edges.next().vertices(direction.opposite());
+            if (vertices != null && vertices.hasNext()) {
+                Vertex inVertex = vertices.next();
+                val = property.getRelatedSchema().cascadeLoadFromVertex(inVertex, cascadingSchemas, property.getSchema());
+            }
         }
 
         return val;

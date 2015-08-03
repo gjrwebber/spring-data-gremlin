@@ -1,14 +1,16 @@
 package org.springframework.data.gremlin.repository;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Iterator;
 
 /**
  * Base class for creating verticies and edges on the Graph. This class can be
@@ -30,23 +32,28 @@ public class GremlinGraphAdapter<G extends Graph> {
     @Transactional(readOnly = false)
     public Vertex createVertex(G graph, String className) {
         LOGGER.info("CREATING VERTEX: " + className);
-        Vertex vertex = graph.addVertex(null);
+        Vertex vertex = graph.addVertex(className);
         return vertex;
     }
 
     @Transactional(readOnly = true)
     public Vertex findVertexById(String id) {
         G graph = graphFactory.graph();
-        Vertex playerVertex = graph.getVertex(decodeId(id));
-        if (playerVertex == null) {
-            playerVertex = graph.getVertex(id);
+        Vertex playerVertex = null;
+        Iterator<Vertex> it = graph.vertices(decodeId(id));
+        if (it == null || !it.hasNext()) {
+            it = graph.vertices(id);
+        }
+
+        if (it != null && it.hasNext()) {
+            playerVertex = it.next();
         }
         return playerVertex;
     }
 
     @Transactional(readOnly = true)
     public Vertex getVertex(String id) {
-        return graphFactory.graph().getVertex(id);
+        return graphFactory.graph().vertices(id).next();
     }
 
     @Transactional(readOnly = false)
@@ -62,12 +69,12 @@ public class GremlinGraphAdapter<G extends Graph> {
 
     @Transactional(readOnly = false)
     public void removeEdge(Edge edge) {
-        graphFactory.graph().removeEdge(edge);
+        edge.remove();
     }
 
     @Transactional(readOnly = false)
     public void removeVertex(Vertex vertexToDelete) {
-        graphFactory.graph().removeVertex(vertexToDelete);
+        vertexToDelete.remove();
     }
 
     public String encodeId(String id) {

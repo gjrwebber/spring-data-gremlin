@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
@@ -16,11 +16,11 @@ public class GremlinStandardPropertyMapper implements GremlinPropertyMapper<Grem
 
     @Override
     public void copyToVertex(GremlinProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Set<GremlinSchema> cascadingSchemas) {
-        vertex.setProperty(property.getName(), val);
+        vertex.property(property.getName(), val);
     }
 
     @Override
     public Object loadFromVertex(GremlinProperty property, Vertex vertex, Set<GremlinSchema> cascadingSchemas) {
-        return vertex.getProperty(property.getName());
+        return vertex.property(property.getName());
     }
 }

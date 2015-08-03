@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.query.execution;
 
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.query.CompositeResult;
 import org.springframework.data.gremlin.schema.GremlinSchema;
@@ -54,8 +54,8 @@ public abstract class AbstractGremlinExecution {
 
     protected Map<String, Object> vertexToMap(Vertex vertex) {
         Map<String, Object> map = new HashMap<String, Object>();
-        for (String key : vertex.getPropertyKeys()) {
-            map.put(key, vertex.getProperty(key));
+        for (String key : vertex.keys()) {
+            map.put(key, vertex.property(key));
         }
         return map;
     }

@@ -9,7 +9,7 @@ import org.springframework.data.gremlin.tx.AbstractGremlinGraphFactory;
 import static org.springframework.util.Assert.notNull;
 
 /**
- * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link TitanGraph} implementation of {@link com.tinkerpop.blueprints.Graph}.
+ * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link TitanGraph} implementation of {@link org.apache.tinkerpop.gremlin.structure.Graph}.
  *
  * @author Gman
  */

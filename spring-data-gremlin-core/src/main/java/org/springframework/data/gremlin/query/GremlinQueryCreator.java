@@ -1,11 +1,10 @@
 package org.springframework.data.gremlin.query;
 
-import com.tinkerpop.blueprints.Compare;
-import com.tinkerpop.blueprints.Contains;
-import com.tinkerpop.blueprints.Predicate;
-import com.tinkerpop.gremlin.java.GremlinPipeline;
-import com.tinkerpop.pipes.Pipe;
-import com.tinkerpop.pipes.filter.AndFilterPipe;
+import org.apache.tinkerpop.gremlin.process.traversal.Compare;
+import org.apache.tinkerpop.gremlin.process.traversal.Contains;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +20,7 @@ import org.springframework.data.repository.query.parser.PartTree;
 
 import java.util.Iterator;
 import java.util.Spliterator;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 
 /**
@@ -28,7 +28,7 @@ import java.util.function.Consumer;
  *
  * @author Gman
  */
-public class GremlinQueryCreator extends AbstractQueryCreator<GremlinPipeline, GremlinPipeline> {
+public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversalSource, GraphTraversal> {
 
     private static final Logger logger = LoggerFactory.getLogger(GremlinQueryCreator.class);
 
@@ -50,24 +50,26 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GremlinPipeline, G
     }
 
     @Override
-    protected GremlinPipeline create(Part part, Iterator<Object> iterator) {
-        return toCondition(part, iterator);
+    protected GraphTraversal create(Part part, Iterator<Object> iterator) {
+        GraphTraversal base = new DefaultGraphTraversal<>();
+        toCondition(base, part, iterator);
+        return base;
     }
 
     @Override
-    protected GremlinPipeline and(Part part, GremlinPipeline base, Iterator<Object> iterator) {
-        Pipe lastPipe = (Pipe) base.getPipes().get(base.getPipes().size() - 1);
-        if (lastPipe instanceof AndFilterPipe) {
-            return base.add(toCondition(part, iterator));
-        }
-        GremlinPipeline andPipeline = new GremlinPipeline();
-        andPipeline.and(base, toCondition(part, iterator));
-        return andPipeline;
+    protected GraphTraversal and(Part part, GraphTraversal base, Iterator<Object> iterator) {
+        //        Pipe lastPipe = (Pipe) base.getPipes().get(base.getPipes().size() - 1);
+        //        if (lastPipe instanceof AndFilterPipe) {
+        //            return base.add(toCondition(part, iterator));
+        //        }
+        //        GraphTraversalSource andPipeline = new GraphTraversalSource();
+        toCondition(base, part, iterator);
+        return base;
     }
 
     @Override
-    protected GremlinPipeline or(GremlinPipeline base, GremlinPipeline criteria) {
-        return new GremlinPipeline().or(base, criteria);
+    protected GraphTraversal or(GraphTraversal base, GraphTraversal criteria) {
+        return base.or(criteria);
     }
 
     public boolean isCountQuery() {
@@ -75,15 +77,15 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GremlinPipeline, G
     }
 
     @Override
-    protected GremlinPipeline complete(GremlinPipeline criteria, Sort sort) {
+    protected GraphTraversalSource complete(GraphTraversal criteria, Sort sort) {
         Pageable pageable = accessor.getPageable();
-        GremlinPipeline pipeline = new GremlinPipeline(factory.graph()).V().add(criteria);
-        return pipeline;
+        GraphTraversalSource source = GraphTraversalSource.build().create(factory.graph());
+        source.V().and(criteria);
+        return source;
     }
 
-    protected GremlinPipeline toCondition(Part part, Iterator<Object> iterator) {
+    protected void toCondition(final GraphTraversal pipeline, Part part, Iterator<Object> iterator) {
 
-        final GremlinPipeline pipeline = new GremlinPipeline();
         String property = part.getProperty().getLeafProperty().getSegment();
 
         Spliterator<PropertyPath> it = part.getProperty().spliterator();
@@ -104,54 +106,54 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GremlinPipeline, G
         switch (part.getType()) {
         case AFTER:
         case GREATER_THAN:
-            pipeline.has(property, Compare.GREATER_THAN, iterator.next());
+            pipeline.has(property, Compare.gt).is(iterator.next());
             break;
         case GREATER_THAN_EQUAL:
-            pipeline.has(property, Compare.GREATER_THAN_EQUAL, iterator.next());
+            pipeline.has(property, Compare.gte).is(iterator.next());
             break;
         case BEFORE:
         case LESS_THAN:
-            pipeline.has(property, Compare.LESS_THAN, iterator.next());
+            pipeline.has(property, Compare.lt).is(iterator.next());
             break;
         case LESS_THAN_EQUAL:
-            pipeline.has(property, Compare.LESS_THAN_EQUAL, iterator.next());
+            pipeline.has(property, Compare.lte).is(iterator.next());
             break;
         case BETWEEN:
             Object val = iterator.next();
-            pipeline.has(property, Compare.LESS_THAN, val).has(property, Compare.GREATER_THAN, val);
+            pipeline.has(property, Compare.lt).is(val).has(property, Compare.gt).is(val);
             break;
         case IS_NULL:
-            pipeline.has(property, null);
+            pipeline.has(property);
             break;
         case IS_NOT_NULL:
             pipeline.has(property);
             break;
         case IN:
-            pipeline.has(property, Contains.IN, iterator.next());
+            pipeline.has(property, Contains.within).is(iterator.next());
             break;
         case NOT_IN:
-            pipeline.has(property, Contains.NOT_IN, iterator.next());
+            pipeline.has(property, Contains.without).is(iterator.next());
             break;
         case LIKE:
-            pipeline.has(property, Like.IS, iterator.next());
+            pipeline.has(property, Like.IS).is(iterator.next());
             break;
         case NOT_LIKE:
-            pipeline.has(property, Like.NOT, iterator.next());
+            pipeline.has(property, Like.NOT).is(iterator.next());
             break;
         case STARTING_WITH:
-            pipeline.has(property, StartsWith.DOES, iterator.next());
+            pipeline.has(property, StartsWith.DOES).is(iterator.next());
             break;
         case ENDING_WITH:
-            pipeline.has(property, EndsWith.DOES, iterator.next());
+            pipeline.has(property, EndsWith.DOES).is(iterator.next());
             break;
         case CONTAINING:
-            pipeline.has(property, Like.IS, iterator.next());
+            pipeline.has(property, Like.IS).is(iterator.next());
             break;
         case SIMPLE_PROPERTY:
             pipeline.has(property, iterator.next());
             break;
         case NEGATING_SIMPLE_PROPERTY:
-            pipeline.hasNot(property, iterator.next());
+            pipeline.has(property, Compare.neq).is(iterator.next());
             break;
         case TRUE:
             pipeline.has(property, true);
@@ -163,45 +165,53 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GremlinPipeline, G
             throw new IllegalArgumentException("Unsupported keyword!");
         }
 
-        return new GremlinPipeline().and(pipeline);
     }
 
 
-    private enum StartsWith implements Predicate {
-        DOES,
-        NOT;
-
-        public boolean evaluate(final Object first, final Object second) {
-            if (first instanceof String && second instanceof String) {
-                return this == DOES && ((String) second).startsWith((String) first);
+    private enum StartsWith implements BiPredicate<String, String> {
+        DOES {
+            @Override
+            public boolean test(String o, String o2) {
+                return o2.startsWith(o);
             }
-            return false;
-        }
+        },
+        NOT {
+            @Override
+            public boolean test(String o, String o2) {
+                return !DOES.test(o, o2);
+            }
+        };
     }
 
-    private enum EndsWith implements Predicate {
-        DOES,
-        NOT;
-
-        public boolean evaluate(final Object first, final Object second) {
-
-            if (first instanceof String && second instanceof String) {
-                return this == DOES && ((String) second).endsWith((String) first);
+    private enum EndsWith implements BiPredicate<String, String> {
+        DOES {
+            @Override
+            public boolean test(String o, String o2) {
+                return o2.endsWith(o);
             }
-            return false;
-        }
+        },
+        NOT {
+            @Override
+            public boolean test(String o, String o2) {
+                return !DOES.test(o, o2);
+            }
+        };
     }
 
-    private enum Like implements Predicate {
+    private enum Like implements BiPredicate<String, String> {
 
-        IS,
-        NOT;
-
-        public boolean evaluate(final Object first, final Object second) {
-            if (first instanceof String && second instanceof String) {
-                return this == IS && first.toString().toLowerCase().contains(second.toString().toLowerCase());
+        IS {
+            @Override
+            public boolean test(String s, String s2) {
+                return s.toLowerCase().contains(s2.toLowerCase());
             }
-            return false;
-        }
+        },
+        NOT {
+            @Override
+            public boolean test(String s, String s2) {
+                return !IS.test(s, s2);
+            }
+        };
+
     }
 }

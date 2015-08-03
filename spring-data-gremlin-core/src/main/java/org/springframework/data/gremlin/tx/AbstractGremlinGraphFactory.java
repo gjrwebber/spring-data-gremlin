@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.tx;
 
-import com.tinkerpop.blueprints.Graph;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
@@ -61,7 +61,11 @@ public abstract class AbstractGremlinGraphFactory<T extends Graph> implements Gr
 
     @Override
     public void shutdown(T graph) {
-        graph.shutdown();
+        try {
+            graph.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override

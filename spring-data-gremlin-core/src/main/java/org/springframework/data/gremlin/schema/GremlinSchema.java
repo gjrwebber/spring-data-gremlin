@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.schema;
 
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
@@ -201,7 +201,7 @@ public class GremlinSchema<V> {
             obj = getClassType().newInstance();
 
             GremlinPropertyAccessor idAccessor = getIdAccessor();
-            idAccessor.set(obj, encodeId(vertex.getId().toString()));
+            idAccessor.set(obj, encodeId(vertex.id().toString()));
         } catch (Exception e) {
             throw new IllegalStateException("Could not instantiate new " + getClassType(), e);
         }
@@ -231,7 +231,7 @@ public class GremlinSchema<V> {
     }
 
     public void setObjectId(V obj, Vertex vertex) {
-        getIdAccessor().set(obj, encodeId(vertex.getId().toString()));
+        getIdAccessor().set(obj, encodeId(vertex.id().toString()));
     }
 
     public String getObjectId(V obj) {
