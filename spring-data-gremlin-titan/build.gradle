@@ -1,8 +1,8 @@
-
 dependencies {
     compile project(':spring-data-gremlin-core')
     compile('com.thinkaurelius.titan:titan-core:0.5.4')
 //    testCompile('com.thinkaurelius.titan:titan-berkeleyje:0.5.4')
     testCompile project(':spring-data-gremlin-test')
     testCompile project(':spring-data-gremlin-schemagen-jpa')
+    testCompile project(':spring-data-gremlin-schemagen-neo4j')
 }

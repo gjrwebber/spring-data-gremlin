@@ -4,7 +4,7 @@ allprojects {
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
 
-    sourceCompatibility = 1.6
+    sourceCompatibility = 1.7
     version = '1.0.0-SNAPSHOT'
     group = 'org.springframework.data'
 
@@ -29,6 +29,7 @@ allprojects {
         testCompile('junit:junit:4.12')
         testCompile('org.mockito:mockito-core:1.10.8')
         testCompile('org.springframework:spring-test:4.1.6.RELEASE')
+        testCompile('org.slf4j:slf4j-simple:1.7.7')
     }
 
 

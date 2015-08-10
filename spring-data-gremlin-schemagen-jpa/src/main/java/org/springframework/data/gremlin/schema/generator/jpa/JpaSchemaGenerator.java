@@ -76,6 +76,7 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
      * @param clazz The Class to find the name of
      * @return The vertex name of the class
      */
+    @Override
     protected String getVertexName(Class<?> clazz) {
 
         String className = super.getVertexName(clazz);
@@ -214,9 +215,11 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
         return null;
     }
 
+    @Override
     protected boolean isLinkField(Class<?> cls, Field field) {
         return isEntityClass(cls) && (AnnotationUtils.getAnnotation(field, OneToOne.class) != null || AnnotationUtils.getAnnotation(field, ManyToOne.class) != null);
     }
+
 
     @Override
     protected boolean isLinkOutward(Class<?> cls, Field field) {
@@ -236,17 +239,19 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
 
         OneToMany oneToMany = AnnotationUtils.getAnnotation(field, OneToMany.class);
         if (oneToMany != null) {
-            return false;
+            return oneToMany.mappedBy().length() == 0;
         }
 
         return true;
 
     }
 
+    @Override
     protected boolean isCollectionField(Class<?> cls, Field field) {
         return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, OneToMany.class) != null;
     }
 
+    @Override
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
         return isEmbeddedClass(cls) && AnnotationUtils.getAnnotation(field, Embedded.class) != null;
     }
@@ -259,5 +264,10 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
     @Override
     public Class<? extends Annotation> getEmbeddedAnnotationType() {
         return Embeddable.class;
+    }
+
+    @Override
+    public Class<? extends Annotation> getRelationshipAnnotationType() {
+        return null;
     }
 }

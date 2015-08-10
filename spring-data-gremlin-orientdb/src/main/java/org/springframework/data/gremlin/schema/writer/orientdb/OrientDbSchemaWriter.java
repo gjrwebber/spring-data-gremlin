@@ -96,7 +96,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     protected Object createEdgeClass(String name, Object outVertex, Object inVertex, CARDINALITY cardinality) throws SchemaWriterException {
         OClass edgeClass = getOrCreateClass(oSchema, e, name);
 
-        if(!edgeClass.existsProperty("out")) {
+        if (!edgeClass.existsProperty("out")) {
             OProperty out = edgeClass.createProperty("out", OType.LINK);
             out.setLinkedClass((OClass) outVertex);
 
@@ -106,7 +106,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
             }
         }
 
-        if(!edgeClass.existsProperty("in")) {
+        if (!edgeClass.existsProperty("in")) {
             OProperty in = edgeClass.createProperty("in", OType.LINK);
             in.setLinkedClass((OClass) inVertex);
 

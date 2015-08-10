@@ -5,9 +5,9 @@ import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.mockito.Mockito;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
-import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 
+import java.util.HashMap;
 import java.util.HashSet;
 
 /**
@@ -26,8 +26,8 @@ public class GremlinLinkToPropertyMapperTest {
         Mockito.when(vertex.getEdges(Direction.OUT, "test")).thenReturn(new HashSet<Edge>());
 
 
-        GremlinLinkPropertyMapper mapper = new GremlinLinkPropertyMapper(Direction.OUT);
-        mapper.copyToVertex(prop, adapter, vertex, test, new HashSet<GremlinSchema>());
+        GremlinLinkPropertyMapper mapper = new GremlinLinkPropertyMapper();
+        mapper.copyToVertex(prop, adapter, vertex, test, new HashMap<>());
 
     }
 

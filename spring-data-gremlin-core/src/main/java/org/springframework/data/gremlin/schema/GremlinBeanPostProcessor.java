@@ -18,6 +18,7 @@ import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
+import java.lang.annotation.Annotation;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -36,6 +37,7 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
 
     private Set<Class<?>> embeddedClasses = new HashSet<Class<?>>();
     private Set<Class<?>> entityClasses = new HashSet<Class<?>>();
+    private Set<Class<?>> relationshipClasses = new HashSet<Class<?>>();
     private Map<Class<?>, GremlinSchema<?>> schemaMap = new HashMap<Class<?>, GremlinSchema<?>>();
 
     private SchemaGenerator schemaGenerator;
@@ -53,18 +55,29 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
 
             Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(annotatedSchemaGenerator.getEntityAnnotationType());
             this.entityClasses.addAll(entityClasses);
-            schemaGenerator.setEntities(entityClasses);
+            schemaGenerator.setEntityClasses(entityClasses);
 
-            Set<Class<?>> embeddableClasses = reflections.getTypesAnnotatedWith(annotatedSchemaGenerator.getEmbeddedAnnotationType());
-            this.embeddedClasses.addAll(embeddableClasses);
-            schemaGenerator.setEmbedded(embeddableClasses);
+            Class<? extends Annotation> embedType = annotatedSchemaGenerator.getEmbeddedAnnotationType();
+            if (embedType != null) {
+                Set<Class<?>> embeddableClasses = reflections.getTypesAnnotatedWith(embedType);
+                this.embeddedClasses.addAll(embeddableClasses);
+                schemaGenerator.setEmbeddedClasses(embeddableClasses);
+            }
+
+            Class<? extends Annotation> relType = annotatedSchemaGenerator.getRelationshipAnnotationType();
+            if (relType != null) {
+                Set<Class<?>> relationships = reflections.getTypesAnnotatedWith(relType);
+                this.relationshipClasses.addAll(relationships);
+                schemaGenerator.setRelationshipClasses(relationshipClasses);
+            }
         }
 
         generateSchemasFromEntities(entityClasses);
+        generateSchemasFromEntities(relationshipClasses);
         init();
     }
 
-    public GremlinBeanPostProcessor(SchemaGenerator schemaGenerator, Set<Class<?>> entities, Set<Class<?>> embedded) {
+    public GremlinBeanPostProcessor(SchemaGenerator schemaGenerator, Set<Class<?>> entities, Set<Class<?>> embedded, Set<Class<?>> relationships) {
         Assert.notNull(schemaGenerator, "The SchemaRepository is useless without a SchemaBuilder.");
         Assert.notNull(entities, "The SchemaRepository is useless without entities.");
         Assert.notEmpty(entities, "The SchemaRepository is useless without entityClasses.");
@@ -72,10 +85,13 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
 
         this.entityClasses = entities;
         this.embeddedClasses = embedded;
-        schemaGenerator.setEntities(entityClasses);
-        schemaGenerator.setEmbedded(embeddedClasses);
+        this.relationshipClasses = relationships;
+        schemaGenerator.setEntityClasses(entityClasses);
+        schemaGenerator.setEmbeddedClasses(embeddedClasses);
+        schemaGenerator.setRelationshipClasses(relationships);
 
         generateSchemasFromEntities(entityClasses);
+        generateSchemasFromEntities(relationshipClasses);
         init();
     }
 

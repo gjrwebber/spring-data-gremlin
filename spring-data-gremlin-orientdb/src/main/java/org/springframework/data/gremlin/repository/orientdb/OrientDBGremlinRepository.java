@@ -63,7 +63,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
         int offset = pageable.getOffset() + pageable.getPageSize();
         for (Vertex vertex : graph.getVerticesOfClass(schema.getClassName())) {
             if (total >= prevOffset && total < offset) {
-                result.add(schema.loadFromVertex(vertex));
+                result.add(schema.loadFromGraph(vertex));
             }
             total++;
         }
@@ -75,7 +75,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
         OrientGraph graph = orientGraphFactory.graph();
         List<T> result = new ArrayList<T>();
         for (Vertex vertex : graph.getVerticesOfClass(schema.getClassName())) {
-            result.add(schema.loadFromVertex(vertex));
+            result.add(schema.loadFromGraph(vertex));
         }
         return result;
     }

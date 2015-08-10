@@ -1,0 +1,5 @@
+dependencies {
+    compile('org.springframework.data:spring-data-neo4j:3.3.2.RELEASE')
+    compile project(':spring-data-gremlin-core')
+    testCompile project(':spring-data-gremlin-test')
+}

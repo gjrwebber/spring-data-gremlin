@@ -57,7 +57,7 @@ public class SingleEntityExecution extends AbstractGremlinExecution {
             return map;
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);
-            return mapper.loadFromVertex(vertex);
+            return mapper.loadFromGraph(vertex);
 
         }
     }

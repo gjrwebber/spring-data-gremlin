@@ -26,12 +26,20 @@ public class GremlinPropertyFactory {
         return new GremlinLinkProperty<V>(cls, name, direction);
     }
 
-    public <V> GremlinProperty<V> getCollectionProperty(Class<V> cls, String name) {
-        return new GremlinCollectionProperty<V>(cls, name);
+    public <V> GremlinProperty<V> getLinkViaProperty(Class<V> cls, String name, Direction direction) {
+        return new GremlinLinkViaProperty<V>(cls, name, direction);
     }
 
-    //    public <V> GremlinProperty<V> getCollectionInProperty(Class<V> cls, String name) {
-    //        return new GremlinCollectionProperty<V>(cls, name, new GremlinCollectionInPropertyMapper());
-    //    }
+    public <V> GremlinProperty<V> getAdjacentProperty(Class<V> cls, String name, Direction direction) {
+        return new GremlinAdjacentProperty<V>(cls, name, direction);
+    }
+
+    public <V> GremlinProperty<V> getCollectionProperty(Class<V> cls, String name, Direction direction) {
+        return new GremlinCollectionProperty<V>(cls, name, direction);
+    }
+
+    public <V> GremlinProperty<V> getCollectionViaProperty(Class<V> cls, String name, Direction direction) {
+        return new GremlinCollectionViaProperty<V>(cls, name, direction);
+    }
 
 }

@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.schema.property;
 
-import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.Element;
 import org.springframework.data.gremlin.annotation.Index.IndexType;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
@@ -8,7 +8,7 @@ import org.springframework.data.gremlin.schema.property.accessor.GremlinProperty
 import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;
 import org.springframework.data.gremlin.schema.property.mapper.GremlinStandardPropertyMapper;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
  * <p>
@@ -109,45 +109,45 @@ public class GremlinProperty<C> {
         return sb.toString();
     }
 
-    public void copyToVertex(GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Set<GremlinSchema> cascadingSchemas) {
-        propertyMapper.copyToVertex(this, graphAdapter, vertex, val, cascadingSchemas);
+    public void copyToVertex(GremlinGraphAdapter graphAdapter, Element element, Object val, Map<Object, Object> cascadingSchemas) {
+        propertyMapper.copyToVertex(this, graphAdapter, element, val, cascadingSchemas);
     }
 
-    public Object loadFromVertex(Vertex vertex, Set<GremlinSchema> cascadingSchemas) {
-        return propertyMapper.loadFromVertex(this, vertex, cascadingSchemas);
+    public <V> Object loadFromVertex(Element element, Map<GremlinSchema, V> cascadingSchemas) {
+        return propertyMapper.loadFromVertex(this, element, cascadingSchemas);
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-
-        GremlinProperty<?> that = (GremlinProperty<?>) o;
-
-        if (name != null ? !name.equals(that.name) : that.name != null) {
-            return false;
-        }
-        if (type != null ? !type.equals(that.type) : that.type != null) {
-            return false;
-        }
-        if (index != that.index) {
-            return false;
-        }
-        return !(indexName != null ? !indexName.equals(that.indexName) : that.indexName != null);
-
-    }
-
-    @Override
-    public int hashCode() {
-        int result = name != null ? name.hashCode() : 0;
-        result = 31 * result + (type != null ? type.hashCode() : 0);
-        result = 31 * result + (index != null ? index.hashCode() : 0);
-        result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
-        return result;
-    }
+    //    @Override
+    //    public boolean equals(Object o) {
+    //        if (this == o) {
+    //            return true;
+    //        }
+    //        if (o == null || getClass() != o.getClass()) {
+    //            return false;
+    //        }
+    //
+    //        GremlinProperty<?> that = (GremlinProperty<?>) o;
+    //
+    //        if (name != null ? !name.equals(that.name) : that.name != null) {
+    //            return false;
+    //        }
+    //        if (type != null ? !type.equals(that.type) : that.type != null) {
+    //            return false;
+    //        }
+    //        if (index != that.index) {
+    //            return false;
+    //        }
+    //        return !(indexName != null ? !indexName.equals(that.indexName) : that.indexName != null);
+    //
+    //    }
+    //
+    //    @Override
+    //    public int hashCode() {
+    //        int result = name != null ? name.hashCode() : 0;
+    //        result = 31 * result + (type != null ? type.hashCode() : 0);
+    //        result = 31 * result + (index != null ? index.hashCode() : 0);
+    //        result = 31 * result + (indexName != null ? indexName.hashCode() : 0);
+    //        return result;
+    //    }
 
 }

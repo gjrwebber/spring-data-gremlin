@@ -46,7 +46,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
     @Transactional(readOnly = false)
     public Vertex create(Graph graph, final T object) {
         final Vertex vertex = graphAdapter.createVertex(graph, schema.getClassName());
-        schema.copyToVertex(graphAdapter, vertex, object);
+        schema.copyToGraph(graphAdapter, vertex, object);
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
@@ -69,7 +69,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
             if (vertex == null) {
                 throw new IllegalStateException(String.format("Could not save %s with id %s, as it does not exist.", object, id));
             }
-            schema.copyToVertex(graphAdapter, vertex, object);
+            schema.copyToGraph(graphAdapter, vertex, object);
         }
         return object;
     }
@@ -104,7 +104,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
         Vertex vertex = graphAdapter.findVertexById(id);
 
         if (vertex != null) {
-            object = schema.loadFromVertex(vertex);
+            object = schema.loadFromGraph(vertex);
         }
 
         return object;

@@ -1,10 +1,9 @@
 package org.springframework.data.gremlin.schema.writer;
 
+import com.tinkerpop.blueprints.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.GremlinSchema;
-import org.springframework.data.gremlin.schema.property.GremlinCollectionProperty;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
@@ -55,17 +54,14 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                     if (property instanceof GremlinRelatedProperty) {
 
                         GremlinRelatedProperty relatedProperty = (GremlinRelatedProperty) property;
-                        Object relatedVertex = createVertexClass(relatedProperty.getRelatedSchema());
+                        if (relatedProperty.getRelatedSchema().isWritable()) {
+                            Object relatedVertex = createVertexClass(relatedProperty.getRelatedSchema());
 
-                        // If this property is a LINK
-                        if (property instanceof GremlinLinkProperty) {
-                            createEdgeClass(property.getName(), vertexClass, relatedVertex, relatedProperty.getCardinality());
-
-                            //                        } else if (property instanceof GremlinLinkFromProperty) {
-                            //                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
-
-                        } else if (property instanceof GremlinCollectionProperty) {
-                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
+                            if (((GremlinRelatedProperty) property).getDirection() == Direction.OUT) {
+                                createEdgeClass(property.getName(), vertexClass, relatedVertex, relatedProperty.getCardinality());
+                            } else {
+                                createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
+                            }
                         }
 
                     } else {

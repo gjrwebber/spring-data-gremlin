@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.object.tests.tinker;
 
-import org.springframework.data.gremlin.object.repository.AbstractAddressRepositoryTest;
+import org.springframework.data.gremlin.object.jpa.repository.AbstractAddressRepositoryTest;
 import org.springframework.test.context.ContextConfiguration;
 
 /**

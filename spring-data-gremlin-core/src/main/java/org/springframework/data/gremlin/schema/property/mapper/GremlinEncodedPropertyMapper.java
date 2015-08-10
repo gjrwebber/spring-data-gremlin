@@ -1,12 +1,11 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
-import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.Element;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
-import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 
-import java.util.Set;
+import java.util.Map;
 
 /**
  * An extended {@link GremlinStandardPropertyMapper} for mapping custom encoded properties.
@@ -25,17 +24,17 @@ public class GremlinEncodedPropertyMapper extends GremlinStandardPropertyMapper 
     }
 
     @Override
-    public void copyToVertex(GremlinProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Set<GremlinSchema> cascadingSchemas) {
+    public void copyToVertex(GremlinProperty property, GremlinGraphAdapter graphAdapter, Element element, Object val, Map<Object, Object> cascadingSchemas) {
         Object id = val;
         if (propertyEncoder != null) {
             id = propertyEncoder.decode(val);
         }
-        super.copyToVertex(property, graphAdapter, vertex, id, cascadingSchemas);
+        super.copyToVertex(property, graphAdapter, element, id, cascadingSchemas);
     }
 
     @Override
-    public Object loadFromVertex(GremlinProperty property, Vertex vertex, Set<GremlinSchema> cascadingSchemas) {
-        Object id = super.loadFromVertex(property, vertex, cascadingSchemas);
+    public <K> Object loadFromVertex(GremlinProperty property, Element element, Map<Object, Object> cascadingSchemas) {
+        Object id = super.loadFromVertex(property, element, cascadingSchemas);
         if (propertyEncoder != null) {
             id = propertyEncoder.encode(id);
         }

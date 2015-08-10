@@ -74,14 +74,14 @@ public class CollectionExecution extends AbstractGremlinExecution {
 
         for (Vertex vertex : vertices) {
             Map<String, Object> map = vertexToMap(vertex);
-            Object entity = mapper.loadFromVertex(vertex);
+            Object entity = mapper.loadFromGraph(vertex);
             resultList.add(new CompositeResult<Object>(entity, map));
         }
     }
 
     private void buildEntityList(GremlinSchema mapper, Iterable<Vertex> vertices, List<Object> objects) {
         for (Vertex vertex : vertices) {
-            objects.add(mapper.loadFromVertex(vertex));
+            objects.add(mapper.loadFromGraph(vertex));
         }
     }
 }

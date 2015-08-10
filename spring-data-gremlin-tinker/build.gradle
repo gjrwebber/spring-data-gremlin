@@ -1,4 +1,3 @@
-
 dependencies {
     compile project(':spring-data-gremlin-core')
     testCompile project(':spring-data-gremlin-test')
