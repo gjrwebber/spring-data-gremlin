@@ -3,10 +3,7 @@ package org.springframework.data.gremlin.schema.generator.jpa;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.data.gremlin.annotation.Index;
-import org.springframework.data.gremlin.schema.EmbeddedTestEntity;
-import org.springframework.data.gremlin.schema.GremlinSchema;
-import org.springframework.data.gremlin.schema.LinkedTestEntity;
-import org.springframework.data.gremlin.schema.TestEntity;
+import org.springframework.data.gremlin.schema.*;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 
 import java.util.Collection;
@@ -23,8 +20,8 @@ public class JpaSchemaGeneratorTest {
     @Before
     public void setUp() throws Exception {
         generator = new JpaSchemaGenerator();
-        generator.setEntityClasses(TestEntity.class, LinkedTestEntity.class);
-        generator.setEmbeddedClasses(EmbeddedTestEntity.class);
+        generator.setEntities(TestEntity.class, LinkedTestEntity.class);
+        generator.setEmbedded(EmbeddedTestEntity.class, MultiEmbeddedTestEntity.class);
     }
 
     @Test
@@ -35,7 +32,7 @@ public class JpaSchemaGeneratorTest {
         assertEquals(TestEntity.class, schema.getClassType());
         assertEquals("TestEntity", schema.getClassName());
         Collection<String> propNames = schema.getPropertyNames();
-        assertEquals(5, propNames.size());
+        assertEquals(7, propNames.size());
 
         assertTrue(propNames.contains("unique"));
         assertEquals(String.class, schema.getProperty("unique").getType());
@@ -48,8 +45,10 @@ public class JpaSchemaGeneratorTest {
         assertTrue(schema.getProperty("linkedEntity") instanceof GremlinLinkProperty);
         assertEquals(LinkedTestEntity.class, schema.getProperty("linkedEntity").getType());
 
-        assertTrue(propNames.contains("embeddedTestEntity_embeddedBla"));
-        assertTrue(propNames.contains("embeddedTestEntity_embeddedDate"));
+        assertTrue(propNames.contains("embeddedBla"));
+        assertTrue(propNames.contains("embeddedDate"));
+        assertTrue(propNames.contains("multiEmbedded"));
+        assertTrue(propNames.contains("embeddedValue"));
 
         assertFalse(propNames.contains("id"));
         assertFalse(propNames.contains("name"));
