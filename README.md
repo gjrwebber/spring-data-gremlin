@@ -1,21 +1,36 @@
 #Spring Data Gremlin
 
-Spring data gremlin makes it easier to implement Graph based repositories. This module extends [Spring Data](http://projects.spring.io/spring-data) to allow support for potentially any [Graph database](https://en.wikipedia.org/wiki/Graph_database) that implements the [Tinkerpop Blueprints 2.x API](https://github.com/tinkerpop/blueprints/wiki).
+Spring data gremlin makes it easier to implement Graph based repositories. This module extends [Spring Data](http://projects.spring.io/spring-data) to allow support for potentially any [Graph database](https://en.wikipedia.org/wiki/Graph_database) that implements the [Tinkerpop Blueprints 2.x API](https://github.com/tinkerpop/blueprints/wiki). 
 
 ##Features
 
 - All the great features of [Spring Data](http://projects.spring.io/spring-data)
 - Support for [OrientDB](http://orientdb.com) and [TitanDB](http://s3.thinkaurelius.com/docs/titan/current)  out of the box
 - Schema creation in supported databases
-- Support to build repositories based on Spring and JPA.
+- Support to build repositories based on Spring using [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations.
 - Pagination support
 - Unique, non-unique and spatial indices supported
-- Support for [Gremlin query language](http://gremlin.tinkerpop.com/)
-- Support for native queries (Eg. [OrientDB SQL](http://orientdb.com/docs/2.0/orientdb.wiki/SQL-Query.html))
+- Support for [Gremlin query language](http://gremlin.tinkerpop.com/) through the ```@Query``` annotation
+- Support for native queries (Eg. [OrientDB SQL](http://orientdb.com/docs/2.0/orientdb.wiki/SQL-Query.html)) through the ```@Query``` annotation
 - JavaConfig based repository configuration by introducing @EnableGremlinRepositories
-- Mapped and composite query result objects
+- ```Map``` and ```CompositeResult``` query result objects
 
-##JPA Schema Generator
+##Neo4j Schema Generation
+
+Below is a list of supported annotations used by the ```Neo4jSchemaGenerator```. These annotaitons are part of the [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) platform.
+
+
+- ```@NodeEntity``` maps an ```Object``` to a ```Vertex```
+- ```@RelationshipEntity``` maps an ```Object``` to an ```Edge```
+- ```@GraphId``` maps an instance variable to the vertex or edge ID
+- ```@Indexed``` used for indexing properties
+- ```@GraphProperty``` maps an instance variable to a vertex property (optional, only required if you want to name it differently)
+- ```@RelatedTo``` creates a link from this vertex to the referenced ```Object```'s vertex or ```Collection```'s verticies using the name of the field as default or the optional ```type``` parameter as the link label
+- ```@RelatedToVia``` creates an ```Edge``` based the the referenced ```Object``` or ```Collection``` which must be a ```@RelationshipEntity```
+- ```@StartNode``` defines the starting (or FROM) vertex of a ```@RelationshipEntity```
+- ```@EndNode``` defines the ending (or END) vertex of a ```@RelationshipEntity```
+
+##JPA Schema Generation
 
 Below is a list of supported annotations used by the ```JpaSchemaGenerator```:
 
@@ -32,7 +47,7 @@ Below is a list of supported annotations used by the ```JpaSchemaGenerator```:
 
 ##Getting Started
 
-Create your domain objects:
+Create your domain objects. I have used JPA for mapping the schema, but you can also use [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) annotations if you wish:
 
 ####Person
 
@@ -201,12 +216,12 @@ public class Configuration {
 ##TODO
 
 - Spring auto configuration 
-- Many to many relationships
-- Links as entities
+- ~~Many to many relationships~~
+- ~~Links as entities~~
 - Lazy fetching
 - Index for multiple properties
 - Allow for IDs other than String
-- Repository definitions using [Frames](http://frames.tinkerpop.com) or some other custom implementation.
+- Repository definitions using ~~[Neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations)~~, [Frames](http://frames.tinkerpop.com) or some other custom implementation.
 - More [Blueprints](https://github.com/tinkerpop/blueprints/wiki) implementations ([Neo4j](https://en.wikipedia.org/wiki/Neo4j), [ArangoDB](https://www.arangodb.com), [Blazegraph](http://www.blazegraph.com/bigdata), etc.)
 - Migrate to [Tinkerpop 3.0](http://www.tinkerpop.com/docs/3.0.0.M1/)
 
