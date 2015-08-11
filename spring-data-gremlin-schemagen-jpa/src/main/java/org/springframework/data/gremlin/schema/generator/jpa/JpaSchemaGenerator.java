@@ -121,8 +121,8 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
     @Override
     protected Class<?> getEnumType(Field field) {
         Enumerated enumerated = AnnotationUtils.getAnnotation(field, Enumerated.class);
-        if (enumerated != null && enumerated.value() == EnumType.STRING) {
-            return String.class;
+        if (enumerated != null && enumerated.value() == EnumType.ORDINAL) {
+            return Integer.class;
         } else {
             return super.getEnumType(field);
         }

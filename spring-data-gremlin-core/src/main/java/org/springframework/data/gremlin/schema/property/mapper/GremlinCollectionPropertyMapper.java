@@ -63,7 +63,7 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
             actualLinkedVertices.add(linkedVertex);
 
             // Updates or saves the linkedObj into the linkedVertex
-            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, linkedObj, cascadingSchemas, property.getSchema());
+            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, linkedObj, cascadingSchemas);
         }
 
         // For each disjointed vertex, remove it and the Edge associated with this property

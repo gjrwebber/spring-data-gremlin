@@ -9,7 +9,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
-import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinIdFieldPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
@@ -36,11 +35,6 @@ public class GremlinSchema<V> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinSchema.class);
 
-    //    public enum SCHEMA_TYPE {
-    //        ENTITY,
-    //        EMBEDDED
-    //    }
-
     public GremlinSchema(Class<V> classType) {
         this.classType = classType;
     }
@@ -51,7 +45,6 @@ public class GremlinSchema<V> {
 
     private String className;
     private Class<V> classType;
-    //    private SCHEMA_TYPE schemaType;
     private boolean writable;
     private GremlinRepository<V> repository;
     private GremlinGraphFactory graphFactory;
@@ -152,41 +145,22 @@ public class GremlinSchema<V> {
     public Collection<GremlinProperty> getPropertyForType(Class<?> type) {
         return typePropertyMap.get(type);
     }
-    //    public SCHEMA_TYPE getSchemaType() {
-    //        return schemaType;
-    //    }
 
-    //    public void setSchemaType(SCHEMA_TYPE schemaType) {
-    //        this.schemaType = schemaType;
-    //    }
-
-    //    public boolean isWritable() { return schemaType == GremlinSchema.SCHEMA_TYPE.ENTITY; }
     public boolean isWritable() { return writable; }
 
 
     public void copyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj) {
-        cascadeCopyToGraph(graphAdapter, element, obj, new HashMap<Object, Object>());
+        cascadeCopyToGraph(graphAdapter, element, obj, new HashMap<Object, Element>());
     }
 
-    public void cascadeCopyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj, Map<Object, Object> cascadingSchemas, GremlinSchema cascadingFromSchema) {
-        //        cascadingSchemas.add(cascadingFromSchema);
-        cascadeCopyToGraph(graphAdapter, element, obj, cascadingSchemas);
-
-    }
-
-    private void cascadeCopyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj, Map<Object, Object> cascadingSchemas) {
+    public void cascadeCopyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj, Map<Object, Element> cascadingSchemas) {
 
         if (cascadingSchemas.containsKey(obj)) {
             return;
         }
         cascadingSchemas.put(obj, element);
 
-
         for (GremlinProperty property : getProperties()) {
-
-            //            if (ifAlreadyCascaded(property, cascadingSchemas)) {
-            //                continue;
-            //            }
 
             try {
 
@@ -204,37 +178,8 @@ public class GremlinSchema<V> {
 
     public V loadFromGraph(Element element) {
 
-        //        V obj;
-        //        try {
-        //            obj = getClassType().newInstance();
-        //            GremlinPropertyAccessor idAccessor = getIdAccessor();
-        //            idAccessor.set(obj, encodeId(element.getId().toString()));
-        //        } catch (Exception e) {
-        //            throw new IllegalStateException("Could not instantiate new " + getClassType(), e);
-        //        }
-        //        for (GremlinProperty property : getProperties()) {
-        //            if (property instanceof GremlinRelatedProperty) {
-        //                continue;
-        //            }
-        //            Object val = property.loadFromVertex(element, null);
-        //
-        //            try {
-        //                GremlinPropertyAccessor accessor = property.getAccessor();
-        //                accessor.set(obj, val);
-        //            } catch (Exception e) {
-        //                LOGGER.warn(String.format("Could not load property %s of %s", property, obj.toString()));
-        //            }
-        //        }
-        //
-        //        return obj;
-
-        return cascadeLoadFromGraph(element, new HashMap<Object, Object>());
+        return cascadeLoadFromGraph(element, new HashMap<>());
     }
-    //
-    //    public V cascadeLoadFromGraph(Element element, Map<GremlinSchema, V> cascadingSchemas, GremlinSchema cascadingFromSchema) {
-    //        V v = cascadeLoadFromGraph(element, cascadingSchemas);
-    //        return v;
-    //    }
 
     public V cascadeLoadFromGraph(Element element, Map<Object, Object> cascadingSchemas) {
 
@@ -242,7 +187,6 @@ public class GremlinSchema<V> {
         if (obj == null) {
             try {
                 obj = getClassType().newInstance();
-                //            cascadingSchemas.put(this, obj);
 
                 GremlinPropertyAccessor idAccessor = getIdAccessor();
                 idAccessor.set(obj, encodeId(element.getId().toString()));
@@ -253,29 +197,16 @@ public class GremlinSchema<V> {
             for (GremlinProperty property : getProperties()) {
 
                 Object val = property.loadFromVertex(element, cascadingSchemas);
-                //                cascadingSchemas.put(property, val);
-                //            }
 
                 try {
                     GremlinPropertyAccessor accessor = property.getAccessor();
                     accessor.set(obj, val);
                 } catch (Exception e) {
-                    LOGGER.warn(String.format("Could not load property %s of %s", property, obj.toString()));
+                    LOGGER.warn(String.format("Could not load property %s of %s", property, obj.toString()), e);
                 }
             }
         }
         return obj;
-    }
-
-    private boolean ifAlreadyCascaded(GremlinProperty property, Set<GremlinSchema> cascadingSchemas) {
-        return property instanceof GremlinRelatedProperty && cascadingSchemas.contains(((GremlinRelatedProperty) property).getRelatedSchema());
-    }
-
-    private V getCascasedValue(GremlinProperty property, Map<GremlinSchema, V> cascadingSchemas) {
-        if (property instanceof GremlinRelatedProperty) {
-            return cascadingSchemas.get(((GremlinRelatedProperty) property).getRelatedSchema());
-        }
-        return null;
     }
 
     public String getGraphId(Object obj) {

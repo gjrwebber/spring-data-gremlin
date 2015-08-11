@@ -1,8 +1,7 @@
 package org.springframework.data.gremlin.schema;
 
-import com.sun.org.apache.xpath.internal.operations.Mult;
-
-import javax.persistence.*;
+import javax.persistence.Embeddable;
+import javax.persistence.Embedded;
 import java.util.Date;
 
 /**

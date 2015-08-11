@@ -37,7 +37,6 @@ public class TitanGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
     @Transactional(readOnly = false)
     protected Vertex createVertex(Graph graph) {
-        LOGGER.info("CREATING VERTEX: " + schema.getClassName());
         Vertex vertex = ((TitanGraph) graph).addVertexWithLabel(schema.getClassName());
         return vertex;
     }

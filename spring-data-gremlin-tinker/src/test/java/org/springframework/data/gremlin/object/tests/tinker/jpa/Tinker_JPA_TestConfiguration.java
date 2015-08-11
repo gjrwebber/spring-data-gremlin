@@ -1,4 +1,4 @@
-package org.springframework.data.gremlin.object.tests.tinker;
+package org.springframework.data.gremlin.object.tests.tinker.jpa;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -21,10 +21,9 @@ import org.springframework.data.gremlin.tx.GremlinTransactionManager;
 import org.springframework.data.gremlin.tx.tinker.TinkerGremlinGraphFactory;
 
 @Configuration
-//@EnableTransactionManagement
-@EnableGremlinRepositories(basePackages = "org.springframework.data.gremlin.object", excludeFilters = {
+@EnableGremlinRepositories(basePackages = "org.springframework.data.gremlin.object.jpa", excludeFilters = {
         @ComponentScan.Filter(type = FilterType.ASSIGNABLE_TYPE, value = GremlinRepositoryWithNativeSupport.class) }, repositoryFactoryBeanClass = GremlinRepositoryFactoryBean.class)
-public class TinkerTestConfiguration {
+public class Tinker_JPA_TestConfiguration {
 
     @Bean
     public TinkerGremlinGraphFactory factory() {
@@ -49,7 +48,7 @@ public class TinkerTestConfiguration {
 
     @Bean
     public static GremlinBeanPostProcessor tinkerpopSchemaManager(SchemaGenerator schemaGenerator) {
-        return new GremlinBeanPostProcessor(schemaGenerator, "org.springframework.data.gremlin.object.domain");
+        return new GremlinBeanPostProcessor(schemaGenerator, "org.springframework.data.gremlin.object.jpa.domain");
     }
 
     @Bean

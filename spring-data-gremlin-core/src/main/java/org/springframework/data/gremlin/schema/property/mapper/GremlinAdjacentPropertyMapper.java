@@ -26,7 +26,7 @@ public class GremlinAdjacentPropertyMapper implements GremlinPropertyMapper<Grem
 
         if (linkedVertex != null) {
             //             Updates or saves the val into the linkedVertex
-            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, val, cascadingSchemas, property.getSchema());
+            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, val, cascadingSchemas);
         }
 
     }

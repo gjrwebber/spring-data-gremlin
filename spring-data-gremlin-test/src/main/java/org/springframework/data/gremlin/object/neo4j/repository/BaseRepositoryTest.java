@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.object.neo4j.repository;
 
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -33,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TransactionConfiguration(defaultRollback = true)
 @TestExecutionListeners(
         inheritListeners = false,
@@ -131,6 +132,10 @@ public abstract class BaseRepositoryTest {
         factory.beginTx(graph);
         for (Vertex vertex : graph.getVertices()) {
             graph.removeVertex(vertex);
+        }
+
+        for (Edge edge : graph.getEdges()) {
+            graph.removeEdge(edge);
         }
         factory.commitTx(graph);
     }

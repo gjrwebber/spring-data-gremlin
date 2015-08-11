@@ -23,9 +23,14 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
     public void writeSchema(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
 
         try {
-            LOGGER.info("CREATING CLASS: " + schema.getClassName());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("CREATING CLASS: " + schema.getClassName());
+            }
             Object vertex = createVertexClass(schema);
-            LOGGER.info("CREATED CLASS: " + schema.getClassName());
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("CREATED CLASS: " + schema.getClassName());
+            }
 
             writeProperties(vertex, schema);
 
@@ -55,6 +60,10 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
 
                         GremlinRelatedProperty relatedProperty = (GremlinRelatedProperty) property;
                         if (relatedProperty.getRelatedSchema().isWritable()) {
+
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("CREATING RELATED PROPERTY: " + schema.getClassName() + "." + property.getName());
+                            }
                             Object relatedVertex = createVertexClass(relatedProperty.getRelatedSchema());
 
                             if (((GremlinRelatedProperty) property).getDirection() == Direction.OUT) {
@@ -65,6 +74,10 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                         }
 
                     } else {
+
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("CREATING PROPERTY: " + schema.getClassName() + "." + property.getName());
+                        }
                         // Standard property, primitive, String, Enum, byte[]
                         Object prop = createProperty(vertexClass, property.getName(), cls);
 

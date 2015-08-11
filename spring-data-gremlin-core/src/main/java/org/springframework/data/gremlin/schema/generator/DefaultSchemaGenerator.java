@@ -71,16 +71,6 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         return schema;
     }
 
-    //    protected <S> GremlinSchema.SCHEMA_TYPE getSchemaType(Class<S> clazz) {
-    //        if (entityClasses.contains(clazz)) {
-    //            return GremlinSchema.SCHEMA_TYPE.ENTITY;
-    //        } else if (embeddedClasses.contains(clazz)) {
-    //            return GremlinSchema.SCHEMA_TYPE.EMBEDDED;
-    //        } else {
-    //            return GremlinSchema.SCHEMA_TYPE.ENTITY;
-    //        }
-    //    }
-
     protected <S> boolean isSchemaWritable(Class<S> clazz) {
         return isEntityClass(clazz);
     }
@@ -223,7 +213,7 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected Class<?> getEnumType(Field field) {
-        return Integer.class;
+        return String.class;
     }
 
     protected boolean isPropertyIndexed(Field field) {
@@ -284,10 +274,6 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     protected boolean isAdjacentOutward(Class<?> cls, Field field) {
         return false;
     }
-
-    //    protected boolean isLinkViaEdge(Class<?> cls, Field field) {
-    //        return false;
-    //    }
 
     protected boolean isLinkOutward(Class<?> cls, Field field) {
         return true;

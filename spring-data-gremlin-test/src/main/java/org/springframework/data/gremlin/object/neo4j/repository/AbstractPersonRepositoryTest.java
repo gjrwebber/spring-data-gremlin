@@ -318,7 +318,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         Collections.sort(locations, new Comparator<Located>() {
             @Override
             public int compare(Located o1, Located o2) {
-                return o1.getDate().compareTo(o2.getDate());
+                return (int) (o1.getLocation().getLatitude() - o2.getLocation().getLatitude());
             }
         });
         Located location = locations.get(0);
@@ -338,7 +338,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         Collections.sort(locations, new Comparator<Located>() {
             @Override
             public int compare(Located o1, Located o2) {
-                return o1.getDate().compareTo(o2.getDate());
+                return (int) (o1.getLocation().getLatitude() - o2.getLocation().getLatitude());
             }
         });
         assertEquals(151, locations.get(0).getLocation().getLongitude(), 0.0001);
@@ -353,7 +353,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         Collections.sort(locations, new Comparator<Located>() {
             @Override
             public int compare(Located o1, Located o2) {
-                return o1.getDate().compareTo(o2.getDate());
+                return (int) (o1.getLocation().getLatitude() - o2.getLocation().getLatitude());
             }
         });
         assertEquals(100, locations.get(0).getLocation().getLongitude(), 0.0001);

@@ -72,7 +72,7 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
                         existingLinkedEdges.add(linkedEdge);
                         actualLinkedEdges.add(linkedEdge);
                         // Updates or saves the val into the linkedVertex
-                        property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, linkedObj, cascadingSchemas, property.getSchema());
+                        property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, linkedObj, cascadingSchemas);
                     }
                 }
             }

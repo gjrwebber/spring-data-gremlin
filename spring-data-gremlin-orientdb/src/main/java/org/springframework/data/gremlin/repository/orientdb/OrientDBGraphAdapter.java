@@ -21,7 +21,6 @@ public class OrientDBGraphAdapter extends GremlinGraphAdapter<OrientGraph> {
     @Override
     @Transactional(readOnly = false)
     public Vertex createVertex(OrientGraph graph, String className) {
-        LOGGER.info("CREATING VERTEX: " + className);
         String classname = "class:" + className;
         Vertex vertex = graph.addVertex(classname);
         return vertex;

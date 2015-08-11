@@ -116,6 +116,7 @@ public class OrientDbSchemaWriterTest {
         GremlinLinkProperty property3 = new GremlinLinkProperty(TestEntity.class, "link", Direction.OUT);
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
+        when(relatedSchema.isWritable()).thenReturn(true);
 
         OClass linkClass = Mockito.mock(OClass.class);
         when(linkClass.getSuperClass()).thenReturn(v);
@@ -159,6 +160,7 @@ public class OrientDbSchemaWriterTest {
         GremlinLinkProperty property2 = new GremlinLinkProperty(TestEntity.class, "link", Direction.OUT);
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
+        when(relatedSchema.isWritable()).thenReturn(true);
 
         OClass linkClass = Mockito.mock(OClass.class);
         when(linkClass.getSuperClass()).thenReturn(v);

@@ -17,7 +17,6 @@ public class TinkerGraphAdapter extends GremlinGraphAdapter<TinkerGraph> {
     @Override
     @Transactional(readOnly = false)
     public Vertex createVertex(TinkerGraph graph, String className) {
-        LOGGER.info("CREATING VERTEX: " + className);
         Vertex vertex = graph.addVertex(null);
         vertex.setProperty("label", className);
         return vertex;

@@ -20,8 +20,8 @@ public class JpaSchemaGeneratorTest {
     @Before
     public void setUp() throws Exception {
         generator = new JpaSchemaGenerator();
-        generator.setEntities(TestEntity.class, LinkedTestEntity.class);
-        generator.setEmbedded(EmbeddedTestEntity.class, MultiEmbeddedTestEntity.class);
+        generator.setEntityClasses(TestEntity.class, LinkedTestEntity.class);
+        generator.setEmbeddedClasses(EmbeddedTestEntity.class, MultiEmbeddedTestEntity.class);
     }
 
     @Test
