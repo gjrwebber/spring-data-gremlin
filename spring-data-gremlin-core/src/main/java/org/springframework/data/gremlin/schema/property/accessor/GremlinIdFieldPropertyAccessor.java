@@ -3,17 +3,15 @@ package org.springframework.data.gremlin.schema.property.accessor;
 import java.lang.reflect.Field;
 
 /**
- * A {@link AbstractGremlinFieldPropertyAccessor} for enum properties that will be mapped with the name (String).
+ * A {@link GremlinFieldPropertyAccessor} for IDs.
  *
  * @author Gman
  */
-public class GremlinIdFieldPropertyAccessor extends AbstractGremlinFieldPropertyAccessor<String> {
+public class GremlinIdFieldPropertyAccessor extends GremlinFieldPropertyAccessor<String> {
 
-    protected Class<? extends Enum> numnum;
 
-    public GremlinIdFieldPropertyAccessor(Field field, Class<?> numnum) {
+    public GremlinIdFieldPropertyAccessor(Field field) {
         super(field);
-        this.numnum = (Class<? extends Enum>) numnum;
     }
 
     @Override
@@ -32,17 +30,9 @@ public class GremlinIdFieldPropertyAccessor extends AbstractGremlinFieldProperty
     }
 
     @Override
-    public void set(Object object, String name) {
+    public void set(Object object, String val) {
         try {
-            if (name == null) {
-                field.set(object, name);
-            }
-            for (Enum num : numnum.getEnumConstants()) {
-                if (num.name().equals(name)) {
-                    field.set(object, num);
-                    break;
-                }
-            }
+            field.set(object, val);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e.getMessage(), e);
         }

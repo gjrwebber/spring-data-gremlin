@@ -17,8 +17,7 @@ public class TitanGraphAdapter extends GremlinGraphAdapter<TitanGraph> {
     @Override
     @Transactional(readOnly = false)
     public Vertex createVertex(TitanGraph graph, String className) {
-        LOGGER.info("CREATING VERTEX: " + className);
-        Vertex vertex = (Vertex) graph.addVertexWithLabel(className);
+        Vertex vertex = graph.addVertexWithLabel(className);
         return vertex;
     }
 

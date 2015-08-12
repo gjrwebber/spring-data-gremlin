@@ -1,10 +1,9 @@
 package org.springframework.data.gremlin.schema.writer;
 
+import com.tinkerpop.blueprints.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.GremlinSchema;
-import org.springframework.data.gremlin.schema.property.GremlinCollectionProperty;
-import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
@@ -24,9 +23,14 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
     public void writeSchema(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
 
         try {
-            LOGGER.info("CREATING CLASS: " + schema.getClassName());
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("CREATING CLASS: " + schema.getClassName());
+            }
             Object vertex = createVertexClass(schema);
-            LOGGER.info("CREATED CLASS: " + schema.getClassName());
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("CREATED CLASS: " + schema.getClassName());
+            }
 
             writeProperties(vertex, schema);
 
@@ -55,20 +59,25 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                     if (property instanceof GremlinRelatedProperty) {
 
                         GremlinRelatedProperty relatedProperty = (GremlinRelatedProperty) property;
-                        Object relatedVertex = createVertexClass(relatedProperty.getRelatedSchema());
+                        if (relatedProperty.getRelatedSchema().isWritable()) {
 
-                        // If this property is a LINK
-                        if (property instanceof GremlinLinkProperty) {
-                            createEdgeClass(property.getName(), vertexClass, relatedVertex, relatedProperty.getCardinality());
+                            if (LOGGER.isDebugEnabled()) {
+                                LOGGER.debug("CREATING RELATED PROPERTY: " + schema.getClassName() + "." + property.getName());
+                            }
+                            Object relatedVertex = createVertexClass(relatedProperty.getRelatedSchema());
 
-                            //                        } else if (property instanceof GremlinLinkFromProperty) {
-                            //                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
-
-                        } else if (property instanceof GremlinCollectionProperty) {
-                            createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
+                            if (((GremlinRelatedProperty) property).getDirection() == Direction.OUT) {
+                                createEdgeClass(property.getName(), vertexClass, relatedVertex, relatedProperty.getCardinality());
+                            } else {
+                                createEdgeClass(property.getName(), relatedVertex, vertexClass, relatedProperty.getCardinality());
+                            }
                         }
 
                     } else {
+
+                        if (LOGGER.isDebugEnabled()) {
+                            LOGGER.debug("CREATING PROPERTY: " + schema.getClassName() + "." + property.getName());
+                        }
                         // Standard property, primitive, String, Enum, byte[]
                         Object prop = createProperty(vertexClass, property.getName(), cls);
 

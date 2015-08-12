@@ -9,10 +9,7 @@ import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinPropertyFactory;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinEnumOrdinalFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinEnumStringFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
+import org.springframework.data.gremlin.schema.property.accessor.*;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 import org.springframework.data.gremlin.utils.GenericsUtil;
 import org.springframework.util.ReflectionUtils;
@@ -32,8 +29,9 @@ import java.util.*;
 public class DefaultSchemaGenerator implements SchemaGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSchemaGenerator.class);
-    private Set<Class<?>> entities;
-    private Set<Class<?>> embedded;
+    private Set<Class<?>> entityClasses;
+    private Set<Class<?>> embeddedClasses;
+    private Set<Class<?>> relationshipClasses;
     private GremlinPropertyFactory propertyFactory;
     private GremlinPropertyEncoder idEncoder;
 
@@ -55,12 +53,13 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         String className = getVertexName(clazz);
 
         Field field = getIdField(clazz);
-        GremlinFieldPropertyAccessor<String> idAccessor = new GremlinFieldPropertyAccessor<String>(field);
+        GremlinIdFieldPropertyAccessor idAccessor = new GremlinIdFieldPropertyAccessor(field);
 
         GremlinSchema<V> schema = new GremlinSchema<V>(clazz);
         schema.setClassName(className);
         schema.setClassType(clazz);
-        schema.setSchemaType(getSchemaType(clazz));
+        //        schema.setSchemaType(getSchemaType(clazz));
+        schema.setWritable(isSchemaWritable(clazz));
         schema.setIdAccessor(idAccessor);
         schema.setIdEncoder(idEncoder);
 
@@ -72,14 +71,8 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         return schema;
     }
 
-    protected <S> GremlinSchema.SCHEMA_TYPE getSchemaType(Class<S> clazz) {
-        if (entities.contains(clazz)) {
-            return GremlinSchema.SCHEMA_TYPE.ENTITY;
-        } else if (embedded.contains(clazz)) {
-            return GremlinSchema.SCHEMA_TYPE.EMBEDDED;
-        } else {
-            return GremlinSchema.SCHEMA_TYPE.ENTITY;
-        }
+    protected <S> boolean isSchemaWritable(Class<S> clazz) {
+        return isEntityClass(clazz);
     }
 
     protected <V, S> void populate(Class<V> clazz, GremlinSchema<S> schema) {
@@ -134,19 +127,39 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
                 }
             } else {
                 accessor = new GremlinFieldPropertyAccessor(field, embeddedFieldAccessor);
-                if (isLinkField(cls, field)) {
+                if (isCollectionViaField(cls, field)) {
+                    cls = getCollectionType(field);
+                    if (isLinkOutward(cls, field)) {
+                        property = propertyFactory.getCollectionViaProperty(cls, name, Direction.OUT);
+                    } else {
+                        property = propertyFactory.getCollectionViaProperty(cls, name, Direction.IN);
+                    }
+                } else if (isCollectionField(cls, field)) {
+                    cls = getCollectionType(field);
+                    if (isLinkOutward(cls, field)) {
+                        property = propertyFactory.getCollectionProperty(cls, name, Direction.OUT);
+                    } else {
+                        property = propertyFactory.getCollectionProperty(cls, name, Direction.IN);
+                    }
+                } else if (isLinkViaField(cls, field)) {
+                    if (isLinkOutward(cls, field)) {
+                        property = propertyFactory.getLinkViaProperty(cls, name, Direction.OUT);
+                    } else {
+                        property = propertyFactory.getLinkViaProperty(cls, name, Direction.IN);
+                    }
+                } else if (isAdjacentField(cls, field)) {
+                    if (isAdjacentOutward(cls, field)) {
+                        property = propertyFactory.getAdjacentProperty(cls, name, Direction.OUT);
+                    } else {
+                        property = propertyFactory.getAdjacentProperty(cls, name, Direction.IN);
+                    }
+                } else if (isLinkField(cls, field)) {
+
                     if (isLinkOutward(cls, field)) {
                         property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
                     } else {
                         property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
                     }
-                } else if (isCollectionField(cls, field)) {
-                    cls = getCollectionType(field);
-                    //                    if (isLinkOutward(cls, field)) {
-                    property = propertyFactory.getCollectionProperty(cls, name);
-                    //                    } else {
-                    //                        property = propertyFactory.getCollectionInProperty(cls, name);
-                    //                    }
                 } else if (isEmbeddedField(cls, field)) {
                     populate(cls, schema, (GremlinFieldPropertyAccessor) accessor);
 
@@ -200,7 +213,7 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected Class<?> getEnumType(Field field) {
-        return Integer.class;
+        return String.class;
     }
 
     protected boolean isPropertyIndexed(Field field) {
@@ -243,11 +256,23 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
-        return embedded.contains(cls);
+        return isEmbeddedClass(cls);
     }
 
     protected boolean isLinkField(Class<?> cls, Field field) {
-        return entities.contains(cls);
+        return isEntityClass(cls);
+    }
+
+    protected boolean isLinkViaField(Class<?> cls, Field field) {
+        return isRelationshipClass(cls);
+    }
+
+    protected boolean isAdjacentField(Class<?> cls, Field field) {
+        return false;
+    }
+
+    protected boolean isAdjacentOutward(Class<?> cls, Field field) {
+        return false;
     }
 
     protected boolean isLinkOutward(Class<?> cls, Field field) {
@@ -255,7 +280,11 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean isCollectionField(Class<?> cls, Field field) {
-        return Collection.class.isAssignableFrom(cls) && entities.contains(getCollectionType(field));
+        return Collection.class.isAssignableFrom(cls) && isEntityClass(getCollectionType(field));
+    }
+
+    protected boolean isCollectionViaField(Class<?> cls, Field field) {
+        return Collection.class.isAssignableFrom(cls) && isRelationshipClass(getCollectionType(field));
     }
 
     private Class<?> getCollectionType(Field field) {
@@ -277,12 +306,12 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
      * @return
      */
     protected boolean isEntityClass(Class<?> cls) {
-        if (entities == null) {
+        if (entityClasses == null) {
             LOGGER.warn("Entities is null, this is unusual and is possibly an error. Please add the entity classes to the concrete SchemaBuilder.");
             return false;
         }
 
-        return entities.contains(cls);
+        return entityClasses.contains(cls);
     }
 
     /**
@@ -290,36 +319,59 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
      * @return
      */
     protected boolean isEmbeddedClass(Class<?> cls) {
-        if (embedded == null) {
+        if (embeddedClasses == null) {
             return false;
         }
 
-        return embedded.contains(cls);
+        return embeddedClasses.contains(cls);
+    }
+
+    /**
+     * @param cls
+     * @return
+     */
+    protected boolean isRelationshipClass(Class<?> cls) {
+        if (relationshipClasses == null) {
+            return false;
+        }
+
+        return relationshipClasses.contains(cls);
     }
 
     protected boolean acceptType(Class<?> cls) {
-        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || entities.contains(
-                cls) ||
-               embedded.contains(cls);
+        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || isEntityClass(cls) ||
+               isEmbeddedClass(cls) || isRelationshipClass(cls);
     }
 
     @Override
-    public void setEntities(Set<Class<?>> entities) {
-        this.entities = entities;
+    public void setEntityClasses(Set<Class<?>> entityClasses) {
+        this.entityClasses = entityClasses;
     }
 
     @Override
-    public void setEntities(Class<?>... entites) {
-        setEntities(new HashSet<Class<?>>(Arrays.asList(entites)));
+    public void setEntityClasses(Class<?>... entites) {
+        setEntityClasses(new HashSet<Class<?>>(Arrays.asList(entites)));
     }
 
     @Override
-    public void setEmbedded(Set<Class<?>> embedded) {
-        this.embedded = embedded;
+    public void setEmbeddedClasses(Set<Class<?>> embeddedClasses) {
+        this.embeddedClasses = embeddedClasses;
     }
 
     @Override
-    public void setEmbedded(Class<?>... embedded) {
-        setEmbedded(new HashSet<Class<?>>(Arrays.asList(embedded)));
+    public void setEmbeddedClasses(Class<?>... embedded) {
+        setEmbeddedClasses(new HashSet<Class<?>>(Arrays.asList(embedded)));
     }
+
+    @Override
+    public void setRelationshipClasses(Set<Class<?>> relationshipClasses) {
+        this.relationshipClasses = relationshipClasses;
+    }
+
+    @Override
+    public void setRelationshipClasses(Class<?>... relationshipClasses) {
+        setRelationshipClasses(new HashSet<Class<?>>(Arrays.asList(relationshipClasses)));
+    }
+
+
 }

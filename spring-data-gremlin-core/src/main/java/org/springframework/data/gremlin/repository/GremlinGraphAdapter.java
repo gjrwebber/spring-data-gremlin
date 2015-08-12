@@ -37,6 +37,15 @@ public class GremlinGraphAdapter<G extends Graph> {
     }
 
     @Transactional(readOnly = true)
+    public Vertex findOrCreateVertex(String id, String className) {
+        Vertex playerVertex = findVertexById(id);
+        if (playerVertex == null) {
+            playerVertex = createVertex(className);
+        }
+        return playerVertex;
+    }
+
+    @Transactional(readOnly = true)
     public Vertex findVertexById(String id) {
         G graph = graphFactory.graph();
         Vertex playerVertex = null;
@@ -53,7 +62,15 @@ public class GremlinGraphAdapter<G extends Graph> {
 
     @Transactional(readOnly = true)
     public Vertex getVertex(String id) {
+        if (id == null) {
+            return null;
+        }        
         return graphFactory.graph().vertices(id).next();
+    }
+
+    @Transactional(readOnly = true)
+    public Edge getEdge(String id) {
+        return graphFactory.graph().getEdge(id);
     }
 
     @Transactional(readOnly = false)

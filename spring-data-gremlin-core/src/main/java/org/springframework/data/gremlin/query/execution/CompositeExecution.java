@@ -42,7 +42,7 @@ public class CompositeExecution extends AbstractGremlinExecution {
 
         Class<?> mappedType = query.getQueryMethod().getReturnedObjectType();
         GremlinSchema mapper = schemaFactory.getSchema(mappedType);
-        Object entity = mapper.loadFromVertex(vertex);
+        Object entity = mapper.loadFromGraph(vertex);
 
         return new CompositeResult<Object>(entity, map);
     }

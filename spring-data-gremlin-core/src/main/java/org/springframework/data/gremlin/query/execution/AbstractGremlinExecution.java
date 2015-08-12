@@ -78,13 +78,13 @@ public abstract class AbstractGremlinExecution {
                 Map<String, Object> map = vertexToMap(vertex);
                 Class<?> type = GenericsUtil.getGenericType(query.getQueryMethod().getMethod());
                 GremlinSchema mapper = schemaFactory.getSchema(type);
-                Object entity = mapper.loadFromVertex(vertex);
+                Object entity = mapper.loadFromGraph(vertex);
                 objects.add(new CompositeResult<Object>(entity, map));
             }
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);
             for (Vertex vertex : result) {
-                objects.add(mapper.loadFromVertex(vertex));
+                objects.add(mapper.loadFromGraph(vertex));
             }
         }
         return objects;

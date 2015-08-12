@@ -1,8 +1,11 @@
 package org.springframework.data.gremlin.schema.property;
 
+import com.tinkerpop.blueprints.Direction;
 import org.springframework.data.gremlin.schema.GremlinBeanPostProcessor;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;
+
+import java.util.Collection;
 
 /**
  * <p>
@@ -32,12 +35,15 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
         MANY_TO_ONE
     }
 
+    private Direction direction;
     private GremlinSchema<C> relatedSchema;
+    private GremlinRelatedProperty relatedProperty;
     private CARDINALITY cardinality;
     private CASCADE_TYPE cascadeType;
 
-    public GremlinRelatedProperty(Class<C> cls, String name, GremlinPropertyMapper propertyMapper, CARDINALITY cardinality) {
+    public GremlinRelatedProperty(Class<C> cls, String name, Direction direction, GremlinPropertyMapper propertyMapper, CARDINALITY cardinality) {
         super(cls, name, propertyMapper);
+        this.direction = direction;
         this.cardinality = cardinality;
     }
 
@@ -47,6 +53,27 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
 
     public void setRelatedSchema(GremlinSchema<C> relatedSchema) {
         this.relatedSchema = relatedSchema;
+        Collection<GremlinProperty> properties = relatedSchema.getPropertyForType(getType());
+        if (properties != null) {
+            for (GremlinProperty property : properties) {
+                if (property instanceof GremlinRelatedProperty) {
+                    GremlinRelatedProperty relProp = (GremlinRelatedProperty) property;
+                    if (relProp.getDirection() == direction.opposite()) {
+                        if (this.relatedProperty == null || relProp.getName().equals(getName())) {
+                            this.relatedProperty = relProp;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    public Direction getDirection() {
+        return direction;
+    }
+
+    public GremlinRelatedProperty getRelatedProperty() {
+        return relatedProperty;
     }
 
     public CASCADE_TYPE getCascadeType() {

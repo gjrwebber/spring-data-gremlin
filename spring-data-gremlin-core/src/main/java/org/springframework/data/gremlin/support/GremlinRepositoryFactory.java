@@ -68,7 +68,7 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
             schema.setRepository((GremlinRepository) repository);
             schema.setGraphFactory(dbf);
 
-            if (schemaWriter != null) {
+            if (schema.isWritable() && schemaWriter != null) {
                 schemaWriter.writeSchema(dbf, schema);
             }
 

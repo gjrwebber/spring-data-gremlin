@@ -1,15 +1,16 @@
 package org.springframework.data.gremlin.schema.property;
 
-import org.springframework.data.gremlin.schema.property.mapper.GremlinCollectionInPropertyMapper;
+import com.tinkerpop.blueprints.Direction;
+import org.springframework.data.gremlin.schema.property.mapper.GremlinCollectionPropertyMapper;
 
 /**
- * A concrete {@link GremlinLinkToProperty} for a Collection
+ * A concrete {@link GremlinRelatedProperty} for a Collection
  *
  * @author Gman
  */
 public class GremlinCollectionProperty<C> extends GremlinRelatedProperty<C> {
 
-    public GremlinCollectionProperty(Class<C> cls, String name) {
-        super(cls, name, new GremlinCollectionInPropertyMapper(), CARDINALITY.ONE_TO_MANY);
+    public GremlinCollectionProperty(Class<C> cls, String name, Direction direction) {
+        super(cls, name, direction, new GremlinCollectionPropertyMapper(), CARDINALITY.ONE_TO_MANY);
     }
 }
