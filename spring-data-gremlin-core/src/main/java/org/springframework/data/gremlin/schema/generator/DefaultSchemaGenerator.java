@@ -5,7 +5,7 @@ import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
-import org.springframework.data.gremlin.annotation.Index;
+import org.springframework.data.gremlin.annotation.*;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinPropertyFactory;
@@ -13,7 +13,9 @@ import org.springframework.data.gremlin.schema.property.accessor.*;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 import org.springframework.data.gremlin.utils.GenericsUtil;
 import org.springframework.util.ReflectionUtils;
+import org.springframework.util.StringUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -26,7 +28,7 @@ import java.util.*;
  *
  * @author Gman
  */
-public class DefaultSchemaGenerator implements SchemaGenerator {
+public class DefaultSchemaGenerator implements SchemaGenerator, AnnotatedSchemaGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSchemaGenerator.class);
     private Set<Class<?>> entityClasses;
@@ -196,24 +198,50 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean shouldProcessField(GremlinSchema schema, Field field) {
-        return field != null && acceptType(field.getType()) && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers());
+        boolean shouldProcessField =  field != null && acceptType(field.getType()) && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers());
+
+        boolean noTransientAnnotation = AnnotationUtils.getAnnotation(field, Ignore.class) == null;
+        return shouldProcessField && noTransientAnnotation;
     }
 
     protected Field getIdField(Class<?> cls) throws SchemaGeneratorException {
-        try {
-            Field field = ReflectionUtils.findField(cls, "id");
-            if (field.getType() == Long.class || field.getType() == String.class) {
-                return field;
-            } else {
-                throw new NoSuchFieldException("");
+        final Field[] idFields = { null };
+
+        ReflectionUtils.doWithFields(cls, new ReflectionUtils.FieldCallback() {
+            @Override
+            public void doWith(Field field) throws IllegalArgumentException, IllegalAccessException {
+
+                Id id = AnnotationUtils.getAnnotation(field, Id.class);
+                if (id != null) {
+                    idFields[0] = field;
+                }
             }
-        } catch (NoSuchFieldException e) {
-            throw new SchemaGeneratorException("Cannot generate schema as there is no ID field. You must have a field of type Long or String named 'id'.");
+        });
+        if (idFields[0] == null) {
+            Field field = ReflectionUtils.findField(cls, "id");
+
+            if (idFields[0].getType() == Long.class || idFields[0].getType() == String.class) {
+                idFields[0] = field;
+            }
+
+
         }
+
+        if (idFields[0] == null) {
+            throw new SchemaGeneratorException("Cannot generate schema as there is no ID field. You must have a field of type Long or String annotated with @Id or named 'id'.");
+        }
+
+        return idFields[0];
+
     }
 
     protected Class<?> getEnumType(Field field) {
-        return String.class;
+        Class<?> type = String.class;
+        Enumerated enumerated = AnnotationUtils.getAnnotation(field, Enumerated.class);
+        if (enumerated != null) {
+            return enumerated.value().getType();
+        }
+        return type;
     }
 
     protected boolean isPropertyIndexed(Field field) {
@@ -245,46 +273,112 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected String getPropertyName(Field field, Field rootEmbeddedField) {
-        String propertyName;
-
-        propertyName = field.getName();
+        Property property = AnnotationUtils.getAnnotation(field, Property.class);
 
         if (rootEmbeddedField != null) {
-            propertyName = String.format("%s_%s", getPropertyName(rootEmbeddedField, null), propertyName);
+
+            PropertyOverride override = checkPropertyOverrides(rootEmbeddedField, field);
+            if (override != null) {
+                property = override.property();
+            }
         }
+
+        String annotationName = null;
+
+        if (property != null) {
+            annotationName = !StringUtils.isEmpty(property.value()) ? property.value() : property.name();
+        }
+
+        String propertyName = !StringUtils.isEmpty(annotationName) ? annotationName : field.getName();
+
+
         return propertyName;
     }
 
+    private PropertyOverride checkPropertyOverrides(Field embeddedField, Field field) {
+
+        PropertyOverride propertyOverride = null;
+        Embed embed = AnnotationUtils.getAnnotation(embeddedField, Embed.class);
+        if (embed != null) {
+            for (PropertyOverride po : embed.propertyOverrides()) {
+                propertyOverride = checkPropertyOverride(field, po);
+                if (propertyOverride != null) {
+                    break;
+                }
+            }
+        }
+        return propertyOverride;
+    }
+
+    private PropertyOverride checkPropertyOverride(Field embeddedField, Field field) {
+
+        PropertyOverride propertyOverride = embeddedField.getAnnotation(PropertyOverride.class);
+        return checkPropertyOverride(field, propertyOverride);
+    }
+
+    private PropertyOverride checkPropertyOverride(Field field, PropertyOverride propertyOverride) {
+        if (propertyOverride != null && !StringUtils.isEmpty(propertyOverride.name()) && propertyOverride.property() != null) {
+            if (field.getName().equals(propertyOverride.name())) {
+                return propertyOverride;
+            }
+        }
+        return null;
+    }
+
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
-        return isEmbeddedClass(cls);
+        return isEmbeddedClass(cls) && AnnotationUtils.getAnnotation(field, Embed.class) != null;
     }
 
     protected boolean isLinkField(Class<?> cls, Field field) {
-        return isEntityClass(cls);
+        return isEntityClass(cls) && (AnnotationUtils.getAnnotation(field, Link.class) != null);
     }
 
     protected boolean isLinkViaField(Class<?> cls, Field field) {
-        return isRelationshipClass(cls);
+        return isRelationshipClass(cls) && (AnnotationUtils.getAnnotation(field, LinkVia.class) != null);
     }
 
     protected boolean isAdjacentField(Class<?> cls, Field field) {
-        return false;
+        return isEntityClass(cls) && (AnnotationUtils.getAnnotation(field, ToVertex.class) != null || AnnotationUtils.getAnnotation(field, FromVertex.class) != null);
     }
 
     protected boolean isAdjacentOutward(Class<?> cls, Field field) {
-        return false;
+        FromVertex startNode = AnnotationUtils.getAnnotation(field, FromVertex.class);
+        if (startNode != null) {
+            return false;
+        }
+
+        ToVertex endNode = AnnotationUtils.getAnnotation(field, ToVertex.class);
+        if (endNode != null) {
+            return true;
+        }
+
+        return true;
     }
 
     protected boolean isLinkOutward(Class<?> cls, Field field) {
+        Link relatedTo = AnnotationUtils.getAnnotation(field, Link.class);
+        if (relatedTo != null) {
+            return relatedTo.direction() == Direction.OUT;
+        }
+        FromVertex startNode = AnnotationUtils.getAnnotation(field, FromVertex.class);
+        if (startNode != null) {
+            return true;
+        }
+
+        ToVertex endNode = AnnotationUtils.getAnnotation(field, ToVertex.class);
+        if (endNode != null) {
+            return false;
+        }
+
         return true;
     }
 
     protected boolean isCollectionField(Class<?> cls, Field field) {
-        return Collection.class.isAssignableFrom(cls) && isEntityClass(getCollectionType(field));
+        return Collection.class.isAssignableFrom(cls) && isEntityClass(getCollectionType(field)) && AnnotationUtils.getAnnotation(field, Link.class) != null;
     }
 
     protected boolean isCollectionViaField(Class<?> cls, Field field) {
-        return Collection.class.isAssignableFrom(cls) && isRelationshipClass(getCollectionType(field));
+        return Collection.class.isAssignableFrom(cls) && isRelationshipClass(getCollectionType(field)) && AnnotationUtils.getAnnotation(field, LinkVia.class) != null;
     }
 
     private Class<?> getCollectionType(Field field) {
@@ -298,7 +392,13 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
      * @return The vertex name of the class
      */
     protected String getVertexName(Class<?> clazz) {
-        return clazz.getSimpleName();
+        Vertex vertex = AnnotationUtils.getAnnotation(clazz, Vertex.class);
+        String vertexName = null;
+        if (vertex != null) {
+            vertexName = !StringUtils.isEmpty(vertex.value()) ? vertex.value() : vertex.name();
+        }
+
+        return !StringUtils.isEmpty(vertexName) ? vertexName : clazz.getSimpleName();
     }
 
     /**
@@ -339,7 +439,8 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean acceptType(Class<?> cls) {
-        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || isEntityClass(cls) ||
+        return Enumerated.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || isEntityClass(
+                cls) ||
                isEmbeddedClass(cls) || isRelationshipClass(cls);
     }
 
@@ -373,5 +474,18 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         setRelationshipClasses(new HashSet<Class<?>>(Arrays.asList(relationshipClasses)));
     }
 
+    @Override
+    public Class<? extends Annotation> getEntityAnnotationType() {
+        return Vertex.class;
+    }
 
+    @Override
+    public Class<? extends Annotation> getEmbeddedAnnotationType() {
+        return Embeddable.class;
+    }
+
+    @Override
+    public Class<? extends Annotation> getRelationshipAnnotationType() {
+        return Edge.class;
+    }
 }
