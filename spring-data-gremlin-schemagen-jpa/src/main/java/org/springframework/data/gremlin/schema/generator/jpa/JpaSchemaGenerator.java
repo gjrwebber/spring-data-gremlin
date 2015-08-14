@@ -6,7 +6,7 @@ import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.gremlin.annotation.Index;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.generator.AnnotatedSchemaGenerator;
-import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
+import org.springframework.data.gremlin.schema.generator.BasicSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGeneratorException;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 import org.springframework.util.ReflectionUtils;
@@ -17,7 +17,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 
 /**
- * A concrete {@link DefaultSchemaGenerator} allowing for annotating entities with the commonly used JPA 2.0
+ * A concrete {@link BasicSchemaGenerator} allowing for annotating entities with the commonly used JPA 2.0
  * specified schema generation annotations.
  * <br/>
  * Annotations currently implemented:
@@ -57,7 +57,7 @@ import java.lang.reflect.Field;
  *
  * @author Gman
  */
-public class JpaSchemaGenerator extends DefaultSchemaGenerator implements AnnotatedSchemaGenerator {
+public class JpaSchemaGenerator extends BasicSchemaGenerator implements AnnotatedSchemaGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JpaSchemaGenerator.class);
 

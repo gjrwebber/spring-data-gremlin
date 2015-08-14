@@ -2,13 +2,11 @@ package org.springframework.data.gremlin.object;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.data.gremlin.object.core.TestService;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.repository.GremlinRepositoryContext;
-import org.springframework.data.gremlin.schema.GremlinBeanPostProcessor;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
-import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
+import org.springframework.data.gremlin.schema.generator.BasicSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGenerator;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
@@ -32,7 +30,7 @@ public abstract class AbstractTestConfiguration {
 
     @Bean
     public SchemaGenerator schemaGenerator() {
-        return new DefaultSchemaGenerator();
+        return new BasicSchemaGenerator();
     }
 
     @Bean

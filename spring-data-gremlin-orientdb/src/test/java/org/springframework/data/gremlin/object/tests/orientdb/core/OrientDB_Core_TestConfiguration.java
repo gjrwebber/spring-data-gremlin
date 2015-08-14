@@ -11,7 +11,7 @@ import org.springframework.data.gremlin.repository.orientdb.OrientDBGraphAdapter
 import org.springframework.data.gremlin.repository.orientdb.OrientDBGremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinBeanPostProcessor;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
-import org.springframework.data.gremlin.schema.generator.CoreSchemaGenerator;
+import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGenerator;
 import org.springframework.data.gremlin.schema.property.encoder.orientdb.OrientDbIdEncoder;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
@@ -48,7 +48,7 @@ public class OrientDB_Core_TestConfiguration {
 
     @Bean
     public SchemaGenerator schemaGenerator() {
-        return new CoreSchemaGenerator(new OrientDbIdEncoder());
+        return new DefaultSchemaGenerator(new OrientDbIdEncoder());
     }
 
     @Bean

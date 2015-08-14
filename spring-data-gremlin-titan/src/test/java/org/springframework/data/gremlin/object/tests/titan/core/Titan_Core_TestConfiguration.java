@@ -14,7 +14,7 @@ import org.springframework.data.gremlin.repository.titan.TitanGraphAdapter;
 import org.springframework.data.gremlin.repository.titan.TitanGremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinBeanPostProcessor;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
-import org.springframework.data.gremlin.schema.generator.CoreSchemaGenerator;
+import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGenerator;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.schema.writer.titan.TitanSchemaWriter;
@@ -59,11 +59,6 @@ public class Titan_Core_TestConfiguration {
     }
 
     @Bean
-    public SchemaGenerator schemaGenerator() {
-        return new CoreSchemaGenerator();
-    }
-
-    @Bean
     public SchemaWriter schemaWriter() {
         return new TitanSchemaWriter();
     }
@@ -74,8 +69,8 @@ public class Titan_Core_TestConfiguration {
     }
 
     @Bean
-    public static GremlinBeanPostProcessor tinkerpopSchemaManager(SchemaGenerator schemaGenerator) {
-        return new GremlinBeanPostProcessor(schemaGenerator, "org.springframework.data.gremlin.object.core.domain");
+    public static GremlinBeanPostProcessor tinkerpopSchemaManager() {
+        return new GremlinBeanPostProcessor("org.springframework.data.gremlin.object.core.domain");
     }
 
     @Bean

@@ -13,7 +13,7 @@ import java.lang.reflect.Field;
 /**
  * Created by gman on 3/08/15.
  */
-public class Neo4jSchemaGenerator extends DefaultSchemaGenerator implements AnnotatedSchemaGenerator {
+public class Neo4jSchemaGenerator extends BasicSchemaGenerator implements AnnotatedSchemaGenerator {
 
     /**
      * Returns the Vertex name. By default the Class' simple name is used. If it is annotated with @RelationshipEntity and the type parameter is
