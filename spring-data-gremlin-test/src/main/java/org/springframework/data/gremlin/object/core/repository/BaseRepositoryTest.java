@@ -1,5 +1,6 @@
-package org.springframework.data.gremlin.object.jpa.repository;
+package org.springframework.data.gremlin.object.core.repository;
 
+import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
@@ -13,8 +14,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.gremlin.object.jpa.TestService;
-import org.springframework.data.gremlin.object.jpa.domain.*;
+import org.springframework.data.gremlin.object.core.TestService;
+import org.springframework.data.gremlin.object.core.domain.*;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
@@ -25,6 +26,7 @@ import org.springframework.test.context.transaction.TransactionConfiguration;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -32,7 +34,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_CLASS)
+@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
 @TransactionConfiguration(defaultRollback = true)
 @TestExecutionListeners(
         inheritListeners = false,
@@ -62,15 +64,18 @@ public abstract class BaseRepositoryTest {
         Address address = new Address(new Country("Australia"), "Newcastle", "Scenic Dr", new Area("2291"));
         addressRepository.save(address);
 
-        Set<Location> locations = new HashSet<Location>();
+        Person graham = new Person("Graham", "Webber", address, true);
+
+        Set<Located> locations = new HashSet<Located>();
         for (int i = 0; i < 5; i++) {
             Location location = new Location(-33 + i, 151 + i);
             locationRepository.save(location);
-            locations.add(location);
+            Located located = new Located(new Date(), graham, location);
+            locations.add(located);
         }
 
-        Person graham = new Person("Graham", "Webber", address, true);
         graham.setLocations(locations);
+        graham.setCurrentLocation(locations.iterator().next());
         repository.save(graham);
         repository.save(new Person("Vanja", "Ivanovic", address, true));
         repository.save(new Person("Lara", "Ivanovic", address, true));
@@ -127,6 +132,10 @@ public abstract class BaseRepositoryTest {
         factory.beginTx(graph);
         for (Vertex vertex : graph.getVertices()) {
             graph.removeVertex(vertex);
+        }
+
+        for (Edge edge : graph.getEdges()) {
+            graph.removeEdge(edge);
         }
         factory.commitTx(graph);
     }

@@ -115,7 +115,7 @@ public class Neo4jSchemaGenerator extends DefaultSchemaGenerator implements Anno
 
     @Override
     protected boolean isLinkField(Class<?> cls, Field field) {
-        if (isEntityClass(cls)) {
+        if (isVertexClass(cls)) {
 
             Annotation[] annotations = AnnotationUtils.getAnnotations(field);
             for (Annotation annotation : annotations) {
@@ -125,14 +125,14 @@ public class Neo4jSchemaGenerator extends DefaultSchemaGenerator implements Anno
             }
         }
         return false;
-        //        return (isEntityClass(cls) || isRelationshipClass(cls)) && ((AnnotationUtils.getAnnotation(field, RelatedTo.class) != null) || AnnotationUtils.getAnnotation(field, RelatedToVia
+        //        return (isVertexClass(cls) || isEdgeClass(cls)) && ((AnnotationUtils.getAnnotation(field, RelatedTo.class) != null) || AnnotationUtils.getAnnotation(field, RelatedToVia
         // .class) !=
         //                                                                                                                                       null);
     }
 
     @Override
     protected boolean isLinkViaField(Class<?> cls, Field field) {
-        if (isRelationshipClass(cls)) {
+        if (isEdgeClass(cls)) {
 
             Annotation[] annotations = AnnotationUtils.getAnnotations(field);
             for (Annotation annotation : annotations) {
@@ -146,7 +146,7 @@ public class Neo4jSchemaGenerator extends DefaultSchemaGenerator implements Anno
 
     @Override
     protected boolean isAdjacentField(Class<?> cls, Field field) {
-        if (isEntityClass(cls)) {
+        if (isVertexClass(cls)) {
             Annotation[] annotations = AnnotationUtils.getAnnotations(field);
             for (Annotation annotation : annotations) {
                 if (annotation instanceof StartNode || annotation instanceof EndNode) {
@@ -202,11 +202,11 @@ public class Neo4jSchemaGenerator extends DefaultSchemaGenerator implements Anno
     }
     //    @Override
     //    protected boolean isLinkViaEdge(Class<?> cls, Field field) {
-    //        return isRelationshipClass(cls) && (AnnotationUtils.getAnnotation(field, RelatedToVia.class) != null);
+    //        return isEdgeClass(cls) && (AnnotationUtils.getAnnotation(field, RelatedToVia.class) != null);
     //    }
 
     @Override
-    public Class<? extends Annotation> getEntityAnnotationType() {
+    public Class<? extends Annotation> getVertexAnnotationType() {
         return NodeEntity.class;
     }
 
@@ -216,7 +216,7 @@ public class Neo4jSchemaGenerator extends DefaultSchemaGenerator implements Anno
     }
 
     @Override
-    public Class<? extends Annotation> getRelationshipAnnotationType() {
+    public Class<? extends Annotation> getEdgeAnnotationType() {
         return RelationshipEntity.class;
     }
 }

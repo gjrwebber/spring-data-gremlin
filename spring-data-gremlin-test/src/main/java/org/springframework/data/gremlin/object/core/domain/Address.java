@@ -1,28 +1,28 @@
-package org.springframework.data.gremlin.object.jpa.domain;
+package org.springframework.data.gremlin.object.core.domain;
 
-import javax.persistence.*;
+import com.tinkerpop.blueprints.Direction;
+import org.springframework.data.gremlin.annotation.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
-@Entity
+@Vertex
 public class Address {
 
     @Id
     private String id;
 
-    @Embedded
+    @Embed(propertyOverrides = { @PropertyOverride(name = "name", property = @Property("countryName")) })
     private Country country;
 
     private String city;
 
     private String street;
 
-    @OneToOne
-    @Column(name = "of_area")
+    @Link(name = "of_area")
     private Area area;
 
-    @OneToMany(mappedBy = "address")
-    @Column(name = "lives_at")
+    @Link(name = "lives_at", direction = Direction.IN)
     private Set<Person> people;
 
     public Address() {}

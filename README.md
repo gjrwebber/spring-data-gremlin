@@ -7,7 +7,7 @@ Spring data gremlin makes it easier to implement Graph based repositories. This 
 - All the great features of [Spring Data](http://projects.spring.io/spring-data)
 - Support for [OrientDB](http://orientdb.com) and [TitanDB](http://s3.thinkaurelius.com/docs/titan/current)  out of the box
 - Schema creation in supported databases
-- Support to build repositories based on Spring using [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations.
+- Support to build repositories based on Spring using our [custom set of annotations](https://github.com/gjrwebber/org/springframework/data/gremlin/annotation), [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations.
 - Pagination support
 - Unique, non-unique and spatial indices supported
 - Support for [Gremlin query language](http://gremlin.tinkerpop.com/) through the ```@Query``` annotation
@@ -15,9 +15,31 @@ Spring data gremlin makes it easier to implement Graph based repositories. This 
 - JavaConfig based repository configuration by introducing @EnableGremlinRepositories
 - ```Map``` and ```CompositeResult``` query result objects
 
+
+##Default Schema Generation
+
+Below is a list of default annotations used by the ```DefaultSchemaGenerator```.
+
+
+- ```@Vertex``` maps an ```Object``` to a ```Vertex```
+- ```@Edge``` maps an ```Object``` to an ```Edge```
+- ```@Embeddable``` maps an ```Object``` to set of properties to be embedded in a "parent" vertex
+- ```@Id``` maps an instance variable to the vertex or edge ID
+- ```@Index``` used for indexing properties including unique, spatial and non-unique
+- ```@Property``` maps an instance variable to a vertex property (optional, only required if you want to name it differently)
+- ```@Embed``` embeds the referenced ```Object``` in the "parent" vertex
+- ```@PropertyOverride``` can be used within ```@Embed``` for overriding properties within ```@Embeddable```s. 
+- ```@Ignore``` ignores a variable
+- ```@Enumerated``` allows for mapping an enum as an ordinal, otherwise String is the default mapping
+- ```@Link``` creates a link from this vertex to the referenced ```Object```'s vertex or ```Collection```'s verticies using the name of the field as default or the optional ```type``` parameter as the link label
+- ```@LinkVia``` creates an ```Edge``` based the the referenced ```Object``` or ```Collection``` which must be a ```@Edge```
+- ```@FromVertex``` defines the starting (or OUT) vertex of a ```@Edge```
+- ```@ToVertex``` defines the ending (or IN) vertex of a ```@Edge```
+
+
 ##Neo4j Schema Generation
 
-Below is a list of supported annotations used by the ```Neo4jSchemaGenerator```. These annotaitons are part of the [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) platform.
+Below is a list of supported annotations used by the ```Neo4jSchemaGenerator```. These annotations are part of the [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) platform.
 
 
 - ```@NodeEntity``` maps an ```Object``` to a ```Vertex```
@@ -27,8 +49,8 @@ Below is a list of supported annotations used by the ```Neo4jSchemaGenerator```.
 - ```@GraphProperty``` maps an instance variable to a vertex property (optional, only required if you want to name it differently)
 - ```@RelatedTo``` creates a link from this vertex to the referenced ```Object```'s vertex or ```Collection```'s verticies using the name of the field as default or the optional ```type``` parameter as the link label
 - ```@RelatedToVia``` creates an ```Edge``` based the the referenced ```Object``` or ```Collection``` which must be a ```@RelationshipEntity```
-- ```@StartNode``` defines the starting (or FROM) vertex of a ```@RelationshipEntity```
-- ```@EndNode``` defines the ending (or END) vertex of a ```@RelationshipEntity```
+- ```@StartNode``` defines the starting (or OUT) vertex of a ```@RelationshipEntity```
+- ```@EndNode``` defines the ending (or IN) vertex of a ```@RelationshipEntity```
 
 ##JPA Schema Generation
 
@@ -43,7 +65,7 @@ Below is a list of supported annotations used by the ```JpaSchemaGenerator```:
 - ```@OneToOne``` creates an outgoing link from this vertex to the referenced ```Object```'s vertex using the name of the field as default or the optional ```@Column```'s name field as the link label
 - ```@OneToMany``` creates an outgoing link from this vertex to all of the referenced ```Collection```'s vertices using the name of the field as default or the optional ```@Column```'s name field as the link label
 - ```@Transient``` marks an instance variable as transient
-- ```@Enumerated``` allows for mapping an enum as a String, otherwise ordinal is the default mapping
+- ```@Enumerated``` allows for mapping an enum as a ordinal, otherwise String is the default mapping
 
 ##Getting Started
 
@@ -52,22 +74,24 @@ Create your domain objects. I have used JPA for mapping the schema, but you can 
 ####Person
 
 ```
-@Entity
+@Vertex
 public class Person {
 
     @Id
     private String id;
 
-    @Column(name= "customer_name")
+    @Property("customer_name")
     private String name;
 
-    @OneToOne
-    @Column(name = "lives_at")
+    @Link("lives_at")
     private Address address;
 
-    @OneToMany
-    @Column(name = "was_located_at")
-    private Set<Location> locations;
+    @LinkVia
+    private Set<Located> locations;
+
+    @LinkVia
+    private Located currentLocation;
+
 
 }
 ```
@@ -75,13 +99,13 @@ public class Person {
 ####Address
 
 ```
-@Entity
+@Vertex
 public class Address {
 
     @Id
     private String id;
 
-    @Embedded
+    @Embed(propertyOverrides = { @PropertyOverride(name = "name", property = @Property("countryName")) })
     private Country country;
 
     private String city;
@@ -102,7 +126,7 @@ public class Country {
 ####Location
 
 ```
-@Entity
+@Vertex
 public class Location {
 
     @Id
@@ -116,6 +140,26 @@ public class Location {
     @Index(type = SPATIAL_LONGITUDE)
     private double longitude;
 
+}
+```
+
+####Located
+```
+@Edge("was_located")
+public class Located {
+
+    @Id
+    private String id;
+
+    @Property("location_date")
+    private Date date;
+
+    @FromVertex
+    private Person person;
+
+    @ToVertex
+    private Location location;
+    
 }
 ```
 
@@ -188,7 +232,7 @@ public class Configuration {
 
     @Bean
     public SchemaGenerator schemaGenerator() {
-        return new JpaSchemaGenerator(new OrientDbIdEncoder());
+        return new DefaultSchemaGenerator(new OrientDbIdEncoder());
     }
 
     @Bean
@@ -221,7 +265,7 @@ public class Configuration {
 - Lazy fetching
 - Index for multiple properties
 - Allow for IDs other than String
-- Repository definitions using ~~[Neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations)~~, [Frames](http://frames.tinkerpop.com) or some other custom implementation.
+- Repository definitions using ~~[Neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations)~~, [Frames](http://frames.tinkerpop.com) or ~~some other custom implementation~~.
 - More [Blueprints](https://github.com/tinkerpop/blueprints/wiki) implementations ([Neo4j](https://en.wikipedia.org/wiki/Neo4j), [ArangoDB](https://www.arangodb.com), [Blazegraph](http://www.blazegraph.com/bigdata), etc.)
 - Migrate to [Tinkerpop 3.0](http://www.tinkerpop.com/docs/3.0.0.M1/)
 

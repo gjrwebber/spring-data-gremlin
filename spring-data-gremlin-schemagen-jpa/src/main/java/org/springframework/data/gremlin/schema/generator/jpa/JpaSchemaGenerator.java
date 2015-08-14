@@ -217,7 +217,7 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
 
     @Override
     protected boolean isLinkField(Class<?> cls, Field field) {
-        return isEntityClass(cls) && (AnnotationUtils.getAnnotation(field, OneToOne.class) != null || AnnotationUtils.getAnnotation(field, ManyToOne.class) != null);
+        return isVertexClass(cls) && (AnnotationUtils.getAnnotation(field, OneToOne.class) != null || AnnotationUtils.getAnnotation(field, ManyToOne.class) != null);
     }
 
 
@@ -257,7 +257,7 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
     }
 
     @Override
-    public Class<? extends Annotation> getEntityAnnotationType() {
+    public Class<? extends Annotation> getVertexAnnotationType() {
         return Entity.class;
     }
 
@@ -267,7 +267,7 @@ public class JpaSchemaGenerator extends DefaultSchemaGenerator implements Annota
     }
 
     @Override
-    public Class<? extends Annotation> getRelationshipAnnotationType() {
+    public Class<? extends Annotation> getEdgeAnnotationType() {
         return null;
     }
 }

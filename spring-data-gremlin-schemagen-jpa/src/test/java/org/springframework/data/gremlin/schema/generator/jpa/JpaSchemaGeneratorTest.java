@@ -20,7 +20,7 @@ public class JpaSchemaGeneratorTest {
     @Before
     public void setUp() throws Exception {
         generator = new JpaSchemaGenerator();
-        generator.setEntityClasses(TestEntity.class, LinkedTestEntity.class);
+        generator.setVertexClasses(TestEntity.class, LinkedTestEntity.class);
         generator.setEmbeddedClasses(EmbeddedTestEntity.class, MultiEmbeddedTestEntity.class);
     }
 

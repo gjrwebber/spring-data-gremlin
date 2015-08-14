@@ -1,11 +1,11 @@
-package org.springframework.data.gremlin.object.jpa.repository;
+package org.springframework.data.gremlin.object.core.repository;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.springframework.data.gremlin.object.jpa.domain.Address;
-import org.springframework.data.gremlin.object.jpa.domain.Area;
-import org.springframework.data.gremlin.object.jpa.domain.Country;
-import org.springframework.data.gremlin.object.jpa.domain.Person;
+import org.springframework.data.gremlin.object.core.domain.Address;
+import org.springframework.data.gremlin.object.core.domain.Area;
+import org.springframework.data.gremlin.object.core.domain.Country;
+import org.springframework.data.gremlin.object.core.domain.Person;
 
 import java.util.List;
 

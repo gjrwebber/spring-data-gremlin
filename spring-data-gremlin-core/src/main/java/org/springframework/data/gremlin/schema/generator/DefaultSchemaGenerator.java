@@ -29,14 +29,18 @@ import java.util.*;
 public class DefaultSchemaGenerator implements SchemaGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DefaultSchemaGenerator.class);
-    private Set<Class<?>> entityClasses;
+    private Set<Class<?>> vertexClasses;
     private Set<Class<?>> embeddedClasses;
-    private Set<Class<?>> relationshipClasses;
+    private Set<Class<?>> edgeClasses;
     private GremlinPropertyFactory propertyFactory;
     private GremlinPropertyEncoder idEncoder;
 
     public DefaultSchemaGenerator() {
         this(null, new GremlinPropertyFactory());
+    }
+
+    public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder) {
+        this(idEncoder, new GremlinPropertyFactory());
     }
 
     public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, GremlinPropertyFactory propertyFactory) {
@@ -58,7 +62,6 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
         GremlinSchema<V> schema = new GremlinSchema<V>(clazz);
         schema.setClassName(className);
         schema.setClassType(clazz);
-        //        schema.setSchemaType(getSchemaType(clazz));
         schema.setWritable(isSchemaWritable(clazz));
         schema.setIdAccessor(idAccessor);
         schema.setIdEncoder(idEncoder);
@@ -72,7 +75,7 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected <S> boolean isSchemaWritable(Class<S> clazz) {
-        return isEntityClass(clazz);
+        return isVertexClass(clazz);
     }
 
     protected <V, S> void populate(Class<V> clazz, GremlinSchema<S> schema) {
@@ -245,9 +248,7 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected String getPropertyName(Field field, Field rootEmbeddedField) {
-        String propertyName;
-
-        propertyName = field.getName();
+        String propertyName = field.getName();
 
         if (rootEmbeddedField != null) {
             propertyName = String.format("%s_%s", getPropertyName(rootEmbeddedField, null), propertyName);
@@ -260,11 +261,11 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean isLinkField(Class<?> cls, Field field) {
-        return isEntityClass(cls);
+        return isVertexClass(cls);
     }
 
     protected boolean isLinkViaField(Class<?> cls, Field field) {
-        return isRelationshipClass(cls);
+        return isEdgeClass(cls);
     }
 
     protected boolean isAdjacentField(Class<?> cls, Field field) {
@@ -280,11 +281,11 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean isCollectionField(Class<?> cls, Field field) {
-        return Collection.class.isAssignableFrom(cls) && isEntityClass(getCollectionType(field));
+        return Collection.class.isAssignableFrom(cls) && isVertexClass(getCollectionType(field));
     }
 
     protected boolean isCollectionViaField(Class<?> cls, Field field) {
-        return Collection.class.isAssignableFrom(cls) && isRelationshipClass(getCollectionType(field));
+        return Collection.class.isAssignableFrom(cls) && isEdgeClass(getCollectionType(field));
     }
 
     private Class<?> getCollectionType(Field field) {
@@ -305,13 +306,13 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
      * @param cls
      * @return
      */
-    protected boolean isEntityClass(Class<?> cls) {
-        if (entityClasses == null) {
+    protected boolean isVertexClass(Class<?> cls) {
+        if (vertexClasses == null) {
             LOGGER.warn("Entities is null, this is unusual and is possibly an error. Please add the entity classes to the concrete SchemaBuilder.");
             return false;
         }
 
-        return entityClasses.contains(cls);
+        return vertexClasses.contains(cls);
     }
 
     /**
@@ -330,27 +331,27 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
      * @param cls
      * @return
      */
-    protected boolean isRelationshipClass(Class<?> cls) {
-        if (relationshipClasses == null) {
+    protected boolean isEdgeClass(Class<?> cls) {
+        if (edgeClasses == null) {
             return false;
         }
 
-        return relationshipClasses.contains(cls);
+        return edgeClasses.contains(cls);
     }
 
     protected boolean acceptType(Class<?> cls) {
-        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || isEntityClass(cls) ||
-               isEmbeddedClass(cls) || isRelationshipClass(cls);
+        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || isVertexClass(cls) ||
+               isEmbeddedClass(cls) || isEdgeClass(cls);
     }
 
     @Override
-    public void setEntityClasses(Set<Class<?>> entityClasses) {
-        this.entityClasses = entityClasses;
+    public void setVertexClasses(Set<Class<?>> entityClasses) {
+        this.vertexClasses = entityClasses;
     }
 
     @Override
-    public void setEntityClasses(Class<?>... entites) {
-        setEntityClasses(new HashSet<Class<?>>(Arrays.asList(entites)));
+    public void setVertexClasses(Class<?>... entites) {
+        setVertexClasses(new HashSet<Class<?>>(Arrays.asList(entites)));
     }
 
     @Override
@@ -364,13 +365,13 @@ public class DefaultSchemaGenerator implements SchemaGenerator {
     }
 
     @Override
-    public void setRelationshipClasses(Set<Class<?>> relationshipClasses) {
-        this.relationshipClasses = relationshipClasses;
+    public void setEdgeClasses(Set<Class<?>> relationshipClasses) {
+        this.edgeClasses = relationshipClasses;
     }
 
     @Override
-    public void setRelationshipClasses(Class<?>... relationshipClasses) {
-        setRelationshipClasses(new HashSet<Class<?>>(Arrays.asList(relationshipClasses)));
+    public void setEdgeClasses(Class<?>... relationshipClasses) {
+        setEdgeClasses(new HashSet<Class<?>>(Arrays.asList(relationshipClasses)));
     }
 
 

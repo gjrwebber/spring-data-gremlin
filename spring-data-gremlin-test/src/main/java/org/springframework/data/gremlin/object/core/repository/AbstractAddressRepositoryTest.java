@@ -1,10 +1,10 @@
-package org.springframework.data.gremlin.object.jpa.repository;
+package org.springframework.data.gremlin.object.core.repository;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Assert;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.gremlin.object.jpa.domain.Address;
+import org.springframework.data.gremlin.object.core.domain.Address;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -32,9 +32,10 @@ public abstract class AbstractAddressRepositoryTest extends BaseRepositoryTest {
         }
     }
 
+
     @Test
     public void should_save_and_find_embedded_country() throws Exception {
-        List<Address> addresses = new ArrayList<>();
+        List<Address> addresses = new ArrayList<Address>();
 
         CollectionUtils.addAll(addresses, addressRepository.findAll());
         assertNotNull(addresses);
