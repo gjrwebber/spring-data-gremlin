@@ -8,9 +8,9 @@ import java.lang.annotation.Annotation;
  * @author Gman
  */
 public interface AnnotatedSchemaGenerator extends SchemaGenerator {
-    Class<? extends Annotation> getEntityAnnotationType();
+    Class<? extends Annotation> getVertexAnnotationType();
 
     Class<? extends Annotation> getEmbeddedAnnotationType();
 
-    Class<? extends Annotation> getRelationshipAnnotationType();
+    Class<? extends Annotation> getEdgeAnnotationType();
 }

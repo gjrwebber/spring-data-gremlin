@@ -1,5 +1,8 @@
 package org.springframework.data.gremlin.schema.property.accessor;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.reflect.Field;
 
 /**
@@ -8,6 +11,8 @@ import java.lang.reflect.Field;
  * @author Gman
  */
 public class GremlinFieldPropertyAccessor<V> extends AbstractGremlinFieldPropertyAccessor<V> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GremlinFieldPropertyAccessor.class);
 
     private GremlinFieldPropertyAccessor parentAccessor;
 
@@ -61,9 +66,8 @@ public class GremlinFieldPropertyAccessor<V> extends AbstractGremlinFieldPropert
         try {
             return field.getType().newInstance();
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Could not create a new instance of " + field.getType() + ": " + e.getMessage(), e);
         }
-        return null;
     }
 
     /**
@@ -83,4 +87,12 @@ public class GremlinFieldPropertyAccessor<V> extends AbstractGremlinFieldPropert
         return parentAccessor;
     }
 
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("GremlinFieldPropertyAccessor{");
+        sb.append("field=").append(field);
+        sb.append(", parentAccessor=").append(parentAccessor);
+        sb.append('}');
+        return sb.toString();
+    }
 }

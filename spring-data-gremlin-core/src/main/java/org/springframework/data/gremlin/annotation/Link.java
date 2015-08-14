@@ -11,7 +11,9 @@ import java.lang.annotation.*;
 @Target({ ElementType.METHOD, ElementType.FIELD })
 public @interface Link {
 
-    Direction value() default Direction.OUT;
+    String value() default "";
+
+    String name() default "";
 
     Direction direction() default Direction.OUT;
 }

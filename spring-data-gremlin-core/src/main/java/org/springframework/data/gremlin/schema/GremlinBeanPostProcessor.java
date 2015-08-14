@@ -53,9 +53,9 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
         if (!StringUtils.isEmpty(baseClasspath)) {
             Reflections reflections = new Reflections(new ConfigurationBuilder().addUrls(ClasspathHelper.forPackage(baseClasspath)).setScanners(new TypeAnnotationsScanner()));
 
-            Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(annotatedSchemaGenerator.getEntityAnnotationType());
+            Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(annotatedSchemaGenerator.getVertexAnnotationType());
             this.entityClasses.addAll(entityClasses);
-            schemaGenerator.setEntityClasses(entityClasses);
+            schemaGenerator.setVertexClasses(entityClasses);
 
             Class<? extends Annotation> embedType = annotatedSchemaGenerator.getEmbeddedAnnotationType();
             if (embedType != null) {
@@ -64,11 +64,11 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
                 schemaGenerator.setEmbeddedClasses(embeddableClasses);
             }
 
-            Class<? extends Annotation> relType = annotatedSchemaGenerator.getRelationshipAnnotationType();
+            Class<? extends Annotation> relType = annotatedSchemaGenerator.getEdgeAnnotationType();
             if (relType != null) {
                 Set<Class<?>> relationships = reflections.getTypesAnnotatedWith(relType);
                 this.relationshipClasses.addAll(relationships);
-                schemaGenerator.setRelationshipClasses(relationshipClasses);
+                schemaGenerator.setEdgeClasses(relationshipClasses);
             }
         }
 
@@ -86,9 +86,9 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
         this.entityClasses = entities;
         this.embeddedClasses = embedded;
         this.relationshipClasses = relationships;
-        schemaGenerator.setEntityClasses(entityClasses);
+        schemaGenerator.setVertexClasses(entityClasses);
         schemaGenerator.setEmbeddedClasses(embeddedClasses);
-        schemaGenerator.setRelationshipClasses(relationships);
+        schemaGenerator.setEdgeClasses(relationships);
 
         generateSchemasFromEntities(entityClasses);
         generateSchemasFromEntities(relationshipClasses);

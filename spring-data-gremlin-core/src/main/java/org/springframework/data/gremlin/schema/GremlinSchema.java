@@ -198,8 +198,8 @@ public class GremlinSchema<V> {
 
                 Object val = property.loadFromVertex(element, cascadingSchemas);
 
+                GremlinPropertyAccessor accessor = property.getAccessor();
                 try {
-                    GremlinPropertyAccessor accessor = property.getAccessor();
                     accessor.set(obj, val);
                 } catch (Exception e) {
                     LOGGER.warn(String.format("Could not load property %s of %s", property, obj.toString()), e);
