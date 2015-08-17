@@ -18,6 +18,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.*;
+
 /**
  * Default {@link SchemaGenerator} using Java reflection along with Index and Index annotations.
  * <p>
@@ -62,20 +64,20 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         GremlinSchema<V> schema = new GremlinSchema<V>(clazz);
         schema.setClassName(className);
         schema.setClassType(clazz);
-        schema.setWritable(isSchemaWritable(clazz));
+        schema.setSchemaType(isVertexClass(clazz) ? VERTEX : EDGE);
         schema.setIdAccessor(idAccessor);
         schema.setIdEncoder(idEncoder);
 
         // Generate the Schema for clazz with all of it's super classes.
         populate(clazz, schema);
-        if (schema.isWritable() && schema.getIdAccessor() == null) {
+        if (schema.getSchemaType() == VERTEX && schema.getIdAccessor() == null) {
             throw new SchemaGeneratorException("Could not generate Schema for " + clazz.getSimpleName() + ". No @Id field found.");
         }
         return schema;
     }
 
     protected <S> boolean isSchemaWritable(Class<S> clazz) {
-        return isVertexClass(clazz);
+        return isVertexClass(clazz) || isEdgeClass(clazz);
     }
 
     protected <V, S> void populate(Class<V> clazz, GremlinSchema<S> schema) {

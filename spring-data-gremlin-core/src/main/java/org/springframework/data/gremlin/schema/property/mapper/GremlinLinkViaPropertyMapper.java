@@ -24,7 +24,7 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
     @Override
     public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
 
-        GremlinRelatedProperty adjacentProperty = getAdjacentProperty(property);
+        GremlinRelatedProperty adjacentProperty = property.getAdjacentProperty();
 
         // Check we found the adjacent property
         if (adjacentProperty != null) {
@@ -78,22 +78,4 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
         return val;
     }
 
-    private GremlinRelatedProperty getAdjacentProperty(GremlinRelatedProperty property) {
-
-        GremlinRelatedProperty adjacentProperty = null;
-
-        for (Object propertyOfRelatedSchema : property.getRelatedSchema().getProperties()) {
-            if (propertyOfRelatedSchema instanceof GremlinRelatedProperty) {
-                // If the property has the same direction of the given property here it
-                // means it is the opposite property of the @EntityRelationship
-                if (((GremlinRelatedProperty) propertyOfRelatedSchema).getDirection() == property.getDirection()) {
-                    adjacentProperty = (GremlinRelatedProperty) propertyOfRelatedSchema;
-                    break;
-                }
-            }
-        }
-
-        return adjacentProperty;
-
-    }
 }

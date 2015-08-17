@@ -32,7 +32,7 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
             existingLinkedEdges.add(currentEdge);
         }
 
-        GremlinRelatedProperty adjacentProperty = getAdjacentProperty(property);
+        GremlinRelatedProperty adjacentProperty = property.getAdjacentProperty();
 
         // Check we found the adjacent property
         if (adjacentProperty != null) {
@@ -98,24 +98,5 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
             collection.add(linkedObject);
         }
         return collection;
-    }
-
-    private GremlinRelatedProperty getAdjacentProperty(GremlinRelatedProperty property) {
-
-        GremlinRelatedProperty adjacentProperty = null;
-
-        for (Object propertyOfRelatedSchema : property.getRelatedSchema().getProperties()) {
-            if (propertyOfRelatedSchema instanceof GremlinRelatedProperty) {
-                // If the property has the same direction of the given property here it
-                // means it is the opposite property of the @EntityRelationship
-                if (((GremlinRelatedProperty) propertyOfRelatedSchema).getDirection() == property.getDirection()) {
-                    adjacentProperty = (GremlinRelatedProperty) propertyOfRelatedSchema;
-                    break;
-                }
-            }
-        }
-
-        return adjacentProperty;
-
     }
 }

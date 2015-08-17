@@ -35,6 +35,10 @@ public class GremlinSchema<V> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinSchema.class);
 
+    public enum SCHEMA_TYPE {
+        VERTEX, EDGE;
+    }
+
     public GremlinSchema(Class<V> classType) {
         this.classType = classType;
     }
@@ -45,7 +49,7 @@ public class GremlinSchema<V> {
 
     private String className;
     private Class<V> classType;
-    private boolean writable;
+    private SCHEMA_TYPE schemaType;
     private GremlinRepository<V> repository;
     private GremlinGraphFactory graphFactory;
     private GremlinIdFieldPropertyAccessor idAccessor;
@@ -146,8 +150,13 @@ public class GremlinSchema<V> {
         return typePropertyMap.get(type);
     }
 
-    public boolean isWritable() { return writable; }
+    public SCHEMA_TYPE getSchemaType() {
+        return schemaType;
+    }
 
+    public void setSchemaType(SCHEMA_TYPE schemaType) {
+        this.schemaType = schemaType;
+    }
 
     public void copyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj) {
         cascadeCopyToGraph(graphAdapter, element, obj, new HashMap<Object, Element>());
@@ -243,10 +252,6 @@ public class GremlinSchema<V> {
             id = idEncoder.decode(id).toString();
         }
         return id;
-    }
-
-    public void setWritable(boolean writable) {
-        this.writable = writable;
     }
 
     @Override
