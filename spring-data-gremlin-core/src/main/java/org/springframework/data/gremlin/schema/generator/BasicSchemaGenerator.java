@@ -201,7 +201,7 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean shouldProcessField(GremlinSchema schema, Field field) {
-        return field != null && acceptType(field.getType()) && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers());
+        return field != null && acceptType(field.getType()) && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers());
     }
 
     protected Field getIdField(Class<?> cls) throws SchemaGeneratorException {
