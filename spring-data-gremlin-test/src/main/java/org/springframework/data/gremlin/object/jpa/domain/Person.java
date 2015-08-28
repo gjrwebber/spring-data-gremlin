@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.object.jpa.domain;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -9,6 +10,15 @@ public class Person {
     public enum AWESOME {
         YES,
         NO;
+    }
+
+    public enum VEHICLE {
+        CAR,
+        MOTORBIKE,
+        BICYLE,
+        SKATEBOARD,
+        HOVERCRAFT,
+        SPACESHIP
     }
 
     @Id
@@ -30,6 +40,8 @@ public class Person {
 
     @Enumerated(EnumType.STRING)
     private AWESOME awesome = AWESOME.YES;
+
+    private HashSet<VEHICLE> vehicles;
 
     public Person() {
     }
@@ -104,4 +116,16 @@ public class Person {
     public void setAwesome(AWESOME awesome) {
         this.awesome = awesome;
     }
+
+    public Set<VEHICLE> getVehicles() {
+        return vehicles;
+    }
+
+    public void addVehicle(VEHICLE vehicle) {
+        if (vehicles == null) {
+            vehicles = new HashSet<>();
+        }
+        vehicles.add(vehicle);
+    }
+
 }

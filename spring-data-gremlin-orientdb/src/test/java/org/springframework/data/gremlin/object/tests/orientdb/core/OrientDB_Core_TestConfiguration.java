@@ -30,7 +30,7 @@ public class OrientDB_Core_TestConfiguration {
     @Bean
     public OrientDBGremlinGraphFactory factory() {
         OrientDBGremlinGraphFactory factory = new OrientDBGremlinGraphFactory();
-        factory.setUrl("memory:spring-data-orientdb-db");
+        factory.setUrl("memory:spring-data-orientdb-core");
         factory.setUsername("admin");
         factory.setPassword("admin");
         return factory;

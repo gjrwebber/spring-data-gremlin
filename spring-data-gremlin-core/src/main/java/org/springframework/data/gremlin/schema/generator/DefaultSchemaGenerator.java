@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
+import java.util.Collection;
 
 /**
  * Default {@link SchemaGenerator} using Java reflection along with annotations defined in {@link org.springframework.data.gremlin.annotation}.
@@ -83,11 +84,22 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
 
     }
 
+    @Override
+    protected Class<Collection<Enum>> getEnumCollectionType(Field field) {
+        Class<Collection<Enum>> type = super.getEnumCollectionType(field);
+        EnumeratedCollection enumerated = AnnotationUtils.getAnnotation(field, EnumeratedCollection.class);
+        if (enumerated != null) {
+            type = (Class<Collection<Enum>>) enumerated.value();
+        }
+        return type;
+    }
+
+    @Override
     protected Class<?> getEnumType(Field field) {
-        Class<?> type = String.class;
+        Class<?> type = super.getEnumType(field);
         Enumerated enumerated = AnnotationUtils.getAnnotation(field, Enumerated.class);
         if (enumerated != null) {
-            return enumerated.value().getType();
+            type = enumerated.value().getType();
         }
         return type;
     }
@@ -192,22 +204,27 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         return null;
     }
 
+    @Override
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
         return super.isEmbeddedField(cls, field) && AnnotationUtils.getAnnotation(field, Embed.class) != null;
     }
 
+    @Override
     protected boolean isLinkField(Class<?> cls, Field field) {
         return super.isLinkField(cls, field) && (AnnotationUtils.getAnnotation(field, Link.class) != null);
     }
 
+    @Override
     protected boolean isLinkViaField(Class<?> cls, Field field) {
         return super.isLinkViaField(cls, field) && (AnnotationUtils.getAnnotation(field, LinkVia.class) != null);
     }
 
+    @Override
     protected boolean isAdjacentField(Class<?> cls, Field field) {
         return isVertexClass(cls) && (AnnotationUtils.getAnnotation(field, ToVertex.class) != null || AnnotationUtils.getAnnotation(field, FromVertex.class) != null);
     }
 
+    @Override
     protected boolean isAdjacentOutward(Class<?> cls, Field field) {
         FromVertex startNode = AnnotationUtils.getAnnotation(field, FromVertex.class);
         if (startNode != null) {
@@ -222,6 +239,7 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         return true;
     }
 
+    @Override
     protected boolean isLinkOutward(Class<?> cls, Field field) {
         Link relatedTo = AnnotationUtils.getAnnotation(field, Link.class);
         if (relatedTo != null) {
@@ -240,10 +258,12 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         return true;
     }
 
+    @Override
     protected boolean isCollectionField(Class<?> cls, Field field) {
         return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, Link.class) != null;
     }
 
+    @Override
     protected boolean isCollectionViaField(Class<?> cls, Field field) {
         return super.isCollectionViaField(cls, field) && AnnotationUtils.getAnnotation(field, LinkVia.class) != null;
     }

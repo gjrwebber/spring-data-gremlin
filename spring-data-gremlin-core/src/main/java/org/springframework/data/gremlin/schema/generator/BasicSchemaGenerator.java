@@ -18,7 +18,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.*;
+import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.EDGE;
+import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.VERTEX;
 
 /**
  * Default {@link SchemaGenerator} using Java reflection along with Index and Index annotations.
@@ -122,13 +123,27 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         if (acceptType(cls)) {
 
             // If it is an enum, check if it is annotated with @Enumerated
-            if (cls.isEnum()) {
+            if (isEnumField(cls, field)) {
                 Class<?> enumType = cls;
+
                 cls = getEnumType(field);
-                if (cls == String.class) {
-                    accessor = new GremlinEnumStringFieldPropertyAccessor(field, enumType);
+                if (Collection.class.isAssignableFrom(field.getType())) {
+                    Class<Collection<Enum>> enumCollectionCls = getEnumCollectionType(field);
+                    if (enumCollectionCls.isInterface()) {
+                        throw new IllegalArgumentException("Collection is an interface (" + enumCollectionCls +
+                                                           "). The concrete type cannot be determined. Please use a concrete Collection type or use @Enumerated(collectionType=HashSet.class)");
+                    }
+                    boolean useOrdinal = cls == Integer.class;
+                    accessor = new GremlinEnumStringCollectionFieldPropertyAccessor(field, enumCollectionCls, useOrdinal);
+                    cls = String.class;
                 } else {
-                    accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
+                    if (cls == String.class) {
+                        accessor = new GremlinEnumStringFieldPropertyAccessor(field, enumType);
+                    } else if (cls == Integer.class) {
+                        accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
+                    } else {
+                        accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
+                    }
                 }
             } else {
                 accessor = new GremlinFieldPropertyAccessor(field, embeddedFieldAccessor);
@@ -201,7 +216,8 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean shouldProcessField(GremlinSchema schema, Field field) {
-        return field != null && acceptType(field.getType()) && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers());
+        return field != null && acceptType(field.getType()) && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(
+                field.getModifiers());
     }
 
     protected Field getIdField(Class<?> cls) throws SchemaGeneratorException {
@@ -215,6 +231,10 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         } catch (NoSuchFieldException e) {
             throw new SchemaGeneratorException("Cannot generate schema as there is no ID field. You must have a field of type Long or String named 'id'.");
         }
+    }
+
+    protected Class<Collection<Enum>> getEnumCollectionType(Field field) {
+        return (Class<Collection<Enum>>) field.getType();
     }
 
     protected Class<?> getEnumType(Field field) {
@@ -256,6 +276,10 @@ public class BasicSchemaGenerator implements SchemaGenerator {
             propertyName = String.format("%s_%s", getPropertyName(rootEmbeddedField, null), propertyName);
         }
         return propertyName;
+    }
+
+    protected boolean isEnumField(Class<?> cls, Field field) {
+        return cls.isEnum() || (Collection.class.isAssignableFrom(cls) && getCollectionType(field).isEnum());
     }
 
     protected boolean isEmbeddedField(Class<?> cls, Field field) {

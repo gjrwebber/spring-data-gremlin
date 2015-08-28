@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.object.core.domain;
 
 import org.springframework.data.gremlin.annotation.*;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import static com.tinkerpop.blueprints.Direction.*;
@@ -13,6 +14,15 @@ public class Person {
     public enum AWESOME {
         YES,
         NO
+    }
+
+    public enum VEHICLE {
+        CAR,
+        MOTORBIKE,
+        BICYLE,
+        SKATEBOARD,
+        HOVERCRAFT,
+        SPACESHIP
     }
 
     @Id
@@ -35,6 +45,11 @@ public class Person {
 
     @Enumerated(STRING)
     private AWESOME awesome = AWESOME.YES;
+
+    private HashSet<VEHICLE> vehicles;
+
+    @EnumeratedCollection(HashSet.class)
+    private Set<VEHICLE> wantedVehicles;
 
     public Person() {
     }
@@ -116,5 +131,27 @@ public class Person {
 
     public void setCurrentLocation(Located currentLocation) {
         this.currentLocation = currentLocation;
+    }
+
+    public Set<VEHICLE> getVehicles() {
+        return vehicles;
+    }
+
+    public void addVehicle(VEHICLE vehicle) {
+        if (vehicles == null) {
+            vehicles = new HashSet<>();
+        }
+        vehicles.add(vehicle);
+    }
+
+    public Set<VEHICLE> getWantedVehicles() {
+        return wantedVehicles;
+    }
+
+    public void addWantedVehicle(VEHICLE vehicle) {
+        if (wantedVehicles == null) {
+            wantedVehicles = new HashSet<>();
+        }
+        wantedVehicles.add(vehicle);
     }
 }

@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by gman on 18/05/15.
  */
-public class TinkerpopFieldAccessorTest {
+public class GremlinFieldAccessorTest {
     TestObject obj1;
 
     GremlinPropertyAccessor primAccessor;
