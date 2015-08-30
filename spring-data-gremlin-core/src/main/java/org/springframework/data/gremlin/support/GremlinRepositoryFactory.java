@@ -20,7 +20,6 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
 
-import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.*;
 
 /**
  * A {@link RepositoryFactorySupport} for Gremlin.
@@ -73,7 +72,7 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
             schema.setRepository((GremlinRepository) repository);
             schema.setGraphFactory(dbf);
 
-            if (schema.getSchemaType() == VERTEX && schemaWriter != null) {
+            if (schema.isVertexSchema() && schemaWriter != null) {
                 schemaWriter.writeSchema(dbf, schema);
             }
 

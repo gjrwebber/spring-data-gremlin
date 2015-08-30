@@ -25,7 +25,6 @@ import java.util.Arrays;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.*;
 
 /**
  * Created by gman on 18/05/15.
@@ -117,7 +116,7 @@ public class OrientDbSchemaWriterTest {
         GremlinLinkProperty property3 = new GremlinLinkProperty(TestEntity.class, "link", Direction.OUT);
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
-        when(relatedSchema.getSchemaType()).thenReturn(VERTEX);
+        when(relatedSchema.isVertexSchema()).thenReturn(true);
 
         OClass linkClass = Mockito.mock(OClass.class);
         when(linkClass.getSuperClass()).thenReturn(v);
@@ -161,7 +160,7 @@ public class OrientDbSchemaWriterTest {
         GremlinLinkProperty property2 = new GremlinLinkProperty(TestEntity.class, "link", Direction.OUT);
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
         when(relatedSchema.getClassName()).thenReturn("TestEntity");
-        when(relatedSchema.getSchemaType()).thenReturn(VERTEX);
+        when(relatedSchema.isVertexSchema()).thenReturn(true);
 
         OClass linkClass = Mockito.mock(OClass.class);
         when(linkClass.getSuperClass()).thenReturn(v);

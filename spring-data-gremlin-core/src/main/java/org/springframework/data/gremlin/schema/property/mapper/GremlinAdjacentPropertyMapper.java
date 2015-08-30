@@ -9,7 +9,7 @@ import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import java.util.Map;
 
 /**
- * A {@link GremlinPropertyMapper} for mapping {@link GremlinLinkProperty}s.
+ * A {@link GremlinPropertyMapper} for mapping {@link GremlinAdjacentProperty}s.
  *
  * @author Gman
  */

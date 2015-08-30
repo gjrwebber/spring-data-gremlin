@@ -6,7 +6,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.gremlin.annotation.Index;
+import org.springframework.data.gremlin.schema.GremlinEdgeSchema;
 import org.springframework.data.gremlin.schema.GremlinSchema;
+import org.springframework.data.gremlin.schema.GremlinVertexSchema;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinPropertyFactory;
 import org.springframework.data.gremlin.schema.property.accessor.*;
@@ -17,8 +19,6 @@ import org.springframework.util.ReflectionUtils;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
-
-import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.*;
 
 /**
  * Default {@link SchemaGenerator} using Java reflection along with Index and Index annotations.
@@ -61,16 +61,15 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         Field field = getIdField(clazz);
         GremlinIdFieldPropertyAccessor idAccessor = new GremlinIdFieldPropertyAccessor(field);
 
-        GremlinSchema<V> schema = new GremlinSchema<V>(clazz);
+        GremlinSchema<V> schema = createSchema(clazz);
         schema.setClassName(className);
         schema.setClassType(clazz);
-        schema.setSchemaType(isVertexClass(clazz) ? VERTEX : EDGE);
         schema.setIdAccessor(idAccessor);
         schema.setIdEncoder(idEncoder);
 
         // Generate the Schema for clazz with all of it's super classes.
         populate(clazz, schema);
-        if (schema.getSchemaType() == VERTEX && schema.getIdAccessor() == null) {
+        if (schema.isVertexSchema() && schema.getIdAccessor() == null) {
             throw new SchemaGeneratorException("Could not generate Schema for " + clazz.getSimpleName() + ". No @Id field found.");
         }
         return schema;
@@ -82,6 +81,16 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
     protected <V, S> void populate(Class<V> clazz, GremlinSchema<S> schema) {
         populate(clazz, schema, null);
+    }
+
+    private <V> GremlinSchema<V> createSchema(Class<V> clazz) {
+        if (isVertexClass(clazz)) {
+            return new GremlinVertexSchema<>(clazz);
+        } else if (isEdgeClass(clazz)) {
+            return new GremlinEdgeSchema<>(clazz);
+        } else {
+            throw new IllegalArgumentException(clazz + " cannot be classes as a VERTEX or EDGE!");
+        }
     }
 
     /**

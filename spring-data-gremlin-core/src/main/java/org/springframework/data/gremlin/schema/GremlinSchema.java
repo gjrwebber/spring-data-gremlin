@@ -23,7 +23,7 @@ import java.util.*;
 /**
  * <p>
  * Defines the schema of a mapped Class. Each GremlinSchema holds the {@code className}, {@code classType},
- * {@code schemaType} (ENTITY, EMBEDDED) and the identifying {@link GremlinFieldPropertyAccessor}.
+ * {@code schemaType} (VERTEX, EDGE) and the identifying {@link GremlinFieldPropertyAccessor}.
  * </p>
  * <p>
  * The GremlinSchema contains the high level logic for converting Vertices to mapped classes.
@@ -31,13 +31,13 @@ import java.util.*;
  *
  * @author Gman
  */
-public class GremlinSchema<V> {
+public abstract class GremlinSchema<V> {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinSchema.class);
 
-    public enum SCHEMA_TYPE {
-        VERTEX, EDGE;
-    }
+//    public enum SCHEMA_TYPE {
+//        VERTEX, EDGE;
+//    }
 
     public GremlinSchema(Class<V> classType) {
         this.classType = classType;
@@ -49,7 +49,7 @@ public class GremlinSchema<V> {
 
     private String className;
     private Class<V> classType;
-    private SCHEMA_TYPE schemaType;
+//    private SCHEMA_TYPE schemaType;
     private GremlinRepository<V> repository;
     private GremlinGraphFactory graphFactory;
     private GremlinIdFieldPropertyAccessor idAccessor;
@@ -150,12 +150,20 @@ public class GremlinSchema<V> {
         return typePropertyMap.get(type);
     }
 
-    public SCHEMA_TYPE getSchemaType() {
-        return schemaType;
+//    public SCHEMA_TYPE getSchemaType() {
+//        return schemaType;
+//    }
+
+//    public void setSchemaType(SCHEMA_TYPE schemaType) {
+//        this.schemaType = schemaType;
+//    }
+
+    public boolean isVertexSchema() {
+        return this instanceof GremlinVertexSchema;
     }
 
-    public void setSchemaType(SCHEMA_TYPE schemaType) {
-        this.schemaType = schemaType;
+    public boolean isEdgeSchema() {
+        return this instanceof GremlinEdgeSchema;
     }
 
     public void copyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj) {
@@ -222,8 +230,8 @@ public class GremlinSchema<V> {
         return decodeId(getIdAccessor().get(obj));
     }
 
-    public void setObjectId(V obj, Vertex vertex) {
-        getIdAccessor().set(obj, encodeId(vertex.getId().toString()));
+    public void setObjectId(V obj, Element element) {
+        getIdAccessor().set(obj, encodeId(element.getId().toString()));
     }
 
     public String getObjectId(V obj) {

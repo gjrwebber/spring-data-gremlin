@@ -8,7 +8,6 @@ import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 
-import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.*;
 import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.CARDINALITY;
 
 /**
@@ -64,7 +63,7 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                     if (property instanceof GremlinRelatedProperty) {
 
                         GremlinRelatedProperty relatedProperty = (GremlinRelatedProperty) property;
-                        if (relatedProperty.getRelatedSchema().getSchemaType() == VERTEX) {
+                        if (relatedProperty.getRelatedSchema().isVertexSchema()) {
 
                             if (LOGGER.isDebugEnabled()) {
                                 LOGGER.debug("CREATING RELATED PROPERTY: " + schema.getClassName() + "." + property.getName());

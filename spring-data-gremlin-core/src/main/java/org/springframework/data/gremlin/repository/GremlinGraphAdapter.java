@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.repository;
 
 import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.Vertex;
 import org.slf4j.Logger;
@@ -46,11 +47,21 @@ public class GremlinGraphAdapter<G extends Graph> {
     @Transactional(readOnly = true)
     public Vertex findVertexById(String id) {
         G graph = graphFactory.graph();
-        Vertex playerVertex = graph.getVertex(decodeId(id));
-        if (playerVertex == null) {
-            playerVertex = graph.getVertex(id);
+        Vertex vertex = graph.getVertex(decodeId(id));
+        if (vertex == null) {
+            vertex = graph.getVertex(id);
         }
-        return playerVertex;
+        return vertex;
+    }
+
+    @Transactional(readOnly = true)
+    public Edge findEdgeById(String id) {
+        G graph = graphFactory.graph();
+        Edge edge = graph.getEdge(decodeId(id));
+        if (edge == null) {
+            edge = graph.getEdge(id);
+        }
+        return edge;
     }
 
     @Transactional(readOnly = true)

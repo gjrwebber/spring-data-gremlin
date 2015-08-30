@@ -33,4 +33,17 @@ public abstract class AbstractLocatedRepositoryTest extends BaseRepositoryTest {
         }
     }
 
+    @Test
+    public void should_deleteAll_Located() throws Exception {
+        List<Located> located = new ArrayList<Located>();
+
+        CollectionUtils.addAll(located, locatedRepository.findAll());
+        assertEquals(5, located.size());
+
+        locatedRepository.deleteAll();
+
+        CollectionUtils.addAll(located, locatedRepository.findAll());
+        assertEquals(0, located.size());
+    }
+
 }

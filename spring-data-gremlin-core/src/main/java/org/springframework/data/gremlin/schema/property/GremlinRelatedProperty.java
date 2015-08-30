@@ -68,7 +68,7 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
             }
         }
 
-        if (relatedSchema.getSchemaType() == GremlinSchema.SCHEMA_TYPE.EDGE) {
+        if (relatedSchema.isEdgeSchema()) {
 
             for (Object propertyOfRelatedSchema : relatedSchema.getProperties()) {
                 if (propertyOfRelatedSchema instanceof GremlinRelatedProperty) {
