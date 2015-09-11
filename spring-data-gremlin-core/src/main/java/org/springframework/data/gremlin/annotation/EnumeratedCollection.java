@@ -14,26 +14,8 @@ import static org.springframework.data.gremlin.annotation.Enumerated.EnumeratedT
  */
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ ElementType.METHOD, ElementType.FIELD })
-public @interface Enumerated {
+public @interface EnumeratedCollection {
 
-    /**
-     * (Optional) The type used in mapping an enum type.
-     */
-    EnumeratedType value() default ORDINAL;
+    Class<? extends Collection> value() default HashSet.class;
 
-    enum EnumeratedType {
-
-        ORDINAL(Integer.class),
-        STRING(String.class);
-
-        private final Class<?> type;
-
-        EnumeratedType(Class<?> type) {
-            this.type = type;
-        }
-
-        public Class<?> getType() {
-            return type;
-        }
-    }
 }

@@ -6,6 +6,7 @@ import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.annotation.RelatedToVia;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @NodeEntity
@@ -14,6 +15,15 @@ public class Person {
     public enum AWESOME {
         YES,
         NO
+    }
+
+    public enum VEHICLE {
+        CAR,
+        MOTORBIKE,
+        BICYLE,
+        SKATEBOARD,
+        HOVERCRAFT,
+        SPACESHIP
     }
 
     @GraphId
@@ -35,6 +45,8 @@ public class Person {
     private Boolean active;
 
     private AWESOME awesome = AWESOME.YES;
+
+    private HashSet<VEHICLE> vehicles;
 
     public Person() {
     }
@@ -117,4 +129,16 @@ public class Person {
     public void setCurrentLocation(Located currentLocation) {
         this.currentLocation = currentLocation;
     }
+
+    public Set<VEHICLE> getVehicles() {
+        return vehicles;
+    }
+
+    public void addVehicle(VEHICLE vehicle) {
+        if (vehicles == null) {
+            vehicles = new HashSet<>();
+        }
+        vehicles.add(vehicle);
+    }
+
 }

@@ -14,8 +14,14 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gremlin.object.core.domain.*;
 import org.springframework.data.gremlin.object.neo4j.TestService;
 import org.springframework.data.gremlin.object.neo4j.domain.*;
+import org.springframework.data.gremlin.object.neo4j.domain.Address;
+import org.springframework.data.gremlin.object.neo4j.domain.Area;
+import org.springframework.data.gremlin.object.neo4j.domain.Located;
+import org.springframework.data.gremlin.object.neo4j.domain.Location;
+import org.springframework.data.gremlin.object.neo4j.domain.Person;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
@@ -65,6 +71,8 @@ public abstract class BaseRepositoryTest {
         addressRepository.save(address);
 
         Person graham = new Person("Graham", "Webber", address, true);
+        graham.addVehicle(Person.VEHICLE.CAR);
+        graham.addVehicle(Person.VEHICLE.MOTORBIKE);
 
         Set<Located> locations = new HashSet<Located>();
         for (int i = 0; i < 5; i++) {

@@ -65,6 +65,10 @@ public abstract class BaseRepositoryTest {
         addressRepository.save(address);
 
         Person graham = new Person("Graham", "Webber", address, true);
+        graham.addVehicle(Person.VEHICLE.CAR);
+        graham.addVehicle(Person.VEHICLE.MOTORBIKE);
+        graham.addWantedVehicle(Person.VEHICLE.HOVERCRAFT);
+        graham.addWantedVehicle(Person.VEHICLE.SPACESHIP);
 
         Set<Located> locations = new HashSet<Located>();
         for (int i = 0; i < 5; i++) {

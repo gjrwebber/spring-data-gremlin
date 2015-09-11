@@ -413,4 +413,30 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         graham = repository.findByFirstName("Graham").get(0);
         assertEquals(Person.AWESOME.NO, graham.getAwesome());
     }
+
+    @Test
+    public void testEnumCollectionConcreteType() {
+        Person graham = repository.findByFirstName("Graham").get(0);
+
+        Set<Person.VEHICLE> vehicles = graham.getVehicles();
+        assertNotNull(vehicles);
+        assertEquals(2, vehicles.size());
+
+        assertTrue(vehicles.contains(Person.VEHICLE.CAR));
+        assertTrue(vehicles.contains(Person.VEHICLE.MOTORBIKE));
+
+        vehicles.remove(Person.VEHICLE.CAR);
+        vehicles.add(Person.VEHICLE.SKATEBOARD);
+        repository.save(graham);
+
+        graham = repository.findByFirstName("Graham").get(0);
+
+        vehicles = graham.getVehicles();
+        assertNotNull(vehicles);
+        assertEquals(2, vehicles.size());
+
+        assertTrue(vehicles.contains(Person.VEHICLE.MOTORBIKE));
+        assertTrue(vehicles.contains(Person.VEHICLE.SKATEBOARD));
+    }
+
 }

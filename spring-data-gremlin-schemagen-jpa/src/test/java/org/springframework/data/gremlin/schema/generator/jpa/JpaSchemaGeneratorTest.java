@@ -53,6 +53,7 @@ public class JpaSchemaGeneratorTest {
         assertFalse(propNames.contains("id"));
         assertFalse(propNames.contains("name"));
         assertFalse(propNames.contains("tranny"));
+        assertFalse(propNames.contains("staty"));
         assertFalse(propNames.contains("anotherTranny"));
 
     }
