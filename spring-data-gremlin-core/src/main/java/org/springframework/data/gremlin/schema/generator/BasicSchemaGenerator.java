@@ -20,8 +20,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
-import static org.springframework.data.gremlin.schema.GremlinSchema.SCHEMA_TYPE.*;
-
 /**
  * Default {@link SchemaGenerator} using Java reflection along with Index and Index annotations.
  * <p>
