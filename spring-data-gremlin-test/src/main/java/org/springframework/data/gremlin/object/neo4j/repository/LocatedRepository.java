@@ -1,6 +1,6 @@
-package org.springframework.data.gremlin.object.core.repository;
+package org.springframework.data.gremlin.object.neo4j.repository;
 
-import org.springframework.data.gremlin.object.core.domain.Located;
+import org.springframework.data.gremlin.object.neo4j.domain.Located;
 import org.springframework.data.gremlin.repository.GremlinRepository;
 
 /**

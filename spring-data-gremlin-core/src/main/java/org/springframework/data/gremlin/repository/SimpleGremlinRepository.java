@@ -67,30 +67,34 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
         Element element;
         if (schema.isVertexSchema()) {
             element = graphAdapter.createVertex(graph, schema.getClassName());
+            schema.copyToGraph(graphAdapter, element, object);
         } else if (schema.isEdgeSchema()) {
             GremlinEdgeSchema edgeSchema = (GremlinEdgeSchema) schema;
-            GremlinAdjacentProperty adjacentProperty = edgeSchema.getOutProperty();
+            GremlinAdjacentProperty adjacentOutProperty = edgeSchema.getOutProperty();
 
             Vertex outVertex = null;
             Vertex inVertex = null;
 
-            Object outObject = adjacentProperty.getAccessor().get(object);
+            Object outObject = adjacentOutProperty.getAccessor().get(object);
             if (outObject != null) {
-                String outId = adjacentProperty.getRelatedSchema().getObjectId(outObject);
-                outVertex = graphAdapter.findOrCreateVertex(outId, adjacentProperty.getSchema().getClassName());
+                String outId = adjacentOutProperty.getRelatedSchema().getObjectId(outObject);
+                outVertex = graphAdapter.findOrCreateVertex(outId, adjacentOutProperty.getRelatedSchema().getClassName());
             }
 
-            Object inObject = adjacentProperty.getAccessor().get(object);
+            GremlinAdjacentProperty adjacentInProperty = edgeSchema.getInProperty();
+            Object inObject = adjacentInProperty.getAccessor().get(object);
             if (inObject != null) {
-                String inId = adjacentProperty.getRelatedSchema().getObjectId(inObject);
-                inVertex = graphAdapter.findOrCreateVertex(inId, adjacentProperty.getSchema().getClassName());
+                String inId = adjacentInProperty.getRelatedSchema().getObjectId(inObject);
+                inVertex = graphAdapter.findOrCreateVertex(inId, adjacentInProperty.getRelatedSchema().getClassName());
             }
 
             element = graphAdapter.addEdge(null, outVertex, inVertex, schema.getClassName());
+
+
+            schema.copyToGraph(graphAdapter, element, object, outObject, inObject);
         } else {
             throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");
         }
-
         final Element createdElement = element;
         if (TransactionSynchronizationManager.isSynchronizationActive()) {
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {

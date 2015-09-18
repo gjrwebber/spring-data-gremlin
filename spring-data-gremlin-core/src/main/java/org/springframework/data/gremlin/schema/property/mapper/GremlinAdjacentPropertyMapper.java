@@ -18,7 +18,7 @@ public class GremlinAdjacentPropertyMapper implements GremlinPropertyMapper<Grem
     @Override
     public void copyToVertex(GremlinAdjacentProperty property, GremlinGraphAdapter graphAdapter, Edge edge, Object val, Map<Object, Object> cascadingSchemas) {
 
-        Vertex linkedVertex = edge.getVertex(property.getDirection().opposite());
+        Vertex linkedVertex = edge.getVertex(property.getDirection());
 
         if (linkedVertex == null) {
             linkedVertex = (Vertex) cascadingSchemas.get(val);
@@ -34,7 +34,7 @@ public class GremlinAdjacentPropertyMapper implements GremlinPropertyMapper<Grem
     @Override
     public <K> Object loadFromVertex(GremlinAdjacentProperty property, Edge edge, Map<Object, Object> cascadingSchemas) {
         Object val = null;
-        Vertex linkedVertex = edge.getVertex(property.getDirection().opposite());
+        Vertex linkedVertex = edge.getVertex(property.getDirection());
         if (linkedVertex != null) {
             val = property.getRelatedSchema().cascadeLoadFromGraph(linkedVertex, cascadingSchemas);
         }

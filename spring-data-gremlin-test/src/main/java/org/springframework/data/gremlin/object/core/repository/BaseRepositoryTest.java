@@ -16,6 +16,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gremlin.object.core.TestService;
 import org.springframework.data.gremlin.object.core.domain.*;
+import org.springframework.data.gremlin.object.core.domain.Address;
+import org.springframework.data.gremlin.object.core.domain.Area;
+import org.springframework.data.gremlin.object.core.domain.Located;
+import org.springframework.data.gremlin.object.core.domain.Location;
+import org.springframework.data.gremlin.object.core.domain.Person;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
@@ -58,13 +63,28 @@ public abstract class BaseRepositoryTest {
     @Autowired
     protected TestService testService;
 
+    protected Person graham;
+
+    protected Person lara;
+
     @Before
     public void before() {
+
+        Graph graph = factory.graph();
+        factory.beginTx(graph);
+        for (Vertex vertex : graph.getVertices()) {
+            graph.removeVertex(vertex);
+        }
+
+        for (Edge edge : graph.getEdges()) {
+            graph.removeEdge(edge);
+        }
+        factory.commitTx(graph);
 
         Address address = new Address(new Country("Australia"), "Newcastle", "Scenic Dr", new Area("2291"));
         addressRepository.save(address);
 
-        Person graham = new Person("Graham", "Webber", address, true);
+        graham = new Person("Graham", "Webber", address, true);
         graham.addVehicle(Person.VEHICLE.CAR);
         graham.addVehicle(Person.VEHICLE.MOTORBIKE);
         graham.addWantedVehicle(Person.VEHICLE.HOVERCRAFT);
@@ -78,14 +98,15 @@ public abstract class BaseRepositoryTest {
             locations.add(located);
         }
 
+        lara = new Person("Lara", "Ivanovic", address, true);
         graham.setLocations(locations);
         graham.setCurrentLocation(locations.iterator().next());
         repository.save(graham);
         repository.save(new Person("Vanja", "Ivanovic", address, true));
-        repository.save(new Person("Lara", "Ivanovic", address, true));
+        repository.save(lara);
         repository.save(new Person("Jake", "Webber", address, false));
         repository.save(new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false));
-        Graph graph = factory.graph();
+//        Graph graph = factory.graph();
 
         Iterable<Vertex> addresses = graph.query().has("street").vertices();
         assertNotNull(addresses);
@@ -129,7 +150,7 @@ public abstract class BaseRepositoryTest {
         factory.commitTx(graph);
     }
 
-    @After
+//    @After
     public void after() {
 
         Graph graph = factory.graph();

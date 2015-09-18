@@ -83,6 +83,12 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     }
 
     @Override
+    protected Object createEdgeClass(GremlinSchema schema) throws Exception {
+        OClass edgeClass = getOrCreateClass(oSchema, e, schema.getClassName());
+        return edgeClass;
+    }
+
+    @Override
     protected void rollback(GremlinSchema schema) {
 
         // If any exception, drop the class

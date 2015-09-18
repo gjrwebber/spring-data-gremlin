@@ -46,6 +46,9 @@ public class GremlinGraphAdapter<G extends Graph> {
 
     @Transactional(readOnly = true)
     public Vertex findVertexById(String id) {
+        if (id == null) {
+            return null;
+        }
         G graph = graphFactory.graph();
         Vertex vertex = graph.getVertex(decodeId(id));
         if (vertex == null) {

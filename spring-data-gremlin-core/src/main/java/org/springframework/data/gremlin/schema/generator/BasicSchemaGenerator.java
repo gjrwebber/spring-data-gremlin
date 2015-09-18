@@ -177,9 +177,9 @@ public class BasicSchemaGenerator implements SchemaGenerator {
                     }
                 } else if (isAdjacentField(cls, field)) {
                     if (isAdjacentOutward(cls, field)) {
-                        property = propertyFactory.getAdjacentProperty(cls, name, Direction.OUT);
+                        property = propertyFactory.getAdjacentProperty(cls, "out", Direction.OUT);
                     } else {
-                        property = propertyFactory.getAdjacentProperty(cls, name, Direction.IN);
+                        property = propertyFactory.getAdjacentProperty(cls, "in", Direction.IN);
                     }
                 } else if (isLinkField(cls, field)) {
 
@@ -231,7 +231,7 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     protected Field getIdField(Class<?> cls) throws SchemaGeneratorException {
         try {
             Field field = ReflectionUtils.findField(cls, "id");
-            if (field.getType() == Long.class || field.getType() == String.class) {
+            if (field != null && (field.getType() == Long.class || field.getType() == String.class)) {
                 return field;
             } else {
                 throw new NoSuchFieldException("");

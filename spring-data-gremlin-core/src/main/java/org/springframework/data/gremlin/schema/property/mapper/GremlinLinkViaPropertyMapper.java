@@ -4,6 +4,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
+import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 
@@ -24,7 +25,7 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
     @Override
     public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
 
-        GremlinRelatedProperty adjacentProperty = property.getAdjacentProperty();
+        GremlinAdjacentProperty adjacentProperty = property.getAdjacentProperty();
 
         // Check we found the adjacent property
         if (adjacentProperty != null) {

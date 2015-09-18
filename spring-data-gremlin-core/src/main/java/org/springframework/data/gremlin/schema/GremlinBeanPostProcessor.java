@@ -148,7 +148,7 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         for (Class<?> cls : schemaMap.keySet()) {
             GremlinSchema<?> schema = schemaMap.get(cls);
-            beanFactory.registerSingleton(String.format("gremlin%sSchema", cls.getSimpleName()), schema);
+            beanFactory.registerSingleton("gremlin"+schema.getClassName()+"Schema", schema);
         }
     }
 

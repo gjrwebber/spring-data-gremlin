@@ -38,7 +38,7 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
     private Direction direction;
     private GremlinSchema<C> relatedSchema;
     private GremlinRelatedProperty relatedProperty;
-    private GremlinRelatedProperty adjacentProperty;
+    private GremlinAdjacentProperty adjacentProperty;
     private CARDINALITY cardinality;
     private CASCADE_TYPE cascadeType;
 
@@ -71,11 +71,11 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
         if (relatedSchema.isEdgeSchema()) {
 
             for (Object propertyOfRelatedSchema : relatedSchema.getProperties()) {
-                if (propertyOfRelatedSchema instanceof GremlinRelatedProperty) {
+                if (propertyOfRelatedSchema instanceof GremlinAdjacentProperty) {
                     // If the property has the same direction of the given property here it
                     // means it is the opposite property of the @EntityRelationship
-                    if (((GremlinRelatedProperty) propertyOfRelatedSchema).getDirection() == direction) {
-                        adjacentProperty = (GremlinRelatedProperty) propertyOfRelatedSchema;
+                    if (((GremlinAdjacentProperty) propertyOfRelatedSchema).getDirection() == direction.opposite()) {
+                        adjacentProperty = (GremlinAdjacentProperty) propertyOfRelatedSchema;
                         break;
                     }
                 }
@@ -91,7 +91,7 @@ public abstract class GremlinRelatedProperty<C> extends GremlinProperty<C> {
         return relatedProperty;
     }
 
-    public GremlinRelatedProperty getAdjacentProperty() {
+    public GremlinAdjacentProperty getAdjacentProperty() {
         return adjacentProperty;
     }
 

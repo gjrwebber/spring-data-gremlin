@@ -6,6 +6,7 @@ import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
+import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 
@@ -32,7 +33,7 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
             existingLinkedEdges.add(currentEdge);
         }
 
-        GremlinRelatedProperty adjacentProperty = property.getAdjacentProperty();
+        GremlinAdjacentProperty adjacentProperty = property.getAdjacentProperty();
 
         // Check we found the adjacent property
         if (adjacentProperty != null) {
@@ -72,7 +73,7 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
                         existingLinkedEdges.add(linkedEdge);
                         actualLinkedEdges.add(linkedEdge);
                         // Updates or saves the val into the linkedVertex
-                        property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, linkedObj, cascadingSchemas);
+                        adjacentProperty.getRelatedSchema().cascadeCopyToGraph(graphAdapter, adjacentVertex, adjacentObj, cascadingSchemas);
                     }
                 }
             }

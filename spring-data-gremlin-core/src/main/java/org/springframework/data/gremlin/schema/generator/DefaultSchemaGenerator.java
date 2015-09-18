@@ -228,12 +228,12 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     protected boolean isAdjacentOutward(Class<?> cls, Field field) {
         FromVertex startNode = AnnotationUtils.getAnnotation(field, FromVertex.class);
         if (startNode != null) {
-            return false;
+            return true;
         }
 
         ToVertex endNode = AnnotationUtils.getAnnotation(field, ToVertex.class);
         if (endNode != null) {
-            return true;
+            return false;
         }
 
         return true;
@@ -245,16 +245,11 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         if (relatedTo != null) {
             return relatedTo.direction() == Direction.OUT;
         }
-        FromVertex startNode = AnnotationUtils.getAnnotation(field, FromVertex.class);
-        if (startNode != null) {
-            return true;
-        }
 
-        ToVertex endNode = AnnotationUtils.getAnnotation(field, ToVertex.class);
-        if (endNode != null) {
-            return false;
+        LinkVia relatedToVia = AnnotationUtils.getAnnotation(field, LinkVia.class);
+        if (relatedToVia != null) {
+            return relatedToVia.direction() == Direction.OUT;
         }
-
         return true;
     }
 

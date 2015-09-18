@@ -72,7 +72,7 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
             schema.setRepository((GremlinRepository) repository);
             schema.setGraphFactory(dbf);
 
-            if (schema.isVertexSchema() && schemaWriter != null) {
+            if (schemaWriter != null) {
                 schemaWriter.writeSchema(dbf, schema);
             }
 
