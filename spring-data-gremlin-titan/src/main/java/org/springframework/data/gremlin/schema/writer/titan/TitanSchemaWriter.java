@@ -54,10 +54,22 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
 
     @Override
     protected Object createVertexClass(GremlinSchema schema) throws Exception {
-
-        VertexLabel vertexClass = mgmt.makeVertexLabel(schema.getClassName()).make();
-        mgmt.commit();
+        VertexLabel vertexClass = mgmt.getVertexLabel(schema.getClassName());
+        if(vertexClass == null) {
+            vertexClass = mgmt.makeVertexLabel(schema.getClassName()).make();
+            mgmt.commit();
+        }
         return vertexClass;
+    }
+
+    @Override
+    protected Object createEdgeClass(GremlinSchema schema) throws Exception {
+        EdgeLabel edgeClass = mgmt.getEdgeLabel(schema.getClassName());
+        if(edgeClass == null) {
+            edgeClass = mgmt.makeEdgeLabel(schema.getClassName()).make();
+            mgmt.commit();
+        }
+        return edgeClass;
     }
 
     @Override

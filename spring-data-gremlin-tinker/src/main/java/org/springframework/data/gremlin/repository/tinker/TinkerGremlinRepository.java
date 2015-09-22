@@ -1,5 +1,7 @@
 package org.springframework.data.gremlin.repository.tinker;
 
+import com.tinkerpop.blueprints.Edge;
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -38,7 +40,7 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public long count() {
         long count = 0;
         try {
-            for (Vertex v : getVertices()) {
+            for (Element el : findAllElementsForSchema()) {
                 count++;
             }
         } catch (Exception e) {
@@ -49,8 +51,8 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     @Transactional
     @Override
     public void deleteAll() {
-        for (Vertex vertex : getVertices()) {
-            vertex.remove();
+        for (Element element : findAllElementsForSchema()) {
+            element.remove();
         }
     }
 
@@ -60,9 +62,9 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
         int total = 0;
         int prevOffset = pageable.getOffset();
         int offset = pageable.getOffset() + pageable.getPageSize();
-        for (Vertex vertex : getVertices()) {
+        for (Element element : findAllElementsForSchema()) {
             if (total >= prevOffset && total < offset) {
-                result.add(schema.loadFromGraph(vertex));
+                result.add(schema.loadFromGraph(element));
             }
             total++;
         }
@@ -72,13 +74,37 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     @Override
     public Iterable<T> findAll() {
         List<T> result = new ArrayList<T>();
-        for (Vertex vertex : getVertices()) {
-            result.add(schema.loadFromGraph(vertex));
+        for (Element edge : findAllElementsForSchema()) {
+            result.add(schema.loadFromGraph(edge));
         }
         return result;
     }
 
-    private Iterable<Vertex> getVertices() {
-        return graphFactory.graph().getVertices("label", schema.getClassName());
+    public Iterable<Element> findAllElementsForSchema() {
+
+        if (schema.isVertexSchema()) {
+            return findALlVerticiesForSchema();
+        } else if (schema.isEdgeSchema()) {
+            return findAllEdgesForSchema();
+        } else {
+            throw new IllegalStateException("GremlinSchema is neither VERTEX or EDGE!!");
+        }
     }
+
+    public Iterable<Element> findALlVerticiesForSchema() {
+        List<Element> result = new ArrayList<>();
+        for (Vertex vertex : graphFactory.graph().getVertices("label", schema.getClassName())) {
+            result.add(vertex);
+        }
+        return result;
+    }
+
+    public Iterable<Element> findAllEdgesForSchema() {
+        List<Element> result = new ArrayList<>();
+        for (Edge edge : graphFactory.graph().getEdges("label", schema.getClassName())) {
+            result.add(edge);
+        }
+        return result;
+    }
+
 }

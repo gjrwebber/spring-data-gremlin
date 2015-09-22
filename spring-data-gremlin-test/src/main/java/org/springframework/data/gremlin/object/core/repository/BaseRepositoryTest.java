@@ -1,9 +1,6 @@
 package org.springframework.data.gremlin.object.core.repository;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.*;
 import com.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.util.Pipeline;
@@ -63,6 +60,9 @@ public abstract class BaseRepositoryTest {
     @Autowired
     protected TestService testService;
 
+    @Autowired
+    protected LikesRepository likesRepository;
+
     protected Person graham;
 
     protected Person lara;
@@ -108,6 +108,10 @@ public abstract class BaseRepositoryTest {
         repository.save(new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false));
 //        Graph graph = factory.graph();
 
+
+        Likes like = new Likes(graham, lara);
+        likesRepository.save(like);
+
         Iterable<Vertex> addresses = graph.query().has("street").vertices();
         assertNotNull(addresses);
         for (Vertex addr : addresses) {
@@ -145,6 +149,17 @@ public abstract class BaseRepositoryTest {
         for (Element obj : linkedPipe) {
             assertNotNull(obj);
             assertTrue(obj.getProperty("city").equals("Newcastle"));
+        }
+
+
+        GremlinPipeline<Object, Edge> likesPipe = new GremlinPipeline<Object, Edge>(graph).V().has("firstName", "Lara").inE("Likes");
+
+        assertTrue("No likes in Pipe!", likesPipe.hasNext());
+        for (Element obj : likesPipe) {
+            assertNotNull(obj);
+            Edge edge = (Edge)obj;
+            Vertex v = edge.getVertex(Direction.OUT);
+            assertTrue(v.getProperty("firstName").equals("Graham"));
         }
 
         factory.commitTx(graph);

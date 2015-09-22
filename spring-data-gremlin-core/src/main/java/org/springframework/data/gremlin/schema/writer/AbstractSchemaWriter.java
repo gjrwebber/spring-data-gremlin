@@ -32,7 +32,10 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                 element = createVertexClass(schema);
             } else if (schema.isEdgeSchema()) {
 
-                element = createEdgeClass(schema.getClassName(), schema.getOutProperty().getRelatedSchema().getClassType(),)
+                Object outVertex = createVertexClass(schema.getOutProperty().getRelatedSchema());
+                Object inVertex = createVertexClass(schema.getInProperty().getRelatedSchema());
+
+                element = createEdgeClass(schema.getClassName(), outVertex, inVertex, schema.getOutProperty().getCardinality());
             } else {
                 throw new IllegalStateException("Unknown class type. Expected Vertex or Edge.");
             }
@@ -70,19 +73,7 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
                 if (!isPropertyAvailable(elementClass, property.getName())) {
 
                     if (property instanceof GremlinAdjacentProperty) {
-
-                        GremlinAdjacentProperty adjacentProperty = (GremlinAdjacentProperty) property;
-
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("CREATING RELATED PROPERTY: " + schema.getClassName() + "." + property.getName());
-                        }
-                        Object relatedVertex = createVertexClass(adjacentProperty.getRelatedSchema());
-
-                        if (((GremlinRelatedProperty) property).getDirection() == Direction.OUT) {
-                            createEdgeClass(property.getName(), elementClass, relatedVertex, relatedProperty.getCardinality());
-                        } else {
-                            createEdgeClass(property.getName(), relatedVertex, elementClass, relatedProperty.getCardinality());
-                        }
+                        continue;
                     }
 
                     if (property instanceof GremlinRelatedProperty) {

@@ -69,7 +69,6 @@ public abstract class GremlinSchema<V> {
             } else {
                 inProperty = (GremlinAdjacentProperty) property;
             }
-            return;
         }
         properties.add(property);
         propertyMap.put(property.getName(), property);

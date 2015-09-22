@@ -49,7 +49,7 @@ public class PartTreeGremlinQuery extends AbstractGremlinQuery {
     protected Pipeline doRunQuery(DefaultParameters parameters, Object[] values, boolean ignorePaging) {
         ParametersParameterAccessor accessor = new ParametersParameterAccessor(parameters, values);
 
-        GremlinQueryCreator creator = new GremlinQueryCreator(dbf, schemaFactory, tree, accessor);
+        GremlinQueryCreator creator = new GremlinQueryCreator(dbf, schemaFactory, domainClass, tree, accessor);
 
         GremlinPipeline pipeline = creator.createQuery();
 

@@ -161,12 +161,12 @@ public class Neo4jSchemaGenerator extends BasicSchemaGenerator implements Annota
     protected boolean isAdjacentOutward(Class<?> cls, Field field) {
         StartNode startNode = AnnotationUtils.getAnnotation(field, StartNode.class);
         if (startNode != null) {
-            return false;
+            return true;
         }
 
         EndNode endNode = AnnotationUtils.getAnnotation(field, EndNode.class);
         if (endNode != null) {
-            return true;
+            return false;
         }
 
         return true;

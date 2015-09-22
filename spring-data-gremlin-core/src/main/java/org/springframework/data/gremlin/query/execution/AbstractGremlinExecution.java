@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.query.execution;
 
-import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.Element;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.query.CompositeResult;
 import org.springframework.data.gremlin.schema.GremlinSchema;
@@ -52,10 +52,10 @@ public abstract class AbstractGremlinExecution {
     protected abstract Object doExecute(AbstractGremlinQuery query, Object[] values);
 
 
-    protected Map<String, Object> vertexToMap(Vertex vertex) {
+    protected Map<String, Object> elementToMap(Element element) {
         Map<String, Object> map = new HashMap<String, Object>();
-        for (String key : vertex.getPropertyKeys()) {
-            map.put(key, vertex.getProperty(key));
+        for (String key : element.getPropertyKeys()) {
+            map.put(key, element.getProperty(key));
         }
         return map;
     }
@@ -63,28 +63,28 @@ public abstract class AbstractGremlinExecution {
     @SuppressWarnings("unchecked")
     protected List<Object> buildList(AbstractGremlinQuery query, Class<?> mappedType, Object[] values) {
 
-        Iterable<Vertex> result = (Iterable<Vertex>) query.runQuery(parameters, values);
+        Iterable<Element> result = (Iterable<Element>) query.runQuery(parameters, values);
 
         List<Object> objects = new ArrayList<Object>();
         if (mappedType.isAssignableFrom(Map.class)) {
 
-            for (Vertex vertex : result) {
-                Map<String, Object> map = vertexToMap(vertex);
+            for (Element element : result) {
+                Map<String, Object> map = elementToMap(element);
                 objects.add(map);
             }
         } else if (mappedType == CompositeResult.class) {
 
-            for (Vertex vertex : result) {
-                Map<String, Object> map = vertexToMap(vertex);
+            for (Element element : result) {
+                Map<String, Object> map = elementToMap(element);
                 Class<?> type = GenericsUtil.getGenericType(query.getQueryMethod().getMethod());
                 GremlinSchema mapper = schemaFactory.getSchema(type);
-                Object entity = mapper.loadFromGraph(vertex);
+                Object entity = mapper.loadFromGraph(element);
                 objects.add(new CompositeResult<Object>(entity, map));
             }
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);
-            for (Vertex vertex : result) {
-                objects.add(mapper.loadFromGraph(vertex));
+            for (Element element : result) {
+                objects.add(mapper.loadFromGraph(element));
             }
         }
         return objects;

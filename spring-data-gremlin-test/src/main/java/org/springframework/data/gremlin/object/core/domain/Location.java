@@ -52,4 +52,25 @@ public class Location {
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
+
+//    @Override
+//    public boolean equals(Object o) {
+//        if (this == o) {
+//            return true;
+//        }
+//        if (o == null || getClass() != o.getClass()) {
+//            return false;
+//        }
+//
+//        Location location = (Location) o;
+//
+//        return !(id != null ? !id.equals(location.id) : location.id != null);
+//
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//        return id != null ? id.hashCode() : 0;
+//    }
+
 }

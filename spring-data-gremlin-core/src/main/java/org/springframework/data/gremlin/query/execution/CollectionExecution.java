@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.query.execution;
 
-import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.Element;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
@@ -37,19 +37,19 @@ public class CollectionExecution extends AbstractGremlinExecution {
     protected Object doExecute(AbstractGremlinQuery query, Object[] values) {
         Class<?> mappedType = query.getQueryMethod().getReturnedObjectType();
 
-        Iterable<Vertex> vertices = (Iterable<Vertex>) query.runQuery(parameters, values);
+        Iterable<Element> elements = (Iterable<Element>) query.runQuery(parameters, values);
 
         List<Object> objects = new ArrayList<Object>();
         if (mappedType.isAssignableFrom(Map.class)) {
-            buildMapList(vertices, objects);
+            buildMapList(elements, objects);
 
         } else if (mappedType == CompositeResult.class) {
             Class<?> type = GenericsUtil.getGenericType(query.getQueryMethod().getMethod());
             GremlinSchema mapper = schemaFactory.getSchema(type);
-            buildCompositeResults(mapper, vertices, objects);
+            buildCompositeResults(mapper, elements, objects);
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);
-            buildEntityList(mapper, vertices, objects);
+            buildEntityList(mapper, elements, objects);
         }
 
         ParametersParameterAccessor accessor = new ParametersParameterAccessor(parameters, values);
@@ -62,26 +62,26 @@ public class CollectionExecution extends AbstractGremlinExecution {
         return objects;
     }
 
-    private void buildMapList(Iterable<Vertex> vertices, List<Object> mapList) {
+    private void buildMapList(Iterable<Element> elements, List<Object> mapList) {
 
-        for (Vertex vertex : vertices) {
-            Map<String, Object> map = vertexToMap(vertex);
+        for (Element element : elements) {
+            Map<String, Object> map = elementToMap(element);
             mapList.add(map);
         }
     }
 
-    private void buildCompositeResults(GremlinSchema mapper, Iterable<Vertex> vertices, List<Object> resultList) {
+    private void buildCompositeResults(GremlinSchema mapper, Iterable<Element> elements, List<Object> resultList) {
 
-        for (Vertex vertex : vertices) {
-            Map<String, Object> map = vertexToMap(vertex);
-            Object entity = mapper.loadFromGraph(vertex);
+        for (Element element : elements) {
+            Map<String, Object> map = elementToMap(element);
+            Object entity = mapper.loadFromGraph(element);
             resultList.add(new CompositeResult<Object>(entity, map));
         }
     }
 
-    private void buildEntityList(GremlinSchema mapper, Iterable<Vertex> vertices, List<Object> objects) {
-        for (Vertex vertex : vertices) {
-            objects.add(mapper.loadFromGraph(vertex));
+    private void buildEntityList(GremlinSchema mapper, Iterable<Element> elements, List<Object> objects) {
+        for (Element element : elements) {
+            objects.add(mapper.loadFromGraph(element));
         }
     }
 }
