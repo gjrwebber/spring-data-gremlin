@@ -1,7 +1,6 @@
 package org.springframework.data.gremlin.object.tests.tinker.neo4j;
 
-import org.springframework.data.gremlin.object.core.repository.AbstractEdgeRepositoryTest;
-import org.springframework.data.gremlin.object.tests.tinker.core.Tinker_Core_TestConfiguration;
+import org.springframework.data.gremlin.object.neo4j.repository.AbstractEdgeRepositoryTest;
 import org.springframework.test.context.ContextConfiguration;
 
 /**
