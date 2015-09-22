@@ -69,7 +69,68 @@ Below is a list of supported annotations used by the ```JpaSchemaGenerator```:
 
 ##Getting Started
 
-Create your domain objects. I have used JPA for mapping the schema, but you can also use [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) annotations if you wish:
+###Download dependencies
+
+Currenlty only SNAPSHOT builds are being uploaded to sonatype so you will need to add ```https://oss.sonatype.org/content/repositories/snapshots/``` repository URL to your build configuration.
+
+####Maven
+```
+<repositories>
+    <repository>
+        <id>spring.data.gremlin.snapshot</id>
+        <name>Spring Data Gremlin SNAPHSHOT</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+</repositories>
+```
+
+####Gradle
+```
+repositories {
+    //...
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+```
+
+Once you have your build configuration setup you need to add the correct dependencies. To do that you need to decide which database and schema generator you want to use. If you are starting from scratch, then the default schema generator is for you.
+
+####Database dependency
+**OrientDB** - com.github.gjrwebber:spring-data-gremlin-orientdb:0.1.0-SNAPSHOT  
+**TitanDB** - com.github.gjrwebber:spring-data-gremlin-titan:0.1.0-SNAPSHOT
+
+####Schema generator dependency
+**Default** - No further dependency  
+**JPA** - com.github.gjrwebber:spring-data-gremlin-schemagen-jpa:0.1.0-SNAPSHOT  
+**Neo4j** - com.github.gjrwebber:spring-data-gremlin-schemagen-neo4j:0.1.0-SNAPSHOT
+
+####Maven example
+
+Using OrientDB database with Neo4j schema generator:
+
+```
+<dependency>
+    <groupId>com.github.gjrwebber</groupId>
+    <artifactId>spring-data-gremlin-orientdb</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>com.github.gjrwebber</groupId>
+    <artifactId>spring-data-gremlin-schemagen-neo4j</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+####Gradle example
+
+Using TitanDB with default schema generator:
+
+```
+compile("com.github.gjrwebber:spring-data-gremlin-titan:0.1.0-SNAPSHOT")
+```
+
+###Create you domain model
+
+Create your domain objects. I have used the default generator for mapping the schema, but you can also use [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations if you wish:
 
 ####Person
 
