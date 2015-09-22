@@ -1,9 +1,6 @@
 package org.springframework.data.gremlin.object.neo4j.repository;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.*;
 import com.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.util.Pipeline;
@@ -14,10 +11,12 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.gremlin.object.core.domain.*;
 import org.springframework.data.gremlin.object.neo4j.TestService;
 import org.springframework.data.gremlin.object.neo4j.domain.*;
 import org.springframework.data.gremlin.object.neo4j.domain.Address;
 import org.springframework.data.gremlin.object.neo4j.domain.Area;
+import org.springframework.data.gremlin.object.neo4j.domain.Likes;
 import org.springframework.data.gremlin.object.neo4j.domain.Located;
 import org.springframework.data.gremlin.object.neo4j.domain.Location;
 import org.springframework.data.gremlin.object.neo4j.domain.Person;
@@ -56,6 +55,9 @@ public abstract class BaseRepositoryTest {
 
     @Autowired
     protected LocationRepository locationRepository;
+
+    @Autowired
+    protected LikesRepository likesRepository;
 
     @Autowired
     protected GremlinGraphFactory factory;
@@ -106,6 +108,9 @@ public abstract class BaseRepositoryTest {
         repository.save(new Person("Sandra", "Ivanovic", new Address("Australia", "Sydney", "Wilson St", new Area("2043")), false));
 //        Graph graph = factory.graph();
 
+        Likes like = new Likes(graham, lara);
+        likesRepository.save(like);
+
         Iterable<Vertex> addresses = graph.query().has("street").vertices();
         assertNotNull(addresses);
         for (Vertex addr : addresses) {
@@ -143,6 +148,16 @@ public abstract class BaseRepositoryTest {
         for (Element obj : linkedPipe) {
             assertNotNull(obj);
             assertTrue(obj.getProperty("city").equals("Newcastle"));
+        }
+
+        GremlinPipeline<Object, Edge> likesPipe = new GremlinPipeline<Object, Edge>(graph).V().has("firstName", "Lara").inE("Likes");
+
+        assertTrue("No likes in Pipe!", likesPipe.hasNext());
+        for (Element obj : likesPipe) {
+            assertNotNull(obj);
+            Edge edge = (Edge)obj;
+            Vertex v = edge.getVertex(Direction.OUT);
+            assertTrue(v.getProperty("firstName").equals("Graham"));
         }
 
         factory.commitTx(graph);

@@ -11,12 +11,9 @@ import org.springframework.data.gremlin.object.neo4j.repository.BaseRepositoryTe
 import org.springframework.data.gremlin.object.neo4j.repository.LikesRepository;
 import org.springframework.data.gremlin.object.neo4j.repository.LocatedRepository;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
@@ -34,7 +31,7 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
 
         List<Likes> allLikes = new ArrayList<Likes>();
         CollectionUtils.addAll(allLikes, likesRepository.findAll());
-        assertEquals(1, allLikes.size());
+        assertEquals(2, allLikes.size());
 
     }
 
@@ -68,12 +65,37 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void should_save_edge() throws Exception {
-        Located located = new Located(new Date(), graham, new Location(35, 165));
+        Located located = new Located(new Date(), graham, locationRepository.save(new Location(35, 165)));
         locatedRepository.save(located);
 
         List<Located> newLocated = new ArrayList<Located>();
         CollectionUtils.addAll(newLocated, locatedRepository.findAll());
         assertEquals(6, newLocated.size());
 
+    }
+
+    @Test
+    public void should_find_by_referenced() throws Exception {
+
+        Likes likes = new Likes(graham, lara);
+        likesRepository.save(likes);
+
+        Iterable<Likes> all = likesRepository.findAll();
+        Iterable<Likes> found = likesRepository.findByPerson1_FirstName("Graham");
+
+        Collection<Likes> disjunction = CollectionUtils.disjunction(all, found);
+        assertEquals(0, disjunction.size());
+    }
+
+    @Test
+    public void should_find_by_query() throws Exception {
+
+        Likes likes = new Likes(lara, graham);
+        likesRepository.save(likes);
+
+        Iterator<Likes> query = likesRepository.findByLiking("Lara", "Graham").iterator();
+        assertTrue(query.hasNext());
+        assertEquals(likes, query.next());
+        assertFalse(query.hasNext());
     }
 }

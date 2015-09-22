@@ -37,7 +37,7 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
 
                 element = createEdgeClass(schema.getClassName(), outVertex, inVertex, schema.getOutProperty().getCardinality());
             } else {
-                throw new IllegalStateException("Unknown class type. Expected Vertex or Edge.");
+                throw new IllegalStateException("Unknown class type. Expected Vertex or Edge. "+schema);
             }
 
             if (LOGGER.isDebugEnabled()) {

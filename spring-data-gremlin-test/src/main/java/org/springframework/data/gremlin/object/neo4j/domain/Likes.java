@@ -34,11 +34,35 @@ public class Likes {
         this.person2 = person2;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
     public Person getPerson1() {
         return person1;
     }
 
     public Person getPerson2() {
         return person2;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Likes likes = (Likes) o;
+
+        return !(id != null ? !id.equals(likes.id) : likes.id != null);
+
+    }
+
+    @Override
+    public int hashCode() {
+        return id != null ? id.hashCode() : 0;
     }
 }

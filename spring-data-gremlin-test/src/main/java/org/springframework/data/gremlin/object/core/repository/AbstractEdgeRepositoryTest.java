@@ -8,13 +8,9 @@ import org.springframework.data.gremlin.object.core.domain.Likes;
 import org.springframework.data.gremlin.object.core.domain.Located;
 import org.springframework.data.gremlin.object.core.domain.Location;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
@@ -91,12 +87,12 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
     @Test
     public void should_find_by_query() throws Exception {
 
-        Likes likes = new Likes(graham, lara);
+        Likes likes = new Likes(lara, graham);
         likesRepository.save(likes);
 
-        Iterable<Likes> all = likesRepository.findAll();
-        Iterable<Likes> query = likesRepository.findByHasDate();
-        assertEquals(all, query);
-
+        Iterator<Likes> query = likesRepository.findByLiking("Lara", "Graham").iterator();
+        assertTrue(query.hasNext());
+        assertEquals(likes, query.next());
+        assertFalse(query.hasNext());
     }
 }

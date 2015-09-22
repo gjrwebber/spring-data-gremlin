@@ -73,6 +73,7 @@ public class OrientDbSchemaWriterTest {
 
         GremlinSchema schema = Mockito.mock(GremlinSchema.class);
         when(schema.getClassName()).thenReturn("ClassName");
+        when(schema.isVertexSchema()).thenReturn(true);
 
         GremlinProperty property1 = new GremlinProperty(String.class, "bla");
 
@@ -90,6 +91,7 @@ public class OrientDbSchemaWriterTest {
 
         GremlinSchema schema = Mockito.mock(GremlinSchema.class);
         when(schema.getClassName()).thenReturn("ClassName");
+        when(schema.isVertexSchema()).thenReturn(true);
 
         GremlinProperty property1 = new GremlinProperty(String.class, "bla");
         property1.setIndex(Index.IndexType.UNIQUE);
@@ -112,6 +114,7 @@ public class OrientDbSchemaWriterTest {
 
         GremlinSchema schema = Mockito.mock(GremlinSchema.class);
         when(schema.getClassName()).thenReturn("ClassName");
+        when(schema.isVertexSchema()).thenReturn(true);
 
         GremlinLinkProperty property3 = new GremlinLinkProperty(TestEntity.class, "link", Direction.OUT);
         GremlinSchema relatedSchema = Mockito.mock(GremlinSchema.class);
@@ -153,6 +156,7 @@ public class OrientDbSchemaWriterTest {
 
         GremlinSchema schema = Mockito.mock(GremlinSchema.class);
         when(schema.getClassName()).thenReturn("ClassName");
+        when(schema.isVertexSchema()).thenReturn(true);
 
         GremlinProperty property1 = new GremlinProperty(String.class, "bla");
         property1.setIndex(Index.IndexType.UNIQUE);
