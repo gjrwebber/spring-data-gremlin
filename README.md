@@ -8,6 +8,7 @@ Spring data gremlin makes it easier to implement Graph based repositories. This 
 - Support for [OrientDB](http://orientdb.com) and [TitanDB](http://s3.thinkaurelius.com/docs/titan/current)  out of the box
 - Schema creation in supported databases
 - Support to build repositories based on Spring using our [custom set of annotations](https://github.com/gjrwebber/org/springframework/data/gremlin/annotation), [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations.
+- Vertex and Edge repository support
 - Pagination support
 - Unique, non-unique and spatial indices supported
 - Support for [Gremlin query language](http://gremlin.tinkerpop.com/) through the ```@Query``` annotation
@@ -263,6 +264,17 @@ public interface PersonRepository extends GremlinRepository<Person> {
 
 ```
 
+And one for Located:
+
+```
+public interface LocatedRepository extends GremlinRepository<Located> {
+
+    @Query(value = "graph.V().has('firstName', ?).outE('Location')")
+    List<Located> findAllLocatedForUser(String name);
+}
+
+```
+
 Wire it up:
 
 ```
@@ -323,6 +335,7 @@ public class Configuration {
 - Spring auto configuration 
 - ~~Many to many relationships~~
 - ~~Links as entities~~
+- ~~Edge repositories~~
 - Lazy fetching
 - Index for multiple properties
 - Allow for IDs other than String
