@@ -51,6 +51,9 @@ public class Person {
     @EnumeratedCollection(HashSet.class)
     private Set<VEHICLE> wantedVehicles;
 
+    @LinkVia
+    private Set<Likes> likes;
+
     public Person() {
     }
 
@@ -155,7 +158,14 @@ public class Person {
         wantedVehicles.add(vehicle);
     }
 
-//    @Override
+    public Set<Likes> getLikes() {
+        if (likes == null) {
+            likes = new HashSet<Likes>();
+        }
+        return likes;
+    }
+
+    //    @Override
 //    public boolean equals(Object o) {
 //        if (this == o) {
 //            return true;

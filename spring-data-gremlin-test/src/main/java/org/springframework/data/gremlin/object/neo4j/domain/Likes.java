@@ -32,6 +32,7 @@ public class Likes {
     public Likes(Person person1, Person person2) {
         this.person1 = person1;
         this.person2 = person2;
+        person1.getLikes().add(this);
     }
 
     public Date getDate() {

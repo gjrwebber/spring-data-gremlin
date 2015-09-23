@@ -1,6 +1,8 @@
 package org.springframework.data.gremlin.object.neo4j.domain;
 
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.gremlin.annotation.LinkVia;
+import org.springframework.data.gremlin.object.core.domain.*;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -47,6 +49,9 @@ public class Person {
     private AWESOME awesome = AWESOME.YES;
 
     private HashSet<VEHICLE> vehicles;
+
+    @RelatedToVia
+    private Set<Likes> likes;
 
     public Person() {
     }
@@ -139,6 +144,13 @@ public class Person {
             vehicles = new HashSet<>();
         }
         vehicles.add(vehicle);
+    }
+
+    public Set<Likes> getLikes() {
+        if (likes == null) {
+            likes = new HashSet<Likes>();
+        }
+        return likes;
     }
 
 }
