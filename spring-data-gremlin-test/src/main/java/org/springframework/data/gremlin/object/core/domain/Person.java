@@ -5,7 +5,7 @@ import org.springframework.data.gremlin.annotation.*;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.tinkerpop.blueprints.Direction.*;
+import static com.tinkerpop.blueprints.Direction.OUT;
 import static org.springframework.data.gremlin.annotation.Enumerated.EnumeratedType.STRING;
 
 @Vertex
@@ -165,23 +165,52 @@ public class Person {
         return likes;
     }
 
-    //    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) {
-//            return true;
-//        }
-//        if (o == null || getClass() != o.getClass()) {
-//            return false;
-//        }
-//
-//        Person person = (Person) o;
-//
-//        return !(id != null ? !id.equals(person.id) : person.id != null);
-//
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return id != null ? id.hashCode() : 0;
-//    }
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Person{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", firstName='").append(firstName).append('\'');
+        sb.append(", lastName='").append(lastName).append('\'');
+        sb.append(", active=").append(active);
+        sb.append(", awesome=").append(awesome);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Person person = (Person) o;
+
+        if (id != null ? !id.equals(person.id) : person.id != null) {
+            return false;
+        }
+        if (firstName != null ? !firstName.equals(person.firstName) : person.firstName != null) {
+            return false;
+        }
+        if (lastName != null ? !lastName.equals(person.lastName) : person.lastName != null) {
+            return false;
+        }
+        if (active != null ? !active.equals(person.active) : person.active != null) {
+            return false;
+        }
+        return awesome == person.awesome;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (active != null ? active.hashCode() : 0);
+        result = 31 * result + (awesome != null ? awesome.hashCode() : 0);
+        return result;
+    }
 }
