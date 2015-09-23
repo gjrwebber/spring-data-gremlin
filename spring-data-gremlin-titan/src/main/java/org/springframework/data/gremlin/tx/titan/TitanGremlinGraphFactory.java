@@ -24,13 +24,12 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
 
     @Override
     protected void createPool() {
-    	if(configuration != null){
-    		graph = TitanFactory.open(configuration);
-    	}
-    	else {
-	        notNull(url);
-	        graph = TitanFactory.open(url);
-    	}
+        if(configuration != null){
+            graph = TitanFactory.open(configuration);
+        } else {
+            notNull(url);
+            graph = TitanFactory.open(url);
+        }
     }
 
     @Override
@@ -70,11 +69,11 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
     protected void createGraph() {
     }
 
-	public Configuration getConfiguration() {
-		return configuration;
-	}
+    public Configuration getConfiguration() {
+        return configuration;
+    }
 
-	public void setConfiguration(Configuration configuration) {
-		this.configuration = configuration;
-	}
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
+    }
 }
