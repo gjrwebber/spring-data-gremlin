@@ -196,7 +196,7 @@ public class BasicSchemaGenerator implements SchemaGenerator {
             accessor = new GremlinSerializableFieldPropertyAccessor(field);
             cls = getSerializableType(field);
         } else if (isJsonField(cls, field)) {
-            accessor = new GremlinJsonFieldPropertyAccessor(field);
+            accessor = new GremlinJSONFieldPropertyAccessor(field);
             cls = getJsonType(field);
         }
 
