@@ -13,11 +13,11 @@ import java.util.Collection;
  *
  * @author Gman
  */
-public class GremlinJsonFieldPropertyAccessor extends AbstractGremlinFieldPropertyAccessor<String> {
+public class GremlinJSONFieldPropertyAccessor extends AbstractGremlinFieldPropertyAccessor<String> {
 
     private ObjectMapper mapper = new ObjectMapper();
 
-    public GremlinJsonFieldPropertyAccessor(Field field) {
+    public GremlinJSONFieldPropertyAccessor(Field field) {
         super(field);
         mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
     }
