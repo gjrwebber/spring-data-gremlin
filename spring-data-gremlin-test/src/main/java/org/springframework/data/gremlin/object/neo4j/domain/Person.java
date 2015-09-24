@@ -2,7 +2,6 @@ package org.springframework.data.gremlin.object.neo4j.domain;
 
 import org.neo4j.graphdb.Direction;
 import org.springframework.data.gremlin.annotation.LinkVia;
-import org.springframework.data.gremlin.object.core.domain.*;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
@@ -52,6 +51,14 @@ public class Person {
 
     @RelatedToVia
     private Set<Likes> likes;
+
+    private House owns;
+
+    private Set<House> owned;
+
+    private Set<Pet> pets;
+
+    private Pet favouritePet;
 
     public Person() {
     }
@@ -151,6 +158,36 @@ public class Person {
             likes = new HashSet<Likes>();
         }
         return likes;
+    }
+
+    public House getOwns() {
+        return owns;
+    }
+
+    public void setOwns(House owns) {
+        this.owns = owns;
+    }
+
+    public Set<House> getOwned() {
+        if (owned == null) {
+            owned = new HashSet<House>();
+        }
+        return owned;
+    }
+
+    public Set<Pet> getPets() {
+        if (pets == null) {
+            pets = new HashSet<>();
+        }
+        return pets;
+    }
+
+    public Pet getFavouritePet() {
+        return favouritePet;
+    }
+
+    public void setFavouritePet(Pet favouritePet) {
+        this.favouritePet = favouritePet;
     }
 
     @Override

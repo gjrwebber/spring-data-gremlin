@@ -16,6 +16,7 @@ import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyE
 import org.springframework.data.gremlin.utils.GenericsUtil;
 import org.springframework.util.ReflectionUtils;
 
+import java.io.Serializable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.*;
@@ -117,7 +118,7 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
         Class<?> cls = field.getType();
 
-        GremlinPropertyAccessor accessor;
+        GremlinPropertyAccessor accessor = new GremlinFieldPropertyAccessor(field, embeddedFieldAccessor);
         GremlinProperty property = null;
 
         // Get the rootEmbeddedField
@@ -128,86 +129,89 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         String name = getPropertyName(field, rootEmbeddedField);
 
         // Check if we accept this standard type
-        if (acceptType(cls)) {
+        //        if (acceptType(cls)) {
 
-            // If it is an enum, check if it is annotated with @Enumerated
-            if (isEnumField(cls, field)) {
-                Class<?> enumType = cls;
+        // If it is an enum, check if it is annotated with @Enumerated
+        if (isEnumField(cls, field)) {
+            Class<?> enumType = cls;
 
-                cls = getEnumType(field);
-                if (Collection.class.isAssignableFrom(field.getType())) {
-                    Class<Collection<Enum>> enumCollectionCls = getEnumCollectionType(field);
-                    if (enumCollectionCls.isInterface()) {
-                        throw new IllegalArgumentException("Collection is an interface (" + enumCollectionCls +
-                                                           "). The concrete type cannot be determined. Please use a concrete Collection type or use @Enumerated(collectionType=HashSet.class)");
-                    }
-                    boolean useOrdinal = cls == Integer.class;
-                    accessor = new GremlinEnumStringCollectionFieldPropertyAccessor(field, enumCollectionCls, useOrdinal);
-                    cls = String.class;
-                } else {
-                    if (cls == String.class) {
-                        accessor = new GremlinEnumStringFieldPropertyAccessor(field, enumType);
-                    } else if (cls == Integer.class) {
-                        accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
-                    } else {
-                        accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
-                    }
+            cls = getEnumType(field);
+            if (Collection.class.isAssignableFrom(field.getType())) {
+                Class<Collection<Enum>> enumCollectionCls = getEnumCollectionType(field);
+                if (enumCollectionCls.isInterface()) {
+                    throw new IllegalArgumentException("Collection is an interface (" + enumCollectionCls +
+                                                       "). The concrete type cannot be determined. Please use a concrete Collection type or use @Enumerated(collectionType=HashSet.class)");
                 }
+                boolean useOrdinal = cls == Integer.class;
+                accessor = new GremlinEnumStringCollectionFieldPropertyAccessor(field, enumCollectionCls, useOrdinal);
+                cls = String.class;
             } else {
-                accessor = new GremlinFieldPropertyAccessor(field, embeddedFieldAccessor);
-                if (isCollectionViaField(cls, field)) {
-                    cls = getCollectionType(field);
-                    if (isLinkOutward(cls, field)) {
-                        property = propertyFactory.getCollectionViaProperty(cls, name, Direction.OUT);
-                    } else {
-                        property = propertyFactory.getCollectionViaProperty(cls, name, Direction.IN);
-                    }
-                } else if (isCollectionField(cls, field)) {
-                    cls = getCollectionType(field);
-                    if (isLinkOutward(cls, field)) {
-                        property = propertyFactory.getCollectionProperty(cls, name, Direction.OUT);
-                    } else {
-                        property = propertyFactory.getCollectionProperty(cls, name, Direction.IN);
-                    }
-                } else if (isLinkViaField(cls, field)) {
-                    if (isLinkOutward(cls, field)) {
-                        property = propertyFactory.getLinkViaProperty(cls, name, Direction.OUT);
-                    } else {
-                        property = propertyFactory.getLinkViaProperty(cls, name, Direction.IN);
-                    }
-                } else if (isAdjacentField(cls, field)) {
-                    if (isAdjacentOutward(cls, field)) {
-                        property = propertyFactory.getAdjacentProperty(cls, "out", Direction.OUT);
-                    } else {
-                        property = propertyFactory.getAdjacentProperty(cls, "in", Direction.IN);
-                    }
-                } else if (isLinkField(cls, field)) {
-
-                    if (isLinkOutward(cls, field)) {
-                        property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
-                    } else {
-                        property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
-                    }
-                } else if (isEmbeddedField(cls, field)) {
-                    populate(cls, schema, (GremlinFieldPropertyAccessor) accessor);
-
-                    // Return now as we don't want a property for the embedded field.
-                    return;
+                if (cls == String.class) {
+                    accessor = new GremlinEnumStringFieldPropertyAccessor(field, enumType);
+                } else if (cls == Integer.class) {
+                    accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
+                } else {
+                    accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
                 }
             }
-
-            // Create the property if it hasn't been created already
-            if (property == null) {
-                Index.IndexType index = getIndexType(field);
-                String indexName = null;
-                if (index == Index.IndexType.NON_UNIQUE) {
-                    indexName = getIndexName(field);
-                }
-                property = propertyFactory.getIndexedProperty(cls, name, index, indexName);
+        } else if (isCollectionViaField(cls, field)) {
+            cls = getCollectionType(field);
+            if (isLinkOutward(cls, field)) {
+                property = propertyFactory.getCollectionViaProperty(cls, name, Direction.OUT);
+            } else {
+                property = propertyFactory.getCollectionViaProperty(cls, name, Direction.IN);
             }
-            property.setAccessor(accessor);
-            schema.addProperty(property);
+        } else if (isCollectionField(cls, field)) {
+            cls = getCollectionType(field);
+            if (isLinkOutward(cls, field)) {
+                property = propertyFactory.getCollectionProperty(cls, name, Direction.OUT);
+            } else {
+                property = propertyFactory.getCollectionProperty(cls, name, Direction.IN);
+            }
+        } else if (isLinkViaField(cls, field)) {
+            if (isLinkOutward(cls, field)) {
+                property = propertyFactory.getLinkViaProperty(cls, name, Direction.OUT);
+            } else {
+                property = propertyFactory.getLinkViaProperty(cls, name, Direction.IN);
+            }
+        } else if (isAdjacentField(cls, field)) {
+            if (isAdjacentOutward(cls, field)) {
+                property = propertyFactory.getAdjacentProperty(cls, "out", Direction.OUT);
+            } else {
+                property = propertyFactory.getAdjacentProperty(cls, "in", Direction.IN);
+            }
+        } else if (isLinkField(cls, field)) {
+
+            if (isLinkOutward(cls, field)) {
+                property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
+            } else {
+                property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
+            }
+        } else if (isEmbeddedField(cls, field)) {
+            populate(cls, schema, (GremlinFieldPropertyAccessor) accessor);
+
+            // Return now as we don't want a property for the embedded field.
+            return;
+        } else if (isSerialisableField(cls, field)) {
+            accessor = new GremlinSerializableFieldPropertyAccessor(field);
+            cls = getSerializableType(field);
+        } else if (isJsonField(cls, field)) {
+            accessor = new GremlinJsonFieldPropertyAccessor(field);
+            cls = getJsonType(field);
         }
+
+        // Create the property if it hasn't been created already
+        if (property == null) {
+            Index.IndexType index = getIndexType(field);
+            String indexName = null;
+            if (index == Index.IndexType.NON_UNIQUE) {
+                indexName = getIndexName(field);
+            }
+            property = propertyFactory.getIndexedProperty(cls, name, index, indexName);
+        }
+        property.setAccessor(accessor);
+        schema.addProperty(property);
+        //        }
     }
 
     protected Index.IndexType getIndexType(Field field) {
@@ -224,8 +228,9 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean shouldProcessField(GremlinSchema schema, Field field) {
-        return field != null && acceptType(field.getType()) && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(
-                field.getModifiers());
+        return field != null
+               //               && acceptType(field.getType())
+               && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers());
     }
 
     protected Field getIdField(Class<?> cls) throws SchemaGeneratorException {
@@ -246,6 +251,14 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     }
 
     protected Class<?> getEnumType(Field field) {
+        return String.class;
+    }
+
+    private Class<?> getSerializableType(Field field) {
+        return byte[].class;
+    }
+
+    private Class<?> getJsonType(Field field) {
         return String.class;
     }
 
@@ -284,6 +297,14 @@ public class BasicSchemaGenerator implements SchemaGenerator {
             propertyName = String.format("%s_%s", getPropertyName(rootEmbeddedField, null), propertyName);
         }
         return propertyName;
+    }
+
+    protected boolean isSerialisableField(Class<?> cls, Field field) {
+        return !stdType(cls) && (Serializable.class.isAssignableFrom(cls) || (Collection.class.isAssignableFrom(cls) && Serializable.class.isAssignableFrom(getCollectionType(field))));
+    }
+
+    protected boolean isJsonField(Class<?> cls, Field field) {
+        return !stdType(cls);
     }
 
     protected boolean isEnumField(Class<?> cls, Field field) {
@@ -374,8 +395,20 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean acceptType(Class<?> cls) {
-        return Enum.class.isAssignableFrom(cls) || ClassUtils.isPrimitiveOrWrapper(cls) || cls == String.class || Collection.class.isAssignableFrom(cls) || cls == Date.class || isVertexClass(cls) ||
-               isEmbeddedClass(cls) || isEdgeClass(cls);
+        return Enum.class.isAssignableFrom(cls) ||
+               ClassUtils.isPrimitiveOrWrapper(cls) ||
+               cls == String.class ||
+               Collection.class.isAssignableFrom(cls) ||
+               cls == Date.class ||
+               isVertexClass(cls) ||
+               isEmbeddedClass(cls) ||
+               isEdgeClass(cls);
+    }
+
+    protected boolean stdType(Class<?> cls) {
+        return ClassUtils.isPrimitiveOrWrapper(cls) ||
+               cls == String.class ||
+               cls == Date.class;
     }
 
     @Override

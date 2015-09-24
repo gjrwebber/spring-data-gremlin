@@ -13,7 +13,6 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.gremlin.object.core.domain.*;
 import org.springframework.data.gremlin.object.jpa.TestService;
 import org.springframework.data.gremlin.object.jpa.domain.*;
 import org.springframework.data.gremlin.object.jpa.domain.Address;
@@ -79,6 +78,18 @@ public abstract class BaseRepositoryTest {
         graham.setLocations(locations);
         graham.addVehicle(Person.VEHICLE.CAR);
         graham.addVehicle(Person.VEHICLE.MOTORBIKE);
+
+        graham.setOwns(new House(3));
+        graham.getOwned().add(new House(1));
+        graham.getOwned().add(new House(2));
+        Pet milo = new Pet("Milo", Pet.TYPE.DOG);
+        graham.getPets().add(milo);
+        graham.getPets().add(new Pet("Charlie", Pet.TYPE.CAT));
+        graham.getPets().add(new Pet("TOC", Pet.TYPE.CAT));
+
+        graham.setFavouritePet(milo);
+
+
         repository.save(graham);
         repository.save(new Person("Vanja", "Ivanovic", address, true));
         repository.save(new Person("Lara", "Ivanovic", address, true));

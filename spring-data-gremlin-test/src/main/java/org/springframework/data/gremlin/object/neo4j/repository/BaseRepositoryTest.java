@@ -11,15 +11,8 @@ import org.junit.runner.RunWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.gremlin.object.core.domain.*;
 import org.springframework.data.gremlin.object.neo4j.TestService;
 import org.springframework.data.gremlin.object.neo4j.domain.*;
-import org.springframework.data.gremlin.object.neo4j.domain.Address;
-import org.springframework.data.gremlin.object.neo4j.domain.Area;
-import org.springframework.data.gremlin.object.neo4j.domain.Likes;
-import org.springframework.data.gremlin.object.neo4j.domain.Located;
-import org.springframework.data.gremlin.object.neo4j.domain.Location;
-import org.springframework.data.gremlin.object.neo4j.domain.Person;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
@@ -101,6 +94,19 @@ public abstract class BaseRepositoryTest {
         lara = new Person("Lara", "Ivanovic", address, true);
         graham.setLocations(locations);
         graham.setCurrentLocation(locations.iterator().next());
+
+
+        graham.setOwns(new House(3));
+        graham.getOwned().add(new House(1));
+        graham.getOwned().add(new House(2));
+        Pet milo = new Pet("Milo", Pet.TYPE.DOG);
+        graham.getPets().add(milo);
+        graham.getPets().add(new Pet("Charlie", Pet.TYPE.CAT));
+        graham.getPets().add(new Pet("TOC", Pet.TYPE.CAT));
+
+        graham.setFavouritePet(milo);
+
+
         repository.save(graham);
         repository.save(new Person("Vanja", "Ivanovic", address, true));
         repository.save(lara);

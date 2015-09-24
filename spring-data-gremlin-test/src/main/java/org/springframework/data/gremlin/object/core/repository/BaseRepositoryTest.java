@@ -90,6 +90,16 @@ public abstract class BaseRepositoryTest {
         graham.addWantedVehicle(Person.VEHICLE.HOVERCRAFT);
         graham.addWantedVehicle(Person.VEHICLE.SPACESHIP);
 
+        graham.setOwns(new House(3));
+        graham.getOwned().add(new House(1));
+        graham.getOwned().add(new House(2));
+        Pet milo = new Pet("Milo", Pet.TYPE.DOG);
+        graham.getPets().add(milo);
+        graham.getPets().add(new Pet("Charlie", Pet.TYPE.CAT));
+        graham.getPets().add(new Pet("TOC", Pet.TYPE.CAT));
+
+        graham.setFavouritePet(milo);
+
         Set<Located> locations = new HashSet<Located>();
         for (int i = 0; i < 5; i++) {
             Location location = new Location(-33 + i, 151 + i);

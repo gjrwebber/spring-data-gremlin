@@ -54,6 +54,16 @@ public class Person {
     @LinkVia
     private Set<Likes> likes;
 
+    @Property(type = Property.SerialisableType.SERIALIZABLE)
+    private House owns;
+
+    private Set<House> owned;
+
+    @Property(type = Property.SerialisableType.JSON)
+    private Set<Pet> pets;
+
+    private Pet favouritePet;
+
     public Person() {
     }
 
@@ -163,6 +173,36 @@ public class Person {
             likes = new HashSet<Likes>();
         }
         return likes;
+    }
+
+    public House getOwns() {
+        return owns;
+    }
+
+    public void setOwns(House owns) {
+        this.owns = owns;
+    }
+
+    public Set<House> getOwned() {
+        if (owned == null) {
+            owned = new HashSet<House>();
+        }
+        return owned;
+    }
+
+    public Set<Pet> getPets() {
+        if (pets == null) {
+            pets = new HashSet<>();
+        }
+        return pets;
+    }
+
+    public Pet getFavouritePet() {
+        return favouritePet;
+    }
+
+    public void setFavouritePet(Pet favouritePet) {
+        this.favouritePet = favouritePet;
     }
 
     @Override

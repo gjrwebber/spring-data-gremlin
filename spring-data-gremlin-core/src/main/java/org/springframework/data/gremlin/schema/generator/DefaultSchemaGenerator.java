@@ -205,6 +205,26 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     }
 
     @Override
+    protected boolean isJsonField(Class<?> cls, Field field) {
+        Property property = field.getAnnotation(Property.class);
+        if (property != null) {
+            return property.type() == Property.SerialisableType.JSON;
+        }
+
+        return super.isJsonField(cls, field);
+    }
+
+    @Override
+    protected boolean isSerialisableField(Class<?> cls, Field field) {
+        Property property = field.getAnnotation(Property.class);
+        if (property != null) {
+            return property.type() == Property.SerialisableType.SERIALIZABLE;
+        }
+
+        return super.isSerialisableField(cls, field);
+    }
+
+    @Override
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
         return super.isEmbeddedField(cls, field) && AnnotationUtils.getAnnotation(field, Embed.class) != null;
     }

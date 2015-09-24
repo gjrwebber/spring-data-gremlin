@@ -6,9 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.gremlin.object.neo4j.domain.Located;
-import org.springframework.data.gremlin.object.neo4j.domain.Location;
-import org.springframework.data.gremlin.object.neo4j.domain.Person;
+import org.springframework.data.gremlin.object.neo4j.domain.*;
 
 import java.util.*;
 
@@ -453,4 +451,59 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         assertTrue(vehicles.contains(Person.VEHICLE.MOTORBIKE));
         assertTrue(vehicles.contains(Person.VEHICLE.SKATEBOARD));
     }
+
+    @Test
+    public void saveSerializable() {
+        Person graham = repository.findByFirstName("Graham").get(0);
+        assertNotNull(graham.getOwns());
+        assertEquals(3, graham.getOwns().getRooms());
+    }
+
+    @Test
+    public void saveSerializableCollection() {
+        Person graham = repository.findByFirstName("Graham").get(0);
+        assertNotNull(graham.getOwned());
+        assertEquals(2, graham.getOwned().size());
+        boolean house1 = false;
+        boolean house2 = false;
+        for (House house : graham.getOwned()) {
+            if (house.getRooms() == 1) {
+                house1 = true;
+            } else if (house.getRooms() == 2) {
+                house2 = true;
+            }
+        }
+        assertTrue("House1 was not serialized properly", house1);
+        assertTrue("House2 was not serialized properly", house2);
+    }
+
+    @Test
+    public void saveJson() {
+        Person graham = repository.findByFirstName("Graham").get(0);
+        assertNotNull(graham.getFavouritePet());
+        assertEquals("Milo", graham.getFavouritePet().getName());
+    }
+
+    @Test
+    public void saveJsonCollection() {
+        Person graham = repository.findByFirstName("Graham").get(0);
+        assertNotNull(graham.getPets());
+        assertEquals(3, graham.getPets().size());
+        boolean milo = false;
+        boolean charlie = false;
+        boolean toc = false;
+        for (Pet pet : graham.getPets()) {
+            if (pet.getName().equalsIgnoreCase("Milo") && pet.getType() == Pet.TYPE.DOG) {
+                milo = true;
+            } else if (pet.getName().equalsIgnoreCase("Charlie") && pet.getType() == Pet.TYPE.CAT) {
+                charlie = true;
+            } else if (pet.getName().equalsIgnoreCase("TOC") && pet.getType() == Pet.TYPE.CAT) {
+                toc = true;
+            }
+        }
+        assertTrue("Milo was not serialized properly", milo);
+        assertTrue("Charlie was not serialized properly", charlie);
+        assertTrue("TOC was not serialized properly", toc);
+    }
+
 }

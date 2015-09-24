@@ -43,6 +43,14 @@ public class Person {
 
     private HashSet<VEHICLE> vehicles;
 
+    private House owns;
+
+    private Set<House> owned;
+
+    private Set<Pet> pets;
+
+    private Pet favouritePet;
+
     public Person() {
     }
 
@@ -126,6 +134,36 @@ public class Person {
             vehicles = new HashSet<>();
         }
         vehicles.add(vehicle);
+    }
+
+    public House getOwns() {
+        return owns;
+    }
+
+    public void setOwns(House owns) {
+        this.owns = owns;
+    }
+
+    public Set<House> getOwned() {
+        if (owned == null) {
+            owned = new HashSet<House>();
+        }
+        return owned;
+    }
+
+    public Set<Pet> getPets() {
+        if (pets == null) {
+            pets = new HashSet<>();
+        }
+        return pets;
+    }
+
+    public Pet getFavouritePet() {
+        return favouritePet;
+    }
+
+    public void setFavouritePet(Pet favouritePet) {
+        this.favouritePet = favouritePet;
     }
 
     @Override
