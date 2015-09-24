@@ -34,6 +34,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
 
     public void initialise(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
 
+        LOGGER.debug("Initialising...");
         try {
             dbf = (OrientDBGremlinGraphFactory) tgf;
             oSchema = dbf.graphNoTx().getRawGraph().getMetadata().getSchema();
@@ -60,6 +61,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
             LOGGER.error(e.getMessage(), e);
             throw new SchemaWriterException(msg, e);
         }
+        LOGGER.debug("Initialised.");
     }
 
     @Override
@@ -78,6 +80,12 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     protected Object createVertexClass(GremlinSchema schema) throws Exception {
         OClass vClass = getOrCreateClass(oSchema, v, schema.getClassName());
         return vClass;
+    }
+
+    @Override
+    protected Object createEdgeClass(GremlinSchema schema) throws Exception {
+        OClass edgeClass = getOrCreateClass(oSchema, e, schema.getClassName());
+        return edgeClass;
     }
 
     @Override

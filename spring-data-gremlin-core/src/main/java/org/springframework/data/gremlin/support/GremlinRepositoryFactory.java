@@ -7,6 +7,7 @@ import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.repository.GremlinRepositoryContext;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
+import org.springframework.data.gremlin.schema.property.accessor.GremlinIdFieldPropertyAccessor;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.repository.core.EntityInformation;
@@ -18,6 +19,7 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 
 import java.io.Serializable;
 import java.lang.reflect.Constructor;
+
 
 /**
  * A {@link RepositoryFactorySupport} for Gremlin.
@@ -48,7 +50,9 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
     @Override
     @SuppressWarnings("unchecked")
     public <T, ID extends Serializable> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
-        return (EntityInformation<T, ID>) new GremlinMetamodelEntityInformation<T>(domainClass, schemaFactory.getSchema(domainClass).getIdAccessor());
+        GremlinSchema schema = schemaFactory.getSchema(domainClass);
+        GremlinIdFieldPropertyAccessor idAccessor = schema.getIdAccessor();
+        return (EntityInformation<T, ID>) new GremlinMetamodelEntityInformation<T>(domainClass, idAccessor);
     }
 
     /* (non-Javadoc)
@@ -68,7 +72,7 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
             schema.setRepository((GremlinRepository) repository);
             schema.setGraphFactory(dbf);
 
-            if (schema.isWritable() && schemaWriter != null) {
+            if (schemaWriter != null) {
                 schemaWriter.writeSchema(dbf, schema);
             }
 

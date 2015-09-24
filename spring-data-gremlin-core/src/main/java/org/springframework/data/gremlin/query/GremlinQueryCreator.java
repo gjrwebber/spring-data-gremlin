@@ -9,8 +9,11 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
+import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
+import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.repository.query.ParameterAccessor;
@@ -40,13 +43,16 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversalSour
 
     private ParameterAccessor accessor;
 
-    public GremlinQueryCreator(GremlinGraphFactory factory, GremlinSchemaFactory mapperfactory, PartTree tree, ParameterAccessor accessor) {
+    private GremlinSchema schema;
+
+    public GremlinQueryCreator(GremlinGraphFactory factory, GremlinSchemaFactory mapperfactory, Class<?> domainClass, PartTree tree, ParameterAccessor accessor) {
         super(tree, accessor);
 
         this.factory = factory;
         this.tree = tree;
         this.schemaFactory = mapperfactory;
         this.accessor = accessor;
+        this.schema = schemaFactory.getSchema(domainClass);
     }
 
     @Override
@@ -80,7 +86,11 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversalSour
     protected GraphTraversalSource complete(GraphTraversal criteria, Sort sort) {
         Pageable pageable = accessor.getPageable();
         GraphTraversalSource source = GraphTraversalSource.build().create(factory.graph());
-        source.V().and(criteria);
+        if (schema.isEdgeSchema()) {
+            source = source.V().add(criteria);
+        } else if (schema.isVertexSchema()) {
+            source = source.V().and(criteria);
+        }        
         return source;
     }
 

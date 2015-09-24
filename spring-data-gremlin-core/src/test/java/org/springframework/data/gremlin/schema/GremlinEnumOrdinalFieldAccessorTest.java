@@ -2,7 +2,7 @@ package org.springframework.data.gremlin.schema;
 
 import org.junit.Before;
 import org.junit.Test;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinEnumStringFieldPropertyAccessor;
+import org.springframework.data.gremlin.schema.property.accessor.GremlinEnumOrdinalFieldPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
 
 import static org.junit.Assert.assertEquals;
@@ -10,7 +10,7 @@ import static org.junit.Assert.assertEquals;
 /**
  * Created by gman on 18/05/15.
  */
-public class TinkerpopEnumStringFieldAccessorTest {
+public class GremlinEnumOrdinalFieldAccessorTest {
     TestObject obj1;
 
     GremlinPropertyAccessor accessor;
@@ -19,13 +19,13 @@ public class TinkerpopEnumStringFieldAccessorTest {
     public void setUp() throws Exception {
         obj1 = new TestObject();
 
-        accessor = new GremlinEnumStringFieldPropertyAccessor(TestObject.class.getDeclaredField("test"), TestObject.TEST.class);
+        accessor = new GremlinEnumOrdinalFieldPropertyAccessor(TestObject.class.getDeclaredField("test"), TestObject.TEST.class);
     }
 
 
     @Test
     public void should_read_all_variables() throws Exception {
-        assertEquals("ONE", accessor.get(obj1));
+        assertEquals(0, accessor.get(obj1));
     }
 
     @Test
@@ -36,7 +36,7 @@ public class TinkerpopEnumStringFieldAccessorTest {
 
     @Test
     public void should_write_all_variables() throws Exception {
-        accessor.set(obj1, "TWO");
+        accessor.set(obj1, 1);
         assertEquals(obj1.test, TestObject.TEST.TWO);
     }
 

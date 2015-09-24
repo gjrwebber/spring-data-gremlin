@@ -4,6 +4,7 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
+import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 
@@ -24,7 +25,7 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
     @Override
     public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
 
-        GremlinRelatedProperty adjacentProperty = getAdjacentProperty(property);
+        GremlinAdjacentProperty adjacentProperty = property.getAdjacentProperty();
 
         // Check we found the adjacent property
         if (adjacentProperty != null) {
@@ -78,22 +79,4 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
         return val;
     }
 
-    private GremlinRelatedProperty getAdjacentProperty(GremlinRelatedProperty property) {
-
-        GremlinRelatedProperty adjacentProperty = null;
-
-        for (Object propertyOfRelatedSchema : property.getRelatedSchema().getProperties()) {
-            if (propertyOfRelatedSchema instanceof GremlinRelatedProperty) {
-                // If the property has the same direction of the given property here it
-                // means it is the opposite property of the @EntityRelationship
-                if (((GremlinRelatedProperty) propertyOfRelatedSchema).getDirection() == property.getDirection()) {
-                    adjacentProperty = (GremlinRelatedProperty) propertyOfRelatedSchema;
-                    break;
-                }
-            }
-        }
-
-        return adjacentProperty;
-
-    }
 }

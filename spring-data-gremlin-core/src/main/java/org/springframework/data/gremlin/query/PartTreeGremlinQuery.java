@@ -50,7 +50,7 @@ public class PartTreeGremlinQuery extends AbstractGremlinQuery {
     protected Object doRunQuery(DefaultParameters parameters, Object[] values, boolean ignorePaging) {
         ParametersParameterAccessor accessor = new ParametersParameterAccessor(parameters, values);
 
-        GremlinQueryCreator creator = new GremlinQueryCreator(dbf, schemaFactory, tree, accessor);
+        GremlinQueryCreator creator = new GremlinQueryCreator(dbf, schemaFactory, domainClass, tree, accessor);
 
         GraphTraversalSource pipeline = creator.createQuery();
         Pageable pageable = accessor.getPageable();

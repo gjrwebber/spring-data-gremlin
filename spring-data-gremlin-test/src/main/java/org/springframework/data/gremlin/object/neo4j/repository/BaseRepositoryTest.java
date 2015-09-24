@@ -1,9 +1,6 @@
 package org.springframework.data.gremlin.object.neo4j.repository;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.*;
 import com.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.util.Pipeline;
@@ -53,18 +50,38 @@ public abstract class BaseRepositoryTest {
     protected LocationRepository locationRepository;
 
     @Autowired
+    protected LikesRepository likesRepository;
+
+    @Autowired
     protected GremlinGraphFactory factory;
 
     @Autowired
     protected TestService testService;
 
+    protected Person graham;
+
+    protected Person lara;
+
     @Before
     public void before() {
+
+        Graph graph = factory.graph();
+        factory.beginTx(graph);
+        for (Vertex vertex : graph.getVertices()) {
+            graph.removeVertex(vertex);
+        }
+
+        for (Edge edge : graph.getEdges()) {
+            graph.removeEdge(edge);
+        }
+        factory.commitTx(graph);
 
         Address address = new Address("Australia", "Newcastle", "Scenic Dr", new Area("2291"));
         addressRepository.save(address);
 
-        Person graham = new Person("Graham", "Webber", address, true);
+        graham = new Person("Graham", "Webber", address, true);
+        graham.addVehicle(Person.VEHICLE.CAR);
+        graham.addVehicle(Person.VEHICLE.MOTORBIKE);
 
         Set<Located> locations = new HashSet<Located>();
         for (int i = 0; i < 5; i++) {
@@ -74,14 +91,31 @@ public abstract class BaseRepositoryTest {
             locations.add(located);
         }
 
+        lara = new Person("Lara", "Ivanovic", address, true);
         graham.setLocations(locations);
         graham.setCurrentLocation(locations.iterator().next());
+
+
+        graham.setOwns(new House(3));
+        graham.getOwned().add(new House(1));
+        graham.getOwned().add(new House(2));
+        Pet milo = new Pet("Milo", Pet.TYPE.DOG);
+        graham.getPets().add(milo);
+        graham.getPets().add(new Pet("Charlie", Pet.TYPE.CAT));
+        graham.getPets().add(new Pet("TOC", Pet.TYPE.CAT));
+
+        graham.setFavouritePet(milo);
+
+
         repository.save(graham);
         repository.save(new Person("Vanja", "Ivanovic", address, true));
-        repository.save(new Person("Lara", "Ivanovic", address, true));
+        repository.save(lara);
         repository.save(new Person("Jake", "Webber", address, false));
         repository.save(new Person("Sandra", "Ivanovic", new Address("Australia", "Sydney", "Wilson St", new Area("2043")), false));
-        Graph graph = factory.graph();
+//        Graph graph = factory.graph();
+
+        Likes like = new Likes(graham, lara);
+        likesRepository.save(like);
 
         Iterable<Vertex> addresses = graph.query().has("street").vertices();
         assertNotNull(addresses);
@@ -122,10 +156,20 @@ public abstract class BaseRepositoryTest {
             assertTrue(obj.getProperty("city").equals("Newcastle"));
         }
 
+        GremlinPipeline<Object, Edge> likesPipe = new GremlinPipeline<Object, Edge>(graph).V().has("firstName", "Lara").inE("Likes");
+
+        assertTrue("No likes in Pipe!", likesPipe.hasNext());
+        for (Element obj : likesPipe) {
+            assertNotNull(obj);
+            Edge edge = (Edge)obj;
+            Vertex v = edge.getVertex(Direction.OUT);
+            assertTrue(v.getProperty("firstName").equals("Graham"));
+        }
+
         factory.commitTx(graph);
     }
 
-    @After
+//    @After
     public void after() {
 
         Graph graph = factory.graph();

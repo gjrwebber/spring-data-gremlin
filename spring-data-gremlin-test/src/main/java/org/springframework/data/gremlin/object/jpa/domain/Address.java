@@ -10,7 +10,8 @@ public class Address {
     @Id
     private String id;
 
-    private String country;
+    @Embedded
+    private Country country;
 
     private String city;
 
@@ -26,7 +27,7 @@ public class Address {
 
     public Address() {}
 
-    public Address(String country, String city, String street, Area area) {
+    public Address(Country country, String city, String street, Area area) {
         this.country = country;
         this.city = city;
         this.street = street;
@@ -41,11 +42,11 @@ public class Address {
         this.id = id;
     }
 
-    public String getCountry() {
+    public Country getCountry() {
         return country;
     }
 
-    public void setCountry(String country) {
+    public void setCountry(Country country) {
         this.country = country;
     }
 

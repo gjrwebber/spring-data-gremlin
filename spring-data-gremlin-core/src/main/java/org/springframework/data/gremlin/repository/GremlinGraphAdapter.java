@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.repository;
 
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,6 +48,9 @@ public class GremlinGraphAdapter<G extends Graph> {
 
     @Transactional(readOnly = true)
     public Vertex findVertexById(String id) {
+        if (id == null) {
+            return null;
+        }
         G graph = graphFactory.graph();
         Vertex playerVertex = null;
         Iterator<Vertex> it = graph.vertices(decodeId(id));
@@ -58,6 +62,16 @@ public class GremlinGraphAdapter<G extends Graph> {
             playerVertex = it.next();
         }
         return playerVertex;
+    }
+
+    @Transactional(readOnly = true)
+    public Edge findEdgeById(String id) {
+        G graph = graphFactory.graph();
+        Edge edge = graph.getEdge(decodeId(id));
+        if (edge == null) {
+            edge = graph.getEdge(id);
+        }
+        return edge;
     }
 
     @Transactional(readOnly = true)

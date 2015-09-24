@@ -14,8 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gremlin.object.jpa.TestService;
+import org.springframework.data.gremlin.object.jpa.domain.*;
 import org.springframework.data.gremlin.object.jpa.domain.Address;
 import org.springframework.data.gremlin.object.jpa.domain.Area;
+import org.springframework.data.gremlin.object.jpa.domain.Country;
 import org.springframework.data.gremlin.object.jpa.domain.Location;
 import org.springframework.data.gremlin.object.jpa.domain.Person;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
@@ -62,7 +64,7 @@ public abstract class BaseRepositoryTest {
     @Before
     public void before() {
 
-        Address address = new Address("Australia", "Newcastle", "Scenic Dr", new Area("2291"));
+        Address address = new Address(new Country("Australia"), "Newcastle", "Scenic Dr", new Area("2291"));
         addressRepository.save(address);
 
         Set<Location> locations = new HashSet<Location>();
@@ -74,11 +76,25 @@ public abstract class BaseRepositoryTest {
 
         Person graham = new Person("Graham", "Webber", address, true);
         graham.setLocations(locations);
+        graham.addVehicle(Person.VEHICLE.CAR);
+        graham.addVehicle(Person.VEHICLE.MOTORBIKE);
+
+        graham.setOwns(new House(3));
+        graham.getOwned().add(new House(1));
+        graham.getOwned().add(new House(2));
+        Pet milo = new Pet("Milo", Pet.TYPE.DOG);
+        graham.getPets().add(milo);
+        graham.getPets().add(new Pet("Charlie", Pet.TYPE.CAT));
+        graham.getPets().add(new Pet("TOC", Pet.TYPE.CAT));
+
+        graham.setFavouritePet(milo);
+
+
         repository.save(graham);
         repository.save(new Person("Vanja", "Ivanovic", address, true));
         repository.save(new Person("Lara", "Ivanovic", address, true));
         repository.save(new Person("Jake", "Webber", address, false));
-        repository.save(new Person("Sandra", "Ivanovic", new Address("Australia", "Sydney", "Wilson St", new Area("2043")), false));
+        repository.save(new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false));
         Graph graph = factory.graph();
 
         Iterable<Vertex> addresses = graph.query().has("street").vertices();

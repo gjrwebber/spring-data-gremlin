@@ -1,7 +1,9 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.tinkerpop.gremlin.structure.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -39,7 +41,11 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public long count() {
         long count = 0;
         try {
-            count = orientGraphFactory.graph().countVertices(schema.getClassName());
+            if (schema.isVertexSchema()) {
+                count = orientGraphFactory.graph().countVertices(schema.getClassName());
+            } else {
+                count = orientGraphFactory.graph().countEdges(schema.getClassName());
+            }
         } catch (Exception e) {
         }
         return count;
@@ -49,33 +55,68 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
     @Override
     public void deleteAll() {
         OrientGraph graph = orientGraphFactory.graph();
-        for (Vertex vertex : graph.getVerticesOfClass(schema.getClassName())) {
+        for (Element vertex : findAllElementsForSchema()) {
             vertex.remove();
         }
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Page<T> findAll(Pageable pageable) {
-        OrientGraph graph = orientGraphFactory.graph();
+
         List<T> result = new ArrayList<T>();
         int total = 0;
         int prevOffset = pageable.getOffset();
         int offset = pageable.getOffset() + pageable.getPageSize();
-        for (Vertex vertex : graph.getVerticesOfClass(schema.getClassName())) {
+        for (Element element : findAllElementsForSchema()) {
             if (total >= prevOffset && total < offset) {
-                result.add(schema.loadFromGraph(vertex));
+                result.add(schema.loadFromGraph(element));
             }
             total++;
         }
         return new PageImpl<T>(result, pageable, total);
+
     }
 
+    @Transactional(readOnly = true)
     @Override
     public Iterable<T> findAll() {
-        OrientGraph graph = orientGraphFactory.graph();
+
         List<T> result = new ArrayList<T>();
+        for (Element edge : findAllElementsForSchema()) {
+            result.add(schema.loadFromGraph(edge));
+        }
+        return result;
+
+    }
+
+    public Iterable<Element> findAllElementsForSchema() {
+
+        if (schema.isVertexSchema()) {
+            return findALlVerticiesForSchema();
+        } else if (schema.isEdgeSchema()) {
+            return findAllEdgesForSchema();
+        } else {
+            throw new IllegalStateException("GremlinSchema is neither VERTEX or EDGE!!");
+        }
+    }
+
+    public Iterable<Element> findALlVerticiesForSchema() {
+
+        OrientGraph graph = orientGraphFactory.graph();
+        List<Element> result = new ArrayList<>();
         for (Vertex vertex : graph.getVerticesOfClass(schema.getClassName())) {
-            result.add(schema.loadFromGraph(vertex));
+            result.add(vertex);
+        }
+        return result;
+    }
+
+    public Iterable<Element> findAllEdgesForSchema() {
+
+        OrientGraph graph = orientGraphFactory.graph();
+        List<Element> result = new ArrayList<>();
+        for (Edge edge : graph.getEdgesOfClass(schema.getClassName())) {
+            result.add(edge);
         }
         return result;
     }

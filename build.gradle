@@ -14,14 +14,15 @@ allprojects {
     apply plugin: 'eclipse'
     apply plugin: 'maven'
     apply plugin: 'maven-publish'
+    apply plugin: 'signing'
     apply plugin: 'propdeps'
     apply plugin: 'propdeps-maven'
     apply plugin: 'propdeps-idea'
     apply plugin: 'propdeps-eclipse'
 
     sourceCompatibility = 1.7
-    version = '0.0.1-SNAPSHOT'
-    group = 'org.springframework.data'
+    version = '0.1.0-SNAPSHOT'
+    group = 'com.github.gjrwebber'
 
     repositories {
         mavenLocal()
@@ -49,6 +50,87 @@ allprojects {
         testCompile('org.slf4j:slf4j-simple:1.7.7')
     }
 
+    task javadocJar(type: Jar) {
+        classifier = 'javadoc'
+        from javadoc
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+
+    artifacts {
+        archives javadocJar, sourcesJar
+    }
+
+    signing {
+        sign configurations.archives
+    }
+
+    javadoc {
+        failOnError = false
+    }
+
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+                    authentication(userName: ossrhUsername, password: ossrhPassword)
+                }
+
+                pom.project {
+                    name 'Spring Data Gremlin'
+                    packaging 'jar'
+                    description 'Spring Data module for Gremlin repositories.'
+                    url 'https://github.com/gjrwebber/spring-data-gremlin'
+
+                    scm {
+                        connection 'scm:git:git@github.com:gjrwebber/spring-data-gremlin.git'
+                        developerConnection 'scm:git:git@github.com:gjrwebber/spring-data-gremlin.git'
+                        url 'git@github.com:gjrwebber/spring-data-gremlin.git'
+                    }
+
+                    licenses {
+                        license {
+                            name 'The Apache License, Version 2.0'
+                            url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                            comments '\n\t\t\tCopyright 2008-2013 the original author or authors.\n' +
+                                    '\n' +
+                                    '\t\t\tLicensed under the Apache License, Version 2.0 (the "License");\n' +
+                                    '\t\t\tyou may not use this file except in compliance with the License.\n' +
+                                    '\t\t\tYou may obtain a copy of the License at\n' +
+                                    '\n' +
+                                    '\t\t\t\t http://www.apache.org/licenses/LICENSE-2.0\n' +
+                                    '\n' +
+                                    '\t\t\tUnless required by applicable law or agreed to in writing, software\n' +
+                                    '\t\t\tdistributed under the License is distributed on an "AS IS" BASIS,\n' +
+                                    '\t\t\tWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or\n' +
+                                    '\t\t\timplied.\n' +
+                                    '\t\t\tSee the License for the specific language governing permissions and\n' +
+                                    '\t\t\tlimitations under the License.\n\t\t'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id 'gjrwebber'
+                            name 'Graham Webber'
+                            email 'gjrwebber@gmail.com'
+                        }
+                    }
+                }
+            }
+        }
+    }
 
 }
+
+
 

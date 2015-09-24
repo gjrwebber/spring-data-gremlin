@@ -1,11 +1,13 @@
 package org.springframework.data.gremlin.object.neo4j.domain;
 
 import org.neo4j.graphdb.Direction;
+import org.springframework.data.gremlin.annotation.LinkVia;
 import org.springframework.data.neo4j.annotation.GraphId;
 import org.springframework.data.neo4j.annotation.NodeEntity;
 import org.springframework.data.neo4j.annotation.RelatedTo;
 import org.springframework.data.neo4j.annotation.RelatedToVia;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @NodeEntity
@@ -14,6 +16,15 @@ public class Person {
     public enum AWESOME {
         YES,
         NO
+    }
+
+    public enum VEHICLE {
+        CAR,
+        MOTORBIKE,
+        BICYLE,
+        SKATEBOARD,
+        HOVERCRAFT,
+        SPACESHIP
     }
 
     @GraphId
@@ -35,6 +46,19 @@ public class Person {
     private Boolean active;
 
     private AWESOME awesome = AWESOME.YES;
+
+    private HashSet<VEHICLE> vehicles;
+
+    @RelatedToVia
+    private Set<Likes> likes;
+
+    private House owns;
+
+    private Set<House> owned;
+
+    private Set<Pet> pets;
+
+    private Pet favouritePet;
 
     public Person() {
     }
@@ -116,5 +140,102 @@ public class Person {
 
     public void setCurrentLocation(Located currentLocation) {
         this.currentLocation = currentLocation;
+    }
+
+    public Set<VEHICLE> getVehicles() {
+        return vehicles;
+    }
+
+    public void addVehicle(VEHICLE vehicle) {
+        if (vehicles == null) {
+            vehicles = new HashSet<>();
+        }
+        vehicles.add(vehicle);
+    }
+
+    public Set<Likes> getLikes() {
+        if (likes == null) {
+            likes = new HashSet<Likes>();
+        }
+        return likes;
+    }
+
+    public House getOwns() {
+        return owns;
+    }
+
+    public void setOwns(House owns) {
+        this.owns = owns;
+    }
+
+    public Set<House> getOwned() {
+        if (owned == null) {
+            owned = new HashSet<House>();
+        }
+        return owned;
+    }
+
+    public Set<Pet> getPets() {
+        if (pets == null) {
+            pets = new HashSet<>();
+        }
+        return pets;
+    }
+
+    public Pet getFavouritePet() {
+        return favouritePet;
+    }
+
+    public void setFavouritePet(Pet favouritePet) {
+        this.favouritePet = favouritePet;
+    }
+
+    @Override
+    public String toString() {
+        final StringBuilder sb = new StringBuilder("Person{");
+        sb.append("id='").append(id).append('\'');
+        sb.append(", firstName='").append(firstName).append('\'');
+        sb.append(", lastName='").append(lastName).append('\'');
+        sb.append(", active=").append(active);
+        sb.append(", awesome=").append(awesome);
+        sb.append('}');
+        return sb.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        Person person = (Person) o;
+
+        if (id != null ? !id.equals(person.id) : person.id != null) {
+            return false;
+        }
+        if (firstName != null ? !firstName.equals(person.firstName) : person.firstName != null) {
+            return false;
+        }
+        if (lastName != null ? !lastName.equals(person.lastName) : person.lastName != null) {
+            return false;
+        }
+        if (active != null ? !active.equals(person.active) : person.active != null) {
+            return false;
+        }
+        return awesome == person.awesome;
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
+        result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
+        result = 31 * result + (active != null ? active.hashCode() : 0);
+        result = 31 * result + (awesome != null ? awesome.hashCode() : 0);
+        return result;
     }
 }

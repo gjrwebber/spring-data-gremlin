@@ -13,15 +13,15 @@ public interface SchemaGenerator {
 
     <V> GremlinSchema<V> generateSchema(Class<V> clazz) throws SchemaGeneratorException;
 
-    void setEntityClasses(Set<Class<?>> entities);
+    void setVertexClasses(Set<Class<?>> entities);
 
-    void setEntityClasses(Class<?>... entites);
+    void setVertexClasses(Class<?>... entites);
 
     void setEmbeddedClasses(Set<Class<?>> embedded);
 
     void setEmbeddedClasses(Class<?>... embedded);
 
-    void setRelationshipClasses(Set<Class<?>> relationshipClasses);
+    void setEdgeClasses(Set<Class<?>> relationshipClasses);
 
-    void setRelationshipClasses(Class<?>... relationshipClasses);
+    void setEdgeClasses(Class<?>... relationshipClasses);
 }

@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import org.springframework.data.gremlin.object.jpa.domain.Address;
 import org.springframework.data.gremlin.object.jpa.domain.Area;
+import org.springframework.data.gremlin.object.jpa.domain.Country;
 import org.springframework.data.gremlin.object.jpa.domain.Person;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class AbstractTransactionRepositoryTest extends BaseRepositoryTest {
         peopele = Lists.newArrayList(repository.findAll());
         assertEquals(beforeRollback + 1, peopele.size());
 
-        Address address1 = new Address("Australia", "Newcastle", "Scenic Dr", new Area("2291"));
+        Address address1 = new Address(new Country("Australia"), "Newcastle", "Scenic Dr", new Area("2291"));
 
         Person graham1 = new Person("Graham", "Webber", address1, true);
         try {

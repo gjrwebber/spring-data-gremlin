@@ -1,12 +1,14 @@
 package org.springframework.data.gremlin.tx.titan;
 
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
+import static org.springframework.util.Assert.notNull;
+
+import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.tx.AbstractGremlinGraphFactory;
 
-import static org.springframework.util.Assert.notNull;
+import com.thinkaurelius.titan.core.TitanFactory;
+import com.thinkaurelius.titan.core.TitanGraph;
 
 /**
  * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link TitanGraph} implementation of {@link org.apache.tinkerpop.gremlin.structure.Graph}.
@@ -18,12 +20,16 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
     private static final Logger LOGGER = LoggerFactory.getLogger(TitanGremlinGraphFactory.class);
 
     private TitanGraph graph = null;
+    private Configuration configuration;
 
     @Override
     protected void createPool() {
-
-        notNull(url);
-        graph = TitanFactory.open(url);
+        if(configuration != null){
+            graph = TitanFactory.open(configuration);
+        } else {
+            notNull(url);
+            graph = TitanFactory.open(url);
+        }
     }
 
     @Override
@@ -61,5 +67,13 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
 
     @Override
     protected void createGraph() {
+    }
+
+    public Configuration getConfiguration() {
+        return configuration;
+    }
+
+    public void setConfiguration(Configuration configuration) {
+        this.configuration = configuration;
     }
 }

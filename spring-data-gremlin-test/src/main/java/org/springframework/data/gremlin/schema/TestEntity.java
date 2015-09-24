@@ -20,6 +20,8 @@ public class TestEntity {
 
     private transient int anotherTranny;
 
+    public static String staty;
+
     @OneToOne
     private LinkedTestEntity linkedEntity;
 

@@ -1,23 +1,47 @@
-#Spring Data Gremlin
+# Spring Data Gremlin
 
 Spring data gremlin makes it easier to implement Graph based repositories. This module extends [Spring Data](http://projects.spring.io/spring-data) to allow support for potentially any [Graph database](https://en.wikipedia.org/wiki/Graph_database) that implements the [Tinkerpop Blueprints 2.x API](https://github.com/tinkerpop/blueprints/wiki). 
 
-##Features
+## Features
 
 - All the great features of [Spring Data](http://projects.spring.io/spring-data)
 - Support for [OrientDB](http://orientdb.com) and [TitanDB](http://s3.thinkaurelius.com/docs/titan/current)  out of the box
 - Schema creation in supported databases
-- Support to build repositories based on Spring using [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations.
+- Support to build repositories based on Spring using our [custom set of annotations](https://github.com/gjrwebber/org/springframework/data/gremlin/annotation), [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations.
+- Vertex and Edge repository support
 - Pagination support
 - Unique, non-unique and spatial indices supported
 - Support for [Gremlin query language](http://gremlin.tinkerpop.com/) through the ```@Query``` annotation
 - Support for native queries (Eg. [OrientDB SQL](http://orientdb.com/docs/2.0/orientdb.wiki/SQL-Query.html)) through the ```@Query``` annotation
 - JavaConfig based repository configuration by introducing @EnableGremlinRepositories
 - ```Map``` and ```CompositeResult``` query result objects
+- ORM support for java.io.Serializable and arbitrary classes as JSON
 
-##Neo4j Schema Generation
 
-Below is a list of supported annotations used by the ```Neo4jSchemaGenerator```. These annotaitons are part of the [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) platform.
+## Default Schema Generation
+
+Below is a list of default annotations used by the ```DefaultSchemaGenerator```.
+
+
+- ```@Vertex``` maps an ```Object``` to a ```Vertex```
+- ```@Edge``` maps an ```Object``` to an ```Edge```
+- ```@Embeddable``` maps an ```Object``` to set of properties to be embedded in a "parent" vertex
+- ```@Id``` maps an instance variable to the vertex or edge ID
+- ```@Index``` used for indexing properties including unique, spatial and non-unique
+- ```@Property``` maps an instance variable to a vertex property (optional, only required if you want to name it differently, or serialize it as JSON)
+- ```@Embed``` embeds the referenced ```Object``` in the "parent" vertex
+- ```@PropertyOverride``` can be used within ```@Embed``` for overriding properties within ```@Embeddable```s. 
+- ```@Ignore``` ignores a variable
+- ```@Enumerated``` allows for mapping an enum as an ordinal, otherwise String is the default mapping
+- ```@Link``` creates a link from this vertex to the referenced ```Object```'s vertex or ```Collection```'s verticies using the name of the field as default or the optional ```type``` parameter as the link label
+- ```@LinkVia``` creates an ```Edge``` based the the referenced ```Object``` or ```Collection``` which must be a ```@Edge```
+- ```@FromVertex``` defines the starting (or OUT) vertex of a ```@Edge```
+- ```@ToVertex``` defines the ending (or IN) vertex of a ```@Edge```
+
+
+## Neo4j Schema Generation
+
+Below is a list of supported annotations used by the ```Neo4jSchemaGenerator```. These annotations are part of the [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) platform.
 
 
 - ```@NodeEntity``` maps an ```Object``` to a ```Vertex```
@@ -27,10 +51,10 @@ Below is a list of supported annotations used by the ```Neo4jSchemaGenerator```.
 - ```@GraphProperty``` maps an instance variable to a vertex property (optional, only required if you want to name it differently)
 - ```@RelatedTo``` creates a link from this vertex to the referenced ```Object```'s vertex or ```Collection```'s verticies using the name of the field as default or the optional ```type``` parameter as the link label
 - ```@RelatedToVia``` creates an ```Edge``` based the the referenced ```Object``` or ```Collection``` which must be a ```@RelationshipEntity```
-- ```@StartNode``` defines the starting (or FROM) vertex of a ```@RelationshipEntity```
-- ```@EndNode``` defines the ending (or END) vertex of a ```@RelationshipEntity```
+- ```@StartNode``` defines the starting (or OUT) vertex of a ```@RelationshipEntity```
+- ```@EndNode``` defines the ending (or IN) vertex of a ```@RelationshipEntity```
 
-##JPA Schema Generation
+## JPA Schema Generation
 
 Below is a list of supported annotations used by the ```JpaSchemaGenerator```:
 
@@ -43,45 +67,124 @@ Below is a list of supported annotations used by the ```JpaSchemaGenerator```:
 - ```@OneToOne``` creates an outgoing link from this vertex to the referenced ```Object```'s vertex using the name of the field as default or the optional ```@Column```'s name field as the link label
 - ```@OneToMany``` creates an outgoing link from this vertex to all of the referenced ```Collection```'s vertices using the name of the field as default or the optional ```@Column```'s name field as the link label
 - ```@Transient``` marks an instance variable as transient
-- ```@Enumerated``` allows for mapping an enum as a String, otherwise ordinal is the default mapping
+- ```@Enumerated``` allows for mapping an enum as a ordinal, otherwise String is the default mapping
 
-##Getting Started
+## Getting Started
 
-Create your domain objects. I have used JPA for mapping the schema, but you can also use [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) annotations if you wish:
+### Download dependencies
 
-####Person
+Currenlty only SNAPSHOT builds are being uploaded to sonatype so you will need to add ```https://oss.sonatype.org/content/repositories/snapshots/``` repository URL to your build configuration.
+
+#### Maven
+```
+<repositories>
+    <repository>
+        <id>spring.data.gremlin.snapshot</id>
+        <name>Spring Data Gremlin SNAPHSHOT</name>
+        <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+    </repository>
+</repositories>
+```
+
+#### Gradle
+```
+repositories {
+    //...
+    maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+}
+```
+
+Once you have your build configuration setup you need to add the correct dependencies. To do that you need to decide which database and schema generator you want to use. If you are starting from scratch, then the default schema generator is for you.
+
+#### Database dependency
+**OrientDB** - com.github.gjrwebber:spring-data-gremlin-orientdb:0.1.0-SNAPSHOT  
+**TitanDB** - com.github.gjrwebber:spring-data-gremlin-titan:0.1.0-SNAPSHOT
+
+#### Schema generator dependency
+**Default** - No further dependency  
+**JPA** - com.github.gjrwebber:spring-data-gremlin-schemagen-jpa:0.1.0-SNAPSHOT  
+**Neo4j** - com.github.gjrwebber:spring-data-gremlin-schemagen-neo4j:0.1.0-SNAPSHOT
+
+#### Maven example
+
+Using OrientDB database with Neo4j schema generator:
 
 ```
-@Entity
+<dependency>
+    <groupId>com.github.gjrwebber</groupId>
+    <artifactId>spring-data-gremlin-orientdb</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+<dependency>
+    <groupId>com.github.gjrwebber</groupId>
+    <artifactId>spring-data-gremlin-schemagen-neo4j</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+</dependency>
+```
+
+#### Gradle example
+
+Using TitanDB with default schema generator:
+
+```
+compile("com.github.gjrwebber:spring-data-gremlin-titan:0.1.0-SNAPSHOT")
+```
+
+### Create you domain model
+
+Create your domain objects. I have used the default generator for mapping the schema, but you can also use [spring-data-neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations) or JPA annotations if you wish.
+
+**Note:** Have a look at [the test subproject](https://github.com/gjrwebber/spring-data-gremlin/tree/develop/spring-data-gremlin-test) for more examples.
+
+#### Person
+
+```
+@Vertex
 public class Person {
 
     @Id
     private String id;
 
-    @Column(name= "customer_name")
+    @Property("customer_name")
     private String name;
+    
+    // No need to annotate simple types
+    private boolean active;
 
-    @OneToOne
-    @Column(name = "lives_at")
+    @Link("lives_at")
     private Address address;
 
-    @OneToMany
-    @Column(name = "was_located_at")
-    private Set<Location> locations;
+    @LinkVia
+    private Set<Located> locations;
+
+    @LinkVia
+    private Located currentLocation;
+    
+    // Annotation optional
+    private Set<House> owned;
+    
+    @Property(type = JSON) // Will serialize as JSON even though House is a java.io.Serializable
+    private House owns;
+
+    @Property(type = JSON)
+    private Set<Pet> pets;
+
+    // Annotation optional
+    private Pet favouritePet;
 
 }
 ```
 
-####Address
+#### Address
 
 ```
-@Entity
+@Vertex
 public class Address {
 
     @Id
     private String id;
 
-    @Embedded
+    @Embed(propertyOverrides = { @PropertyOverride(name = "name", property = @Property("countryName")) })
     private Country country;
 
     private String city;
@@ -90,7 +193,7 @@ public class Address {
 }
 ```
 
-####Country (embedded)
+#### Country (embedded)
 
 ```
 @Embeddable
@@ -99,10 +202,10 @@ public class Country {
 }
 ```
 
-####Location
+#### Location
 
 ```
-@Entity
+@Vertex
 public class Location {
 
     @Id
@@ -119,7 +222,50 @@ public class Location {
 }
 ```
 
-Now create a repository for people:
+#### Located
+```
+@Edge("was_located")
+public class Located {
+
+    @Id
+    private String id;
+
+    @Property("location_date")
+    private Date date;
+
+    @FromVertex
+    private Person person;
+
+    @ToVertex
+    private Location location;
+    
+}
+```
+
+#### House (Serializable)
+```
+public class House implements Serializable {
+
+    private int rooms;
+
+}
+```
+
+#### Pet (will be saved as a JSON String)
+```
+public class Pet {
+
+    public enum TYPE {
+        CAT,DOG,HORSE;
+    }
+
+    private String name;
+
+    private TYPE type;
+}
+```
+
+Now create a repository for the Vertex Person:
 
 ```
 public interface PersonRepository extends GremlinRepository<Person> {
@@ -158,6 +304,17 @@ public interface PersonRepository extends GremlinRepository<Person> {
 
 ```
 
+And one for the Edge Located:
+
+```
+public interface LocatedRepository extends GremlinRepository<Located> {
+
+    @Query(value = "graph.V().has('firstName', ?).outE('Location')")
+    List<Located> findAllLocatedForUser(String name);
+}
+
+```
+
 Wire it up:
 
 ```
@@ -188,7 +345,7 @@ public class Configuration {
 
     @Bean
     public SchemaGenerator schemaGenerator() {
-        return new JpaSchemaGenerator(new OrientDbIdEncoder());
+        return new DefaultSchemaGenerator(new OrientDbIdEncoder());
     }
 
     @Bean
@@ -218,10 +375,13 @@ public class Configuration {
 - Spring auto configuration 
 - ~~Many to many relationships~~
 - ~~Links as entities~~
+- ~~Edge repositories~~
+- ~~Serializable class mapping~~
+- ~~Arbitrary class mapping~~
 - Lazy fetching
 - Index for multiple properties
 - Allow for IDs other than String
-- Repository definitions using ~~[Neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations)~~, [Frames](http://frames.tinkerpop.com) or some other custom implementation.
+- Repository definitions using ~~[Neo4j](http://docs.spring.io/spring-data/neo4j/docs/current/reference/html/#reference_programming-model_annotations)~~, [Frames](http://frames.tinkerpop.com) or ~~some other custom implementation~~.
 - More [Blueprints](https://github.com/tinkerpop/blueprints/wiki) implementations ([Neo4j](https://en.wikipedia.org/wiki/Neo4j), [ArangoDB](https://www.arangodb.com), [Blazegraph](http://www.blazegraph.com/bigdata), etc.)
 - Migrate to [Tinkerpop 3.0](http://www.tinkerpop.com/docs/3.0.0.M1/)
 

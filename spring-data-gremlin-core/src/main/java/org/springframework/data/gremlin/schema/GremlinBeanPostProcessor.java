@@ -11,6 +11,7 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 import org.springframework.core.Ordered;
 import org.springframework.data.gremlin.schema.generator.AnnotatedSchemaGenerator;
+import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGenerator;
 import org.springframework.data.gremlin.schema.generator.SchemaGeneratorException;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
@@ -36,11 +37,19 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinBeanPostProcessor.class);
 
     private Set<Class<?>> embeddedClasses = new HashSet<Class<?>>();
-    private Set<Class<?>> entityClasses = new HashSet<Class<?>>();
-    private Set<Class<?>> relationshipClasses = new HashSet<Class<?>>();
+    private Set<Class<?>> vertexClasses = new HashSet<Class<?>>();
+    private Set<Class<?>> edgeClasses = new HashSet<Class<?>>();
     private Map<Class<?>, GremlinSchema<?>> schemaMap = new HashMap<Class<?>, GremlinSchema<?>>();
 
     private SchemaGenerator schemaGenerator;
+
+    public GremlinBeanPostProcessor(String baseClasspath) {
+        this(new DefaultSchemaGenerator(), baseClasspath);
+    }
+
+    public GremlinBeanPostProcessor(Set<Class<?>> vertexClasses, Set<Class<?>> embedded, Set<Class<?>> edgeClasses) {
+        this(new DefaultSchemaGenerator(), vertexClasses, embedded, edgeClasses);
+    }
 
     public GremlinBeanPostProcessor(SchemaGenerator schemaGenerator, String baseClasspath) {
         Assert.notNull(schemaGenerator, "The SchemaRepository is useless without a SchemaBuilder.");
@@ -53,9 +62,9 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
         if (!StringUtils.isEmpty(baseClasspath)) {
             Reflections reflections = new Reflections(new ConfigurationBuilder().addUrls(ClasspathHelper.forPackage(baseClasspath)).setScanners(new TypeAnnotationsScanner()));
 
-            Set<Class<?>> entityClasses = reflections.getTypesAnnotatedWith(annotatedSchemaGenerator.getEntityAnnotationType());
-            this.entityClasses.addAll(entityClasses);
-            schemaGenerator.setEntityClasses(entityClasses);
+            Set<Class<?>> vertexClasses = reflections.getTypesAnnotatedWith(annotatedSchemaGenerator.getVertexAnnotationType());
+            this.vertexClasses.addAll(vertexClasses);
+            schemaGenerator.setVertexClasses(vertexClasses);
 
             Class<? extends Annotation> embedType = annotatedSchemaGenerator.getEmbeddedAnnotationType();
             if (embedType != null) {
@@ -64,34 +73,34 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
                 schemaGenerator.setEmbeddedClasses(embeddableClasses);
             }
 
-            Class<? extends Annotation> relType = annotatedSchemaGenerator.getRelationshipAnnotationType();
+            Class<? extends Annotation> relType = annotatedSchemaGenerator.getEdgeAnnotationType();
             if (relType != null) {
-                Set<Class<?>> relationships = reflections.getTypesAnnotatedWith(relType);
-                this.relationshipClasses.addAll(relationships);
-                schemaGenerator.setRelationshipClasses(relationshipClasses);
+                Set<Class<?>> edgeClasses = reflections.getTypesAnnotatedWith(relType);
+                this.edgeClasses.addAll(edgeClasses);
+                schemaGenerator.setEdgeClasses(this.edgeClasses);
             }
         }
 
-        generateSchemasFromEntities(entityClasses);
-        generateSchemasFromEntities(relationshipClasses);
+        generateSchemasFromEntities(vertexClasses);
+        generateSchemasFromEntities(edgeClasses);
         init();
     }
 
-    public GremlinBeanPostProcessor(SchemaGenerator schemaGenerator, Set<Class<?>> entities, Set<Class<?>> embedded, Set<Class<?>> relationships) {
+    public GremlinBeanPostProcessor(SchemaGenerator schemaGenerator, Set<Class<?>> vertexClasses, Set<Class<?>> embeddedClasses, Set<Class<?>> edgeClasses) {
         Assert.notNull(schemaGenerator, "The SchemaRepository is useless without a SchemaBuilder.");
-        Assert.notNull(entities, "The SchemaRepository is useless without entities.");
-        Assert.notEmpty(entities, "The SchemaRepository is useless without entityClasses.");
+        Assert.notNull(vertexClasses, "The SchemaRepository is useless without entities.");
+        Assert.notEmpty(vertexClasses, "The SchemaRepository is useless without vertexClasses.");
         this.schemaGenerator = schemaGenerator;
 
-        this.entityClasses = entities;
-        this.embeddedClasses = embedded;
-        this.relationshipClasses = relationships;
-        schemaGenerator.setEntityClasses(entityClasses);
-        schemaGenerator.setEmbeddedClasses(embeddedClasses);
-        schemaGenerator.setRelationshipClasses(relationships);
+        this.vertexClasses = vertexClasses;
+        this.embeddedClasses = embeddedClasses;
+        this.edgeClasses = edgeClasses;
+        schemaGenerator.setVertexClasses(this.vertexClasses);
+        schemaGenerator.setEmbeddedClasses(this.embeddedClasses);
+        schemaGenerator.setEdgeClasses(edgeClasses);
 
-        generateSchemasFromEntities(entityClasses);
-        generateSchemasFromEntities(relationshipClasses);
+        generateSchemasFromEntities(this.vertexClasses);
+        generateSchemasFromEntities(this.edgeClasses);
         init();
     }
 
@@ -139,7 +148,7 @@ public class GremlinBeanPostProcessor implements BeanFactoryPostProcessor, Order
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
         for (Class<?> cls : schemaMap.keySet()) {
             GremlinSchema<?> schema = schemaMap.get(cls);
-            beanFactory.registerSingleton(String.format("gremlin%sSchema", cls.getSimpleName()), schema);
+            beanFactory.registerSingleton("gremlin"+schema.getClassName()+"Schema", schema);
         }
     }
 

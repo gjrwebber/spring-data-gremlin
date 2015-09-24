@@ -32,4 +32,17 @@ public abstract class AbstractAddressRepositoryTest extends BaseRepositoryTest {
         }
     }
 
+    @Test
+    public void should_save_and_find_embedded_country() throws Exception {
+        List<Address> addresses = new ArrayList<>();
+
+        CollectionUtils.addAll(addresses, addressRepository.findAll());
+        assertNotNull(addresses);
+        assertEquals(2, addresses.size());
+        assertNotNull(addresses.get(0).getCountry());
+        assertEquals("Australia", addresses.get(0).getCountry().getName());
+        assertNotNull(addresses.get(1).getCountry());
+        assertEquals("Australia", addresses.get(1).getCountry().getName());
+    }
+
 }
