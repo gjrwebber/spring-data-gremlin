@@ -1,10 +1,7 @@
 package org.springframework.data.gremlin.schema;
 
-import com.tinkerpop.blueprints.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
-import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
 
 

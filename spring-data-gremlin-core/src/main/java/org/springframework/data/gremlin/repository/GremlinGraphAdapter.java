@@ -67,13 +67,22 @@ public class GremlinGraphAdapter<G extends Graph> {
     @Transactional(readOnly = true)
     public Edge findEdgeById(String id) {
         G graph = graphFactory.graph();
-        Edge edge = graph.getEdge(decodeId(id));
-        if (edge == null) {
-            edge = graph.getEdge(id);
+        Edge edge = null;
+        Iterator<Edge> it = graph.edges(decodeId(id));
+        if (it == null || !it.hasNext()) {
+            it = graph.edges(id);
+        }
+        if (it != null && it.hasNext()) {
+            edge = it.next();
         }
         return edge;
     }
 
+    /**
+     * Assumes the Vertex exists
+     * @param id
+     * @return
+     */
     @Transactional(readOnly = true)
     public Vertex getVertex(String id) {
         if (id == null) {
@@ -82,9 +91,17 @@ public class GremlinGraphAdapter<G extends Graph> {
         return graphFactory.graph().vertices(id).next();
     }
 
+    /**
+     * Assumes the Edge exists
+     * @param id
+     * @return
+     */
     @Transactional(readOnly = true)
     public Edge getEdge(String id) {
-        return graphFactory.graph().getEdge(id);
+        if (id == null) {
+            return null;
+        }
+        return graphFactory.graph().edges(id).next();
     }
 
     @Transactional(readOnly = false)

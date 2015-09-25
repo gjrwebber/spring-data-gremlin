@@ -203,10 +203,10 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
     public void delete(String id) {
         if (schema.isVertexSchema()) {
             Vertex v = graphAdapter.findVertexById(id);
-            dbf.graph().removeVertex(v);
+            v.remove();;
         } else if (schema.isEdgeSchema()) {
             Edge v = graphAdapter.findEdgeById(id);
-            dbf.graph().removeEdge(v);
+            v.remove();
         }
     }
 

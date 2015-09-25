@@ -1,12 +1,13 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 
 import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * A {@link GremlinPropertyMapper} for mapping {@link GremlinAdjacentProperty}s.
@@ -16,28 +17,25 @@ import java.util.Map;
 public class GremlinAdjacentPropertyMapper implements GremlinPropertyMapper<GremlinAdjacentProperty, Edge> {
 
     @Override
-    public void copyToVertex(GremlinAdjacentProperty property, GremlinGraphAdapter graphAdapter, Edge edge, Object val, Map<Object, Object> cascadingSchemas) {
+    public void copyToVertex(final GremlinAdjacentProperty property, final GremlinGraphAdapter graphAdapter, final Edge edge, final Object val, final  Map<Object, Object> cascadingSchemas) {
 
-        Vertex linkedVertex = edge.getVertex(property.getDirection());
-
-        if (linkedVertex == null) {
-            linkedVertex = (Vertex) cascadingSchemas.get(val);
-        }
-
-        if (linkedVertex != null) {
-            //             Updates or saves the val into the linkedVertex
-            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, val, cascadingSchemas);
-        }
-
+        edge.vertices(property.getDirection()).forEachRemaining(new Consumer<Vertex>() {
+            @Override
+            public void accept(Vertex vertex) {
+                property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, vertex, val, cascadingSchemas);
+            }
+        });
     }
 
     @Override
-    public <K> Object loadFromVertex(GremlinAdjacentProperty property, Edge edge, Map<Object, Object> cascadingSchemas) {
-        Object val = null;
-        Vertex linkedVertex = edge.getVertex(property.getDirection());
-        if (linkedVertex != null) {
-            val = property.getRelatedSchema().cascadeLoadFromGraph(linkedVertex, cascadingSchemas);
-        }
-        return val;
+    public <K> Object loadFromVertex(final GremlinAdjacentProperty property, final Edge edge, final Map<Object, Object> cascadingSchemas) {
+        final Object[] val = { null };
+        edge.vertices(property.getDirection()).forEachRemaining(new Consumer<Vertex>() {
+            @Override
+            public void accept(Vertex vertex) {
+                val[0] = property.getRelatedSchema().cascadeLoadFromGraph(vertex, cascadingSchemas);
+            }
+        });
+        return val[0];
     }
 }

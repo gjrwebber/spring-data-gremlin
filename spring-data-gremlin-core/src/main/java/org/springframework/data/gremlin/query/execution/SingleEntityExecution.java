@@ -50,7 +50,7 @@ public class SingleEntityExecution extends AbstractGremlinExecution {
 
         if (mappedType.isAssignableFrom(Map.class)) {
 
-            Map<String, Object> map = vertexToMap(vertex);
+            Map<String, Object> map = elementToMap(vertex);
             return map;
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);

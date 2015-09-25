@@ -38,7 +38,7 @@ public class CompositeExecution extends AbstractGremlinExecution {
             throw new IllegalArgumentException("The query resulted in multiple Vertices. Expected only one result for this Execution.");
         }
 
-        Map<String, Object> map = vertexToMap(vertex);
+        Map<String, Object> map = elementToMap(vertex);
 
         Class<?> mappedType = query.getQueryMethod().getReturnedObjectType();
         GremlinSchema mapper = schemaFactory.getSchema(mappedType);

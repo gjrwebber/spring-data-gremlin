@@ -7,7 +7,10 @@ import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
 
 /**
  * A {@link GremlinPropertyMapper} for mapping {@link GremlinLinkProperty}s. There are 2 configurable properties for this property mapper:
@@ -21,15 +24,15 @@ import java.util.Set;
 public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinRelatedProperty, Vertex> {
 
     @Override
-    public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
+    public void copyToVertex(final GremlinRelatedProperty property, final GremlinGraphAdapter graphAdapter, final Vertex vertex, final Object val, final Map<Object, Object> cascadingSchemas) {
 
         Vertex linkedVertex = null;
 
         // get the current edge for this property
-        Iterable<Edge> edges = vertex.getEdges(direction, property.getName());
-        if (edges.iterator().hasNext()) {
-            Edge edge = edges.iterator().next();
-            linkedVertex = edge.getVertex(direction.opposite());
+        Iterator<Edge> edges = vertex.edges(property.getDirection(), property.getName());
+        if (edges.hasNext()) {
+            Edge edge = edges.next();
+            linkedVertex = edge.vertices(property.getDirection().opposite()).next();
         } else {
             // No current edge, get it
             linkedVertex = (Vertex) cascadingSchemas.get(val);
@@ -56,14 +59,16 @@ public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinR
     }
 
     @Override
-    public <K> Object loadFromVertex(GremlinRelatedProperty property, Vertex vertex, Map<Object, Object> cascadingSchemas) {
+    public <K> Object loadFromVertex(final GremlinRelatedProperty property, final Vertex vertex, final Map<Object, Object> cascadingSchemas) {
 
-        Object val = null;
-        for (Edge outEdge : vertex.getEdges(direction, property.getName())) {
-            Vertex inVertex = outEdge.getVertex(direction.opposite());
-            val = property.getRelatedSchema().cascadeLoadFromVertex(inVertex, cascadingSchemas, property.getSchema());
-        }
-
-        return val;
+        final Object[] val = { null };
+        vertex.edges(property.getDirection(), property.getName()).forEachRemaining(new Consumer<Edge>() {
+            @Override
+            public void accept(Edge outEdge) {
+                Vertex inVertex = outEdge.inVertex();
+                val[0] = property.getRelatedSchema().cascadeLoadFromGraph(inVertex, cascadingSchemas);
+            }
+        });
+        return val[0];
     }
 }

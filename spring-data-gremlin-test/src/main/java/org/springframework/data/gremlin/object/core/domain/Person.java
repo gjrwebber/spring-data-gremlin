@@ -5,7 +5,7 @@ import org.springframework.data.gremlin.annotation.*;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.tinkerpop.blueprints.Direction.OUT;
+import static org.apache.tinkerpop.gremlin.structure.Direction.OUT;
 import static org.springframework.data.gremlin.annotation.Enumerated.EnumeratedType.STRING;
 
 @Vertex

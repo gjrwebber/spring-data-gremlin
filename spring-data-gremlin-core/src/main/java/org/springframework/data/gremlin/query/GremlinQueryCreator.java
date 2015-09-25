@@ -31,7 +31,7 @@ import java.util.function.Consumer;
  *
  * @author Gman
  */
-public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversalSource, GraphTraversal> {
+public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, GraphTraversal> {
 
     private static final Logger logger = LoggerFactory.getLogger(GremlinQueryCreator.class);
 
@@ -83,15 +83,15 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversalSour
     }
 
     @Override
-    protected GraphTraversalSource complete(GraphTraversal criteria, Sort sort) {
+    protected GraphTraversal complete(GraphTraversal criteria, Sort sort) {
         Pageable pageable = accessor.getPageable();
         GraphTraversalSource source = GraphTraversalSource.build().create(factory.graph());
-        if (schema.isEdgeSchema()) {
-            source = source.V().add(criteria);
-        } else if (schema.isVertexSchema()) {
-            source = source.V().and(criteria);
-        }        
-        return source;
+//        if (schema.isEdgeSchema()) {
+//            source = source.V().add(criteria);
+//        } else if (schema.isVertexSchema()) {
+//            source = source.V().and(criteria);
+//        }
+        return source.V().and(criteria);
     }
 
     protected void toCondition(final GraphTraversal pipeline, Part part, Iterator<Object> iterator) {

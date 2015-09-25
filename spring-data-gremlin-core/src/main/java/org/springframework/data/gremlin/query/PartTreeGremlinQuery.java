@@ -52,12 +52,12 @@ public class PartTreeGremlinQuery extends AbstractGremlinQuery {
 
         GremlinQueryCreator creator = new GremlinQueryCreator(dbf, schemaFactory, domainClass, tree, accessor);
 
-        GraphTraversalSource pipeline = creator.createQuery();
+        GraphTraversal pipeline = creator.createQuery();
         Pageable pageable = accessor.getPageable();
         if (pageable != null && !ignorePaging) {
-            return pipeline.V().range(pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
+            return pipeline.range(pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
         }
-        return pipeline.V();
+        return pipeline;
     }
 
     /* (non-Javadoc)

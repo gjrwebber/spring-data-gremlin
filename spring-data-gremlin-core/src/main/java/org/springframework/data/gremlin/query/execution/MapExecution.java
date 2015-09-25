@@ -36,7 +36,7 @@ public class MapExecution extends AbstractGremlinExecution {
             throw new IllegalArgumentException("The query resulted in multiple Vertices. Expected only one result for this Execution.");
         }
 
-        Map<String, Object> map = vertexToMap(vertex);
+        Map<String, Object> map = elementToMap(vertex);
         return map;
     }
 }
