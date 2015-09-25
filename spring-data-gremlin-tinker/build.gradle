@@ -1,0 +1,6 @@
+dependencies {
+    compile project(':spring-data-gremlin-core')
+    testCompile project(':spring-data-gremlin-test')
+    testCompile project(':spring-data-gremlin-schemagen-jpa')
+    testCompile project(':spring-data-gremlin-schemagen-neo4j')
+}
