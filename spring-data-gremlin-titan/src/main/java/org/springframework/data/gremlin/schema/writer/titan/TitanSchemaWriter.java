@@ -14,6 +14,8 @@ import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.tx.titan.TitanGremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.NoSuchElementException;
+
 import static org.springframework.data.gremlin.schema.property.GremlinRelatedProperty.CARDINALITY;
 
 /**
@@ -31,7 +33,7 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
 
         try {
             TitanGraph graph = ((TitanGremlinGraphFactory) tgf).graph();
-            mgmt = graph.getManagementSystem();
+            mgmt = graph.openManagement();
 
         } catch (RuntimeException e) {
             String msg = String.format("Could not create schema %s. ERROR: %s", schema, e.getMessage());
@@ -44,12 +46,12 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
     public void writeSchema(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
         initialise(tgf, schema);
         super.writeSchema(tgf, schema);
+        mgmt.commit();
     }
 
     @Override
     protected boolean isPropertyAvailable(Object vertexClass, String name) {
-        Object prop = ((VertexLabel) vertexClass).getProperty(name);
-        return prop != null;
+         return ((TitanElement) vertexClass).keys().contains(name);
     }
 
     @Override
@@ -57,7 +59,7 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
         VertexLabel vertexClass = mgmt.getVertexLabel(schema.getClassName());
         if(vertexClass == null) {
             vertexClass = mgmt.makeVertexLabel(schema.getClassName()).make();
-            mgmt.commit();
+//            mgmt.commit();
         }
         return vertexClass;
     }
@@ -67,7 +69,7 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
         EdgeLabel edgeClass = mgmt.getEdgeLabel(schema.getClassName());
         if(edgeClass == null) {
             edgeClass = mgmt.makeEdgeLabel(schema.getClassName()).make();
-            mgmt.commit();
+//            mgmt.commit();
         }
         return edgeClass;
     }
@@ -93,7 +95,8 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
             multiplicity = Multiplicity.ONE2MANY;
         }
 
-        EdgeLabel edgeLabel = mgmt.makeEdgeLabel(name).directed().multiplicity(multiplicity).make();
+//        EdgeLabel edgeLabel = mgmt.makeEdgeLabel(name).directed().multiplicity(multiplicity).make();
+        EdgeLabel edgeLabel = mgmt.getOrCreateEdgeLabel(name);
         return edgeLabel;
     }
 
@@ -119,19 +122,22 @@ public class TitanSchemaWriter extends AbstractSchemaWriter {
 
     @Override
     protected Object createProperty(Object parentElement, String name, Class<?> cls) {
+        if (cls == double.class) {
+            cls = Double.class;
+        }
         return mgmt.makePropertyKey(name).dataType(cls).make();
     }
 
     @Override
     protected void createNonUniqueIndex(Object prop) {
         PropertyKey property = (PropertyKey) prop;
-        mgmt.buildIndex(property.getName(), Vertex.class).addKey(property).buildCompositeIndex();
+        mgmt.buildIndex(property.name(), Vertex.class).addKey(property).buildCompositeIndex();
     }
 
     @Override
     protected void createUniqueIndex(Object prop) {
         PropertyKey property = (PropertyKey) prop;
-        mgmt.buildIndex(property.getName(), Vertex.class).addKey(property).unique().buildCompositeIndex();
+        mgmt.buildIndex(property.name(), Vertex.class).addKey(property).unique().buildCompositeIndex();
     }
 
     @Override

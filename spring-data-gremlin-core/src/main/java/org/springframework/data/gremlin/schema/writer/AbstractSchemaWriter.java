@@ -27,15 +27,16 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
             if (LOGGER.isDebugEnabled()) {
                 LOGGER.debug("CREATING CLASS: " + schema.getClassName());
             }
-            Object element;
+            Object element = null;
             if (schema.isVertexSchema()) {
                 element = createVertexClass(schema);
+                writeProperties(element, schema);
             } else if (schema.isEdgeSchema()) {
-
-                Object outVertex = createVertexClass(schema.getOutProperty().getRelatedSchema());
-                Object inVertex = createVertexClass(schema.getInProperty().getRelatedSchema());
-
-                element = createEdgeClass(schema.getClassName(), outVertex, inVertex, schema.getOutProperty().getCardinality());
+//
+//                Object outVertex = createVertexClass(schema.getOutProperty().getRelatedSchema());
+//                Object inVertex = createVertexClass(schema.getInProperty().getRelatedSchema());
+//
+//                element = createEdgeClass(schema.getClassName(), outVertex, inVertex, schema.getOutProperty().getCardinality());
             } else {
                 throw new IllegalStateException("Unknown class type. Expected Vertex or Edge. "+schema);
             }
@@ -45,7 +46,6 @@ public abstract class AbstractSchemaWriter implements SchemaWriter {
             }
 
 
-            writeProperties(element, schema);
 
         } catch (Exception e) {
 

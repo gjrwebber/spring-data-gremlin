@@ -1,5 +1,8 @@
 package org.springframework.data.gremlin.object.tests.titan.core;
 
+import com.thinkaurelius.titan.core.TitanGraph;
+import com.thinkaurelius.titan.core.util.TitanCleanup;
+import org.junit.After;
 import org.springframework.data.gremlin.object.core.repository.AbstractPersonRepositoryTest;
 import org.springframework.test.context.ContextConfiguration;
 

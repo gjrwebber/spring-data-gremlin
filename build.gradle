@@ -36,14 +36,26 @@ allprojects {
         compile('org.springframework:spring-context:4.1.6.RELEASE')
         compile('org.springframework:spring-tx:4.1.6.RELEASE')
         compile('org.springframework.data:spring-data-commons:1.10.0.RELEASE')
-        compile('org.apache.tinkerpop:gremlin-core:3.0.0.M9-incubating')
-        compile('org.apache.tinkerpop:gremlin-driver:3.0.0.M9-incubating')
-        compile('org.apache.tinkerpop:gremlin-groovy:3.0.0.M9-incubating')
-//        compile('org.apache.tinkerpop:tinkergraph-gremlin:3.0.0.M9-incubating')
+        compile('org.apache.tinkerpop:gremlin-core:3.0.0.M9-incubating') {
+            exclude group: 'com.carrotsearch'
+        }
+        compile('com.carrotsearch:hppc:0.6.0')
+        compile('org.apache.tinkerpop:gremlin-driver:3.0.0.M9-incubating') {
+            exclude group: 'com.carrotsearch'
+        }
+        compile('org.apache.tinkerpop:gremlin-groovy:3.0.0.M9-incubating') {
+            exclude group: 'com.carrotsearch'
+        }
+        compile('org.apache.tinkerpop:tinkergraph-gremlin:3.0.0.M9-incubating') {
+            exclude group: 'com.carrotsearch'
+        }
 //        compile('org.apache.tinkerpop:tinkergraph:3.0.0.M9-incubating')
         compile('org.apache.commons:commons-collections4:4.0')
         compile('org.apache.commons:commons-lang3:3.4')
-        compile('org.reflections:reflections:0.9.9-RC1')
+        compile('org.reflections:reflections:0.9.9-RC1') {
+            exclude group: 'com.google.guava'
+        }
+        compile('com.google.guava:guava:15.0')
         testCompile('junit:junit:4.12')
         testCompile('org.mockito:mockito-core:1.10.8')
         testCompile('org.springframework:spring-test:4.1.6.RELEASE')

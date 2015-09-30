@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.object.tests.titan.core;
 
+import com.thinkaurelius.titan.core.util.TitanCleanup;
 import org.apache.commons.io.FileUtils;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
@@ -35,13 +36,9 @@ public class Titan_Core_TestConfiguration {
 
     @Bean
     public TitanGremlinGraphFactory factory() {
-        try {
-            FileUtils.forceDeleteOnExit(new File("/tmp/graph"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         TitanGremlinGraphFactory factory = new TitanGremlinGraphFactory();
         factory.setUrl("inmemory");
+
         //        factory.setUsername("admin");
         //        factory.setPassword("admin");
 

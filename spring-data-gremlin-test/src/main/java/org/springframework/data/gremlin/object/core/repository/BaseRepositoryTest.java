@@ -1,6 +1,8 @@
 package org.springframework.data.gremlin.object.core.repository;
 
 import org.apache.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
+import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -131,7 +133,8 @@ public abstract class BaseRepositoryTest {
         assertNotNull(addresses);
         for (Vertex addr : addresses) {
             assertNotNull(addr);
-            assertTrue(addr.property("street").equals("Wilson St") || addr.property("street").equals("Scenic Dr"));
+            String street = addr.value("street").toString();
+            assertTrue(street.equals("Wilson St") || street.equals("Scenic Dr"));
         }
 
         ScriptEngine engine = new GremlinGroovyScriptEngine();
@@ -150,14 +153,17 @@ public abstract class BaseRepositoryTest {
         }
 
 
+
         GraphTraversalSource source = GraphTraversalSource.build().create(graph);
+
         GraphTraversal<Vertex, Vertex> pipe = source.V().or(source.V().has("firstName", "Jake"), source.V().has("firstName", "Graham"));
 
         assertTrue("No Jake or Graham in Pipe!", pipe.hasNext());
         while (pipe.hasNext()) {
             Vertex obj = pipe.next();
             assertNotNull(obj);
-            assertTrue(obj.property("firstName").equals("Graham") || obj.property("firstName").equals("Jake"));
+            String firstName = obj.value("firstName").toString();
+            assertTrue(firstName.equals("Graham") || firstName.equals("Jake"));
         }
 
 
@@ -167,7 +173,7 @@ public abstract class BaseRepositoryTest {
         while (linkedPipe.hasNext()) {
             Vertex obj = linkedPipe.next();
             assertNotNull(obj);
-            assertTrue(obj.property("city").equals("Newcastle"));
+            assertTrue(obj.value("city").toString().equals("Newcastle"));
         }
 
         GraphTraversal<Vertex, Edge> likesPipe = source.V().has("firstName", "Lara").inE("Likes");
@@ -177,7 +183,7 @@ public abstract class BaseRepositoryTest {
             Edge edge = likesPipe.next();
             assertNotNull(edge);
             Vertex v = edge.outVertex();
-            assertTrue(v.property("firstName").equals("Graham"));
+            assertTrue(v.value("firstName").toString().equals("Graham"));
         }
 
         factory.commitTx(graph);

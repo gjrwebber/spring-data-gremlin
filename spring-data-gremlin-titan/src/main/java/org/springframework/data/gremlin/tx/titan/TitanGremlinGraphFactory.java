@@ -1,14 +1,13 @@
 package org.springframework.data.gremlin.tx.titan;
 
-import static org.springframework.util.Assert.notNull;
-
+import com.thinkaurelius.titan.core.TitanFactory;
+import com.thinkaurelius.titan.core.TitanGraph;
 import org.apache.commons.configuration.Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.tx.AbstractGremlinGraphFactory;
 
-import com.thinkaurelius.titan.core.TitanFactory;
-import com.thinkaurelius.titan.core.TitanGraph;
+import static org.springframework.util.Assert.notNull;
 
 /**
  * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link TitanGraph} implementation of {@link org.apache.tinkerpop.gremlin.structure.Graph}.
@@ -24,7 +23,7 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
 
     @Override
     protected void createPool() {
-        if(configuration != null){
+        if (configuration != null) {
             graph = TitanFactory.open(configuration);
         } else {
             notNull(url);
@@ -34,7 +33,7 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
 
     @Override
     public boolean isActive(TitanGraph graph) {
-        return graph.getManagementSystem().isOpen();
+        return graph.isOpen();
     }
 
     @Override
@@ -49,12 +48,12 @@ public class TitanGremlinGraphFactory extends AbstractGremlinGraphFactory<TitanG
 
     @Override
     public void commitTx(TitanGraph graph) {
-        graph.commit();
+        graph.tx().commit();
     }
 
     @Override
     public void rollbackTx(TitanGraph graph) {
-        graph.rollback();
+        graph.tx().rollback();
     }
 
     @Override

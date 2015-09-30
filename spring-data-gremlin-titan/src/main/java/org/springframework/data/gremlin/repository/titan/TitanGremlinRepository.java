@@ -39,7 +39,7 @@ public class TitanGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
     @Transactional(readOnly = false)
     protected Vertex createVertex(Graph graph) {
-        Vertex vertex = ((TitanGraph) graph).addVertexWithLabel(schema.getClassName());
+        Vertex vertex = ((TitanGraph) graph).addVertex(schema.getClassName());
         return vertex;
     }
 
@@ -101,7 +101,7 @@ public class TitanGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
     public Iterable<Element> findALlVerticiesForSchema() {
         List<Element> result = new ArrayList<>();
-        for (Vertex vertex : graphFactory.graph().getVertices("label", schema.getClassName())) {
+        for (Vertex vertex : graphFactory.graph().getVertexLabel(schema.getClassName()).query().vertices()) {
             result.add(vertex);
         }
         return result;
@@ -109,7 +109,7 @@ public class TitanGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
     public Iterable<Element> findAllEdgesForSchema() {
         List<Element> result = new ArrayList<>();
-        for (Edge edge : graphFactory.graph().getEdges("label", schema.getClassName())) {
+        for (Edge edge : graphFactory.graph().getVertexLabel(schema.getClassName()).query().edges()) {
             result.add(edge);
         }
         return result;

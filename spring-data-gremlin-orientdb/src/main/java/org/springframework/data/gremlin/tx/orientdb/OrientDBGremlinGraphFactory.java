@@ -1,9 +1,9 @@
 package org.springframework.data.gremlin.tx.orientdb;
 
 import com.orientechnologies.orient.core.db.ODatabase;
-import org.apache.tinkerpop.gremlin.structure.impls.orient.OrientGraph;
-import org.apache.tinkerpop.gremlin.structure.impls.orient.OrientGraphFactory;
-import org.apache.tinkerpop.gremlin.structure.impls.orient.OrientGraphNoTx;
+import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.tx.AbstractGremlinGraphFactory;
@@ -11,7 +11,7 @@ import org.springframework.data.gremlin.tx.AbstractGremlinGraphFactory;
 import static org.springframework.util.Assert.notNull;
 
 /**
- * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link OrientGraph} implementation of {@link org.apache.tinkerpop.gremlin.structure.Graph}.
+ * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link OrientGraph} implementation of {@link com.tinkerpop.blueprints.Graph}.
  *
  * @author Gman
  */

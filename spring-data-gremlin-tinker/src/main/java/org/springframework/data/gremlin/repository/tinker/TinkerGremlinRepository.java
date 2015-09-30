@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Titan specific extension of the {@link SimpleGremlinRepository} providing custom implementations of {@code count()}, {@code deleteAll()},
@@ -92,18 +93,25 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     }
 
     public Iterable<Element> findALlVerticiesForSchema() {
-        List<Element> result = new ArrayList<>();
-        for (Vertex vertex : graphFactory.graph().getVertices("label", schema.getClassName())) {
-            result.add(vertex);
-        }
+        final List<Element> result = new ArrayList<>();
+        graphFactory.graph().vertices("label", schema.getClassName()).forEachRemaining(new Consumer<Vertex>() {
+            @Override
+            public void accept(Vertex vertex) {
+
+                result.add(vertex);
+            }
+        });
         return result;
     }
 
     public Iterable<Element> findAllEdgesForSchema() {
-        List<Element> result = new ArrayList<>();
-        for (Edge edge : graphFactory.graph().getEdges("label", schema.getClassName())) {
-            result.add(edge);
-        }
+        final List<Element> result = new ArrayList<>();
+        graphFactory.graph().edges("label", schema.getClassName()).forEachRemaining(new Consumer<Edge>() {
+            @Override
+            public void accept(Edge edge) {
+                result.add(edge);
+            }
+        });
         return result;
     }
 

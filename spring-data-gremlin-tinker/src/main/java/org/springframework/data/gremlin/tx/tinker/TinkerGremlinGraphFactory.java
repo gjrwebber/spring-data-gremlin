@@ -1,7 +1,6 @@
 package org.springframework.data.gremlin.tx.tinker;
 
-
-import org.apache.tinkerpop.gremlin.structure.impls.tg.TinkerGraph;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.tx.AbstractGremlinGraphFactory;
@@ -19,7 +18,7 @@ public class TinkerGremlinGraphFactory extends AbstractGremlinGraphFactory<Tinke
 
     @Override
     protected void createPool() {
-        graph = new TinkerGraph();
+        graph = TinkerGraph.empty();
     }
 
     @Override
