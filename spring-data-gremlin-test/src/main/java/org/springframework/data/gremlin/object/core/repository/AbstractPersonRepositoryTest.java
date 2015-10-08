@@ -531,4 +531,10 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         assertTrue("TOC was not serialized properly", toc);
     }
 
+    @Test
+    public void shouldContainLikes() throws Exception {
+        Person graham = repository.findByFirstName("Graham").get(0);
+        assertEquals(2, graham.getLikes().size());
+    }
+
 }
