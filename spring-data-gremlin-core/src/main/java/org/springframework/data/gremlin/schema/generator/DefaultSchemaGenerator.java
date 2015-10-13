@@ -215,6 +215,15 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     }
 
     @Override
+    protected Class<?> getJsonMixin(Field field) {
+        Property property = field.getAnnotation(Property.class);
+        if (property != null) {
+            return property.jsonMixin();
+        }
+        return null;
+    }
+
+    @Override
     protected boolean isSerialisableField(Class<?> cls, Field field) {
         Property property = field.getAnnotation(Property.class);
         if (property != null) {

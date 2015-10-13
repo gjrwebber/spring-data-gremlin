@@ -196,7 +196,8 @@ public class BasicSchemaGenerator implements SchemaGenerator {
             accessor = new GremlinSerializableFieldPropertyAccessor(field);
             cls = getSerializableType(field);
         } else if (isJsonField(cls, field)) {
-            accessor = new GremlinJSONFieldPropertyAccessor(field);
+            Class<?> mixin = getJsonMixin(field);
+            accessor = new GremlinJSONFieldPropertyAccessor(field, mixin);
             cls = getJsonType(field);
         }
 
@@ -305,6 +306,10 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
     protected boolean isJsonField(Class<?> cls, Field field) {
         return !stdType(cls);
+    }
+
+    protected Class<?> getJsonMixin(Field field) {
+        return null;
     }
 
     protected boolean isEnumField(Class<?> cls, Field field) {

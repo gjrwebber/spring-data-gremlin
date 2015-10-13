@@ -35,7 +35,7 @@ allprojects {
         compile('org.springframework:spring-core:4.1.6.RELEASE')
         compile('org.springframework:spring-context:4.1.6.RELEASE')
         compile('org.springframework:spring-tx:4.1.6.RELEASE')
-        compile('org.springframework.data:spring-data-commons:1.10.0.RELEASE')
+        compile('org.springframework.data:spring-data-commons:1.11.0.RELEASE')
         compile('com.tinkerpop.blueprints:blueprints-core:2.6.0')
         compile('com.tinkerpop.gremlin:gremlin-java:2.6.0')
         compile('com.tinkerpop.gremlin:gremlin-groovy:2.6.0')

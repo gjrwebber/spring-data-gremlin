@@ -59,9 +59,10 @@ public class Person {
 
     private Set<House> owned;
 
-    @Property(type = Property.SerialisableType.JSON)
+    @Property(type = Property.SerialisableType.JSON, jsonMixin = PetMxin.class)
     private Set<Pet> pets;
 
+    @Property(type = Property.SerialisableType.JSON, jsonMixin = PetMxin.class)
     private Pet favouritePet;
 
     public Person() {

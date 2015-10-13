@@ -11,6 +11,7 @@ import org.springframework.data.gremlin.schema.property.accessor.GremlinIdFieldP
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.repository.core.EntityInformation;
+import org.springframework.data.repository.core.RepositoryInformation;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.core.support.RepositoryFactorySupport;
 import org.springframework.data.repository.query.EvaluationContextProvider;
@@ -55,10 +56,11 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
         return (EntityInformation<T, ID>) new GremlinMetamodelEntityInformation<T>(domainClass, idAccessor);
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getTargetRepository(org.springframework.data.repository.core.RepositoryMetadata)
-     */
     @Override
+    protected Object getTargetRepository(RepositoryInformation information) {
+        return getTargetRepository((RepositoryMetadata)information);
+    }
+
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected Object getTargetRepository(RepositoryMetadata metadata) {
         EntityInformation<?, Serializable> entityInformation = getEntityInformation(metadata.getDomainType());
