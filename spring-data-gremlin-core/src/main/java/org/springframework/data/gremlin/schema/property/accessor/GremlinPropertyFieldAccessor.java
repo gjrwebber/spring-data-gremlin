@@ -10,8 +10,6 @@ import java.lang.reflect.Field;
  * @param <V> The result value type of the accessor
  * @author Gman
  */
-public interface GremlinPropertyAccessor<V> {
-    V get(Object object);
-
-    void set(Object object, V val);
+public interface GremlinPropertyFieldAccessor<V> extends GremlinPropertyAccessor<V> {
+    Field getField();
 }

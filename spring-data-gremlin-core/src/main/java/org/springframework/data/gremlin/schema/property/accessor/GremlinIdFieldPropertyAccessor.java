@@ -7,7 +7,7 @@ import java.lang.reflect.Field;
  *
  * @author Gman
  */
-public class GremlinIdFieldPropertyAccessor extends GremlinFieldPropertyAccessor<String> {
+public class GremlinIdFieldPropertyAccessor extends GremlinFieldPropertyAccessor<String> implements GremlinIdPropertyAccessor {
 
 
     public GremlinIdFieldPropertyAccessor(Field field) {

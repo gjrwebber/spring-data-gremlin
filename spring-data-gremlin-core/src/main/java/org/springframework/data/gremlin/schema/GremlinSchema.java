@@ -3,9 +3,7 @@ package org.springframework.data.gremlin.schema;
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
@@ -13,7 +11,7 @@ import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinIdFieldPropertyAccessor;
+import org.springframework.data.gremlin.schema.property.accessor.GremlinIdPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;
@@ -52,7 +50,7 @@ public abstract class GremlinSchema<V> {
     private Class<V> classType;
     private GremlinRepository<V> repository;
     private GremlinGraphFactory graphFactory;
-    private GremlinIdFieldPropertyAccessor idAccessor;
+    private GremlinIdPropertyAccessor idAccessor;
     private GremlinPropertyMapper idMapper;
     private GremlinPropertyEncoder idEncoder;
 
@@ -76,7 +74,9 @@ public abstract class GremlinSchema<V> {
         }
         properties.add(property);
         propertyMap.put(property.getName(), property);
-        fieldToPropertyMap.put(property.getAccessor().getField().getName(), property);
+        if (property.getAccessor() instanceof GremlinFieldPropertyAccessor) {
+            fieldToPropertyMap.put(((GremlinFieldPropertyAccessor) property.getAccessor()).getField().getName(), property);
+        }
         typePropertyMap.put(property.getType(), property);
     }
 
@@ -116,11 +116,11 @@ public abstract class GremlinSchema<V> {
         this.idEncoder = idEncoder;
     }
 
-    public GremlinIdFieldPropertyAccessor getIdAccessor() {
+    public GremlinIdPropertyAccessor getIdAccessor() {
         return idAccessor;
     }
 
-    public void setIdAccessor(GremlinIdFieldPropertyAccessor idAccessor) {
+    public void setIdAccessor(GremlinIdPropertyAccessor idAccessor) {
         this.idAccessor = idAccessor;
     }
 

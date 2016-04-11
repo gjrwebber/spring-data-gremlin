@@ -8,36 +8,18 @@ import java.lang.reflect.Field;
  * @param <V> The result value type of the accessor
  * @author Gman
  */
-public abstract class AbstractGremlinFieldPropertyAccessor<V> implements GremlinPropertyAccessor<V> {
+public abstract class AbstractGremlinFieldPropertyAccessor<V> extends AbstractEmbeddableGremlinPropertyAccessor<V> implements GremlinPropertyFieldAccessor<V> {
 
     protected Field field;
 
-    protected AbstractGremlinFieldPropertyAccessor embeddedAccessor;
-
     public AbstractGremlinFieldPropertyAccessor(Field field, AbstractGremlinFieldPropertyAccessor embeddedAccessor) {
-        this(field);
-        this.embeddedAccessor = embeddedAccessor;
-    }
-
-    public AbstractGremlinFieldPropertyAccessor(Field field) {
+        super(embeddedAccessor);
         field.setAccessible(true);
         this.field = field;
     }
 
-    protected Object getEmbeddedObject(Object object, boolean force) {
-
-        if (embeddedAccessor != null) {
-            Object parentObj = embeddedAccessor.get(object);
-            if (parentObj == null) {
-                if (force) {
-                    parentObj = embeddedAccessor.newInstance();
-                    embeddedAccessor.set(object, parentObj);
-                }
-            }
-            object = parentObj;
-        }
-
-        return object;
+    public AbstractGremlinFieldPropertyAccessor(Field field) {
+        this(field, null);
     }
 
     public Object newInstance() {
@@ -46,23 +28,6 @@ public abstract class AbstractGremlinFieldPropertyAccessor<V> implements Gremlin
         } catch (Exception e) {
             throw new IllegalStateException("Could not create a new instance of " + field.getType() + ": " + e.getMessage(), e);
         }
-    }
-
-    /**
-     * @return the root Field of this GremlinEmbeddedFieldAccessor
-     */
-    public Field getRootField() {
-        AbstractGremlinFieldPropertyAccessor rootFieldAccessor = this;
-        AbstractGremlinFieldPropertyAccessor embeddedFieldAccessor = this.getEmbeddedAccessor();
-        while (embeddedFieldAccessor != null) {
-            rootFieldAccessor = embeddedFieldAccessor;
-            embeddedFieldAccessor = rootFieldAccessor.getEmbeddedAccessor();
-        }
-        return rootFieldAccessor.getField();
-    }
-
-    public AbstractGremlinFieldPropertyAccessor getEmbeddedAccessor() {
-        return embeddedAccessor;
     }
 
     @Override

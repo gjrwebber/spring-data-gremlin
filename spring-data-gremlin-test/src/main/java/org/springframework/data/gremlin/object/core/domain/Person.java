@@ -3,6 +3,7 @@ package org.springframework.data.gremlin.object.core.domain;
 import org.springframework.data.gremlin.annotation.*;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static com.tinkerpop.blueprints.Direction.OUT;
@@ -65,6 +66,9 @@ public class Person {
     @Property(type = Property.SerialisableType.JSON, jsonMixin = PetMxin.class)
     private Pet favouritePet;
 
+    @Link
+    private Map<String, Object> randoms;
+
     public Person() {
     }
 
@@ -73,11 +77,12 @@ public class Person {
         this.lastName = lastName;
     }
 
-    public Person(String firstName, String lastName, Address address, Boolean active) {
+    public Person(String firstName, String lastName, Address address, Boolean active, Map<String, Object> randoms) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
         this.active = active;
+        this.randoms = randoms;
         if (address != null) {
             address.getPeople().add(this);
         }

@@ -91,6 +91,24 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         return schema;
     }
 
+    public <V> GremlinSchema<V> generateDynamicSchema(String className, Map<String, Object> map) throws SchemaGeneratorException {
+
+        GremlinIdMapPropertyAccessor idAccessor = new GremlinIdMapPropertyAccessor();
+        GremlinVertexSchema<V> schema = new GremlinVertexSchema(Map.class);
+        schema.setClassName(className);
+        schema.setIdAccessor(idAccessor);
+        schema.setIdEncoder(idEncoder);
+
+        for (String key : map.keySet()) {
+            Object val = map.get(key);
+            GremlinProperty property = propertyFactory.getProperty(val.getClass(), key);
+            property.setAccessor(new GremlinMapPropertyAccessor(key, val.getClass(), null));
+            schema.addProperty(property);
+        }
+
+        return schema;
+    }
+
     protected <S> boolean isSchemaWritable(Class<S> clazz) {
         return isVertexClass(clazz) || isEdgeClass(clazz);
     }
@@ -207,6 +225,13 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
             // Return now as we don't want a property for the embedded field.
             return;
+//        } else if (isDynamicVertex(cls, field)) {
+//            GremlinSchema dynamicSchema = generateDynamicSchema(name, field.g)
+//            if (isLinkOutward(cls, field)) {
+//                property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
+//            } else {
+//                property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
+//            }
         } else if (isSerialisableField(cls, field)) {
             accessor = new GremlinSerializableFieldPropertyAccessor(field, embeddedFieldAccessor);
             cls = getSerializableType(field);
@@ -246,7 +271,8 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     protected boolean shouldProcessField(GremlinSchema schema, Field field) {
         return field != null
                //               && acceptType(field.getType())
-               && !schema.getIdAccessor().getField().equals(field) && !Modifier.isTransient(field.getModifiers()) && !Modifier.isStatic(field.getModifiers());
+               && schema.getIdAccessor() instanceof GremlinFieldPropertyAccessor && !((GremlinFieldPropertyAccessor) schema.getIdAccessor()).getField().equals(field) && !Modifier.isTransient(
+                field.getModifiers()) && !Modifier.isStatic(field.getModifiers());
     }
 
     protected Field getIdField(Class<?> cls) throws SchemaGeneratorException {
@@ -336,6 +362,10 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
         return isEmbeddedClass(cls);
+    }
+
+    protected boolean isDynamicVertex(Class<?> cls, Field field) {
+        return Map.class.isAssignableFrom(cls) && GenericsUtil.getGenericTypes(field, 2)[1] == String.class;
     }
 
     protected boolean isLinkField(Class<?> cls, Field field) {
