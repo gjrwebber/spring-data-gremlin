@@ -10,23 +10,13 @@ import java.util.Map;
  * @param <V> The result value type of the accessor
  * @author Gman
  */
-public class GremlinMapPropertyAccessor<V> extends AbstractEmbeddableGremlinPropertyAccessor<V> {
+public class GremlinMapPropertyAccessor<V> implements GremlinPropertyAccessor<V> {
 
     private String propertyName;
-    private Class<?> propertyType;
 
-    public GremlinMapPropertyAccessor(String propertyName, Class<?> propertyType, GremlinMapPropertyAccessor embeddedAccessor) {
-        super(embeddedAccessor);
+    public GremlinMapPropertyAccessor(String propertyName) {
+        Assert.hasLength(propertyName);
         this.propertyName = propertyName;
-        this.propertyType = propertyType;
-    }
-
-    public Object newInstance() {
-        try {
-            return propertyType.newInstance();
-        } catch (Exception e) {
-            throw new IllegalStateException("Could not create a new instance of " + propertyType + ": " + e.getMessage(), e);
-        }
     }
 
     @Override
@@ -36,10 +26,9 @@ public class GremlinMapPropertyAccessor<V> extends AbstractEmbeddableGremlinProp
 
         Map<String, Object> map = (Map<String, Object>) object;
 
-        object = getEmbeddedObject(object, false);
         V result = null;
-        if (object != null) {
-            result = (V) map.get(object);
+        if (map != null) {
+            result = (V) map.get(propertyName);
         }
         return result;
     }
@@ -50,8 +39,7 @@ public class GremlinMapPropertyAccessor<V> extends AbstractEmbeddableGremlinProp
         Assert.isTrue(object instanceof Map);
         Map<String, Object> map = (Map<String, Object>) object;
 
-        object = getEmbeddedObject(object, true);
-        if (object != null) {
+        if (map != null) {
             map.put(propertyName, val);
         }
     }
@@ -61,7 +49,6 @@ public class GremlinMapPropertyAccessor<V> extends AbstractEmbeddableGremlinProp
     public String toString() {
         final StringBuilder sb = new StringBuilder("GremlinMapPropertyAccessor{");
         sb.append("propertyName='").append(propertyName).append('\'');
-        sb.append(", propertyType=").append(propertyType);
         sb.append('}');
         return sb.toString();
     }
@@ -70,7 +57,4 @@ public class GremlinMapPropertyAccessor<V> extends AbstractEmbeddableGremlinProp
         return propertyName;
     }
 
-    public Class<?> getPropertyType() {
-        return propertyType;
-    }
 }

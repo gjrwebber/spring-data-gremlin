@@ -559,4 +559,57 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         CollectionUtils.addAll(allLikes, likesRepository.findAll());
         assertEquals(4, allLikes.size());
     }
+
+
+    @Test
+    public void saveDynamicMap() {
+        Person person = new Person("Sasa", "Brown");
+
+        Map<String, Object> randoms = new HashMap();
+        randoms.put("date", new Date());
+        randoms.put("boo", true);
+        randoms.put("status", 1);
+        randoms.put("hello", null);
+
+        person.setRandoms(randoms);
+
+        String id = repository.save(person).getId();
+
+        Person result = repository.findOne(id);
+
+        assertEquals(result.getFirstName(), person.getFirstName());
+        assertEquals(result.getLastName(), person.getLastName());
+        assertNotNull(result.getRandoms());
+        assertEquals(4, result.getRandoms().size()); // 4 = - hello + _id_
+    }
+
+
+    @Test
+    public void saveDynamicMap_and_RemoveOldProperty() {
+        Person person = new Person("Sasa", "Brown");
+
+        Map<String, Object> randoms = new HashMap();
+        randoms.put("date", new Date());
+        randoms.put("boo", true);
+        randoms.put("status", 1);
+        randoms.put("hello", null);
+
+        person.setRandoms(randoms);
+
+        String id = repository.save(person).getId();
+
+        Person result = repository.findOne(id);
+
+        assertNotNull(result.getRandoms());
+        assertEquals(4, result.getRandoms().size());
+
+        result.getRandoms().remove("status");
+
+        repository.save(result);
+
+        result = repository.findOne(id);
+
+        assertNotNull(result.getRandoms());
+        assertEquals(3, result.getRandoms().size());
+    }
 }

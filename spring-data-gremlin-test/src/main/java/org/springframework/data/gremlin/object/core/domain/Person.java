@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.object.core.domain;
 
 import org.springframework.data.gremlin.annotation.*;
 
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -66,7 +67,7 @@ public class Person {
     @Property(type = Property.SerialisableType.JSON, jsonMixin = PetMxin.class)
     private Pet favouritePet;
 
-    @Link
+    @Link("randoms")
     private Map<String, Object> randoms;
 
     public Person() {
@@ -77,17 +78,20 @@ public class Person {
         this.lastName = lastName;
     }
 
+    public Person(String firstName, String lastName, Address address, Boolean active) {
+        this(firstName, lastName, address, active, new HashMap<>());
+    }
+
     public Person(String firstName, String lastName, Address address, Boolean active, Map<String, Object> randoms) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
         this.active = active;
-        this.randoms = randoms;
         if (address != null) {
             address.getPeople().add(this);
         }
+        this.randoms = randoms;
     }
-
     public String getId() {
         return id;
     }
@@ -209,6 +213,14 @@ public class Person {
 
     public void setFavouritePet(Pet favouritePet) {
         this.favouritePet = favouritePet;
+    }
+
+    public Map<String, Object> getRandoms() {
+        return randoms;
+    }
+
+    public void setRandoms(Map<String, Object> randoms) {
+        this.randoms = randoms;
     }
 
     @Override

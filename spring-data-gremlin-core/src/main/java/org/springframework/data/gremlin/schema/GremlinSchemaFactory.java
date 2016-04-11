@@ -19,17 +19,21 @@ public class GremlinSchemaFactory {
     @Autowired
     private Set<GremlinSchema> schemas;
 
-    private Map<Class<?>, GremlinSchema<?>> schemaMap = new HashMap<Class<?>, GremlinSchema<?>>();
+    private Map<String, GremlinSchema<?>> schemaMap = new HashMap<String, GremlinSchema<?>>();
 
     @PostConstruct
     public void init() {
         for (GremlinSchema schema : schemas) {
-            schemaMap.put(schema.getClassType(), schema);
+            String key = schema.getClassType().getSimpleName();
+            if (schemaMap.containsKey(key)) {
+                key = schema.getClassName();
+            }
+            schemaMap.put(key, schema);
         }
     }
 
     public <V> GremlinSchema<V> getSchema(Class<V> type) {
-        return (GremlinSchema<V>) schemaMap.get(type);
+        return (GremlinSchema<V>) schemaMap.get(type.getSimpleName());
     }
 
 }

@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.gremlin.annotation.Index;
+import org.springframework.data.gremlin.schema.GremlinDynamicSchema;
 import org.springframework.data.gremlin.schema.GremlinEdgeSchema;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinVertexSchema;
@@ -91,20 +92,14 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         return schema;
     }
 
-    public <V> GremlinSchema<V> generateDynamicSchema(String className, Map<String, Object> map) throws SchemaGeneratorException {
+    public <V> GremlinSchema<V> generateDynamicSchema(String className) {
 
         GremlinIdMapPropertyAccessor idAccessor = new GremlinIdMapPropertyAccessor();
-        GremlinVertexSchema<V> schema = new GremlinVertexSchema(Map.class);
+        GremlinDynamicSchema<V> schema = new GremlinDynamicSchema(HashMap.class);
         schema.setClassName(className);
         schema.setIdAccessor(idAccessor);
         schema.setIdEncoder(idEncoder);
 
-        for (String key : map.keySet()) {
-            Object val = map.get(key);
-            GremlinProperty property = propertyFactory.getProperty(val.getClass(), key);
-            property.setAccessor(new GremlinMapPropertyAccessor(key, val.getClass(), null));
-            schema.addProperty(property);
-        }
 
         return schema;
     }
@@ -225,13 +220,12 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
             // Return now as we don't want a property for the embedded field.
             return;
-//        } else if (isDynamicVertex(cls, field)) {
-//            GremlinSchema dynamicSchema = generateDynamicSchema(name, field.g)
-//            if (isLinkOutward(cls, field)) {
-//                property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
-//            } else {
-//                property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
-//            }
+        } else if (isDynamicVertex(cls, field)) {
+            if (isLinkOutward(cls, field)) {
+                property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
+            } else {
+                property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
+            }
         } else if (isSerialisableField(cls, field)) {
             accessor = new GremlinSerializableFieldPropertyAccessor(field, embeddedFieldAccessor);
             cls = getSerializableType(field);
@@ -365,7 +359,7 @@ public class BasicSchemaGenerator implements SchemaGenerator {
     }
 
     protected boolean isDynamicVertex(Class<?> cls, Field field) {
-        return Map.class.isAssignableFrom(cls) && GenericsUtil.getGenericTypes(field, 2)[1] == String.class;
+        return Map.class.isAssignableFrom(cls) && GenericsUtil.getGenericTypes(field, 2)[0] == String.class;
     }
 
     protected boolean isLinkField(Class<?> cls, Field field) {
