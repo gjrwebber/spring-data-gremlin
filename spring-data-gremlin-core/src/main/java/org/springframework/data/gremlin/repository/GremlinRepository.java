@@ -11,4 +11,7 @@ import org.springframework.data.repository.PagingAndSortingRepository;
  * @author Gman
  */
 @NoRepositoryBean
-public interface GremlinRepository<T> extends PagingAndSortingRepository<T, String> { }
+public interface GremlinRepository<T> extends PagingAndSortingRepository<T, String> {
+
+    <S extends T> S save(S entity, Object... noCascade);
+}

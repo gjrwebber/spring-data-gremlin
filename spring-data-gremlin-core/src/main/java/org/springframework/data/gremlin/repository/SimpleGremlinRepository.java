@@ -90,25 +90,15 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
 
             element = graphAdapter.addEdge(null, outVertex, inVertex, schema.getClassName());
 
-
-            schema.copyToGraph(graphAdapter, element, object, outObject, inObject);
+            schema.copyToGraph(graphAdapter, element, object);
         } else {
             throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");
-        }
-        final Element createdElement = element;
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCommit() {
-                    schema.setObjectId(object, createdElement);
-                }
-            });
         }
         return element;
     }
 
     @Transactional(readOnly = false)
-    public T save(Graph graph, T object) {
+    public T save(Graph graph, T object, Object... noCascade) {
 
         String id = schema.getObjectId(object);
         if (StringUtils.isEmpty(id)) {
@@ -117,7 +107,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
             Element element;
             if (schema.isVertexSchema()) {
                 element = graph.getVertex(schema.decodeId(id));
-            } else if (schema.isVertexSchema()) {
+            } else if (schema.isEdgeSchema()) {
                 element = graph.getEdge(schema.decodeId(id));
             } else {
                 throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");
@@ -125,20 +115,25 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
             if (element == null) {
                 throw new IllegalStateException(String.format("Could not save %s with id %s, as it does not exist.", object, id));
             }
-            schema.copyToGraph(graphAdapter, element, object);
+            schema.copyToGraph(graphAdapter, element, object, noCascade);
         }
         return object;
     }
 
+    @Override
+    public <S extends T> S save(S entity) {
+        return save(entity, new Object[0]);
+    }
+
     @Transactional(readOnly = false)
     @Override
-    public <S extends T> S save(S s) {
+    public <S extends T> S save(S s, Object... noCascade) {
 
         Graph graph = dbf.graph();
 
         String id = schema.getObjectId(s);
         if (!StringUtils.isEmpty(id)) {
-            save(graph, s);
+            save(graph, s, noCascade);
         } else {
             create(graph, s);
         }

@@ -56,9 +56,13 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
                         } else {
                             linkedEdge = graphAdapter.addEdge(null, adjacentVertex, vertex, property.getRelatedSchema().getClassName());
                         }
+                        property.getRelatedSchema().copyToGraph(graphAdapter, linkedEdge, val);
                     }
-                    // Updates or saves the val into the linkedVertex
-                    property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, val, cascadingSchemas);
+
+                    if(property.getDirection() == Direction.OUT) {
+                        // Updates or saves the val into the linkedVertex
+                        property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, val, cascadingSchemas);
+                    }
                 }
             }
         }

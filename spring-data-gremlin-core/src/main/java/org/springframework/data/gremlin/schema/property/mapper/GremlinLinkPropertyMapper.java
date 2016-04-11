@@ -6,6 +6,7 @@ import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
+import org.springframework.util.Assert;
 
 import java.util.Map;
 
@@ -37,13 +38,15 @@ public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinR
                 String id = property.getRelatedSchema().getGraphId(val);
                 if (id != null) {
                     linkedVertex = graphAdapter.getVertex(id);
-                } else {
-                    if (linkedVertex == null) {
-                        // No linked vertex yet, create it
-                        linkedVertex = graphAdapter.createVertex(property.getRelatedSchema());
-                    }
                 }
             }
+
+            if (linkedVertex == null) {
+                // No linked vertex yet, create it
+                linkedVertex = graphAdapter.createVertex(property.getRelatedSchema());
+            }
+
+            Assert.notNull(linkedVertex);
             if (property.getDirection() == Direction.OUT) {
                 graphAdapter.addEdge(null, vertex, linkedVertex, property.getName());
             } else {
@@ -51,8 +54,10 @@ public class GremlinLinkPropertyMapper implements GremlinPropertyMapper<GremlinR
             }
         }
 
-        // Updates or saves the val into the linkedVertex
-        property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, val, cascadingSchemas);
+        if(property.getDirection() == Direction.OUT) {
+            // Updates or saves the val into the linkedVertex
+            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, val, cascadingSchemas);
+        }
     }
 
     @Override

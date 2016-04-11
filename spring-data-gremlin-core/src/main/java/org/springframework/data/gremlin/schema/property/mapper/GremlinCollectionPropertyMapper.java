@@ -7,6 +7,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
+import org.springframework.util.Assert;
 
 import java.util.Collection;
 import java.util.HashSet;
@@ -47,6 +48,7 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
                 }
             }
 
+            Assert.notNull(linkedVertex);
             // If this linked Object is new it will not be in the existingLinkedVertices Set
             if (!existingLinkedVertices.contains(linkedVertex)) {
                 // New linked Object - add an Edge
@@ -62,8 +64,11 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
             // Add the linkedVertex to the actual linked vertices.
             actualLinkedVertices.add(linkedVertex);
 
-            // Updates or saves the linkedObj into the linkedVertex
-            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, linkedObj, cascadingSchemas);
+
+            if(property.getDirection() == Direction.OUT) {
+                // Updates or saves the linkedObj into the linkedVertex
+                property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, linkedObj, cascadingSchemas);
+            }
         }
 
         // For each disjointed vertex, remove it and the Edge associated with this property

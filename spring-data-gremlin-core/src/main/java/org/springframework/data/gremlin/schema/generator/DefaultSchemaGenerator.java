@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.generator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.tinkerpop.blueprints.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,12 +32,24 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         super();
     }
 
+    public DefaultSchemaGenerator(ObjectMapper objectMapper) {
+        super(objectMapper);
+    }
+
     public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder) {
         super(idEncoder);
     }
 
+    public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, ObjectMapper objectMapper) {
+        super(idEncoder, objectMapper);
+    }
+
     public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, GremlinPropertyFactory propertyFactory) {
         super(idEncoder, propertyFactory);
+    }
+
+    public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, GremlinPropertyFactory propertyFactory, ObjectMapper objectMapper) {
+        super(idEncoder, propertyFactory, objectMapper);
     }
 
     protected Index.IndexType getIndexType(Field field) {
@@ -132,7 +145,8 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         return false;
     }
 
-    protected String getPropertyName(Field field, Field rootEmbeddedField) {
+    @Override
+    protected String getPropertyName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
         Property property = AnnotationUtils.getAnnotation(field, Property.class);
 
         if (rootEmbeddedField != null) {
@@ -169,7 +183,16 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
             }
         }
 
-        String propertyName = !StringUtils.isEmpty(annotationName) ? annotationName : super.getPropertyName(field, rootEmbeddedField);
+        String propertyName;
+        if (!StringUtils.isEmpty(annotationName)) {
+            if (field.getDeclaringClass() != schemaClass) {
+                propertyName = String.format("%s_%s", schemaClass.getSimpleName().toLowerCase(), annotationName);
+            } else {
+                propertyName = annotationName;
+            }
+        } else {
+            propertyName = super.getPropertyName(field, rootEmbeddedField, schemaClass);
+        }
 
         return propertyName;
     }

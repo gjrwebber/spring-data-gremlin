@@ -9,6 +9,7 @@ import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
+import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -25,6 +26,8 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
 
     @Override
     public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
+
+        Assert.notNull(vertex);
 
         // Get the Set of existing linked vertices for this property
         Set<Edge> existingLinkedEdges = new HashSet<>();
@@ -68,12 +71,17 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
                             } else {
                                 linkedEdge = graphAdapter.addEdge(null, adjacentVertex, vertex, property.getRelatedSchema().getClassName());
                             }
+                            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, linkedObj, cascadingSchemas);
                         }
 
                         existingLinkedEdges.add(linkedEdge);
                         actualLinkedEdges.add(linkedEdge);
-                        // Updates or saves the val into the linkedVertex
-                        adjacentProperty.getRelatedSchema().cascadeCopyToGraph(graphAdapter, adjacentVertex, adjacentObj, cascadingSchemas);
+
+
+                        if(property.getDirection() == Direction.OUT) {
+                            // Updates or saves the val into the linkedVertex
+                            adjacentProperty.getRelatedSchema().cascadeCopyToGraph(graphAdapter, adjacentVertex, adjacentObj, cascadingSchemas);
+                        }
                     }
                 }
             }

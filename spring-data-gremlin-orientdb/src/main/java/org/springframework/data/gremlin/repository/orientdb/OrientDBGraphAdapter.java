@@ -1,6 +1,8 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
+import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientElement;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,6 +26,11 @@ public class OrientDBGraphAdapter extends GremlinGraphAdapter<OrientGraph> {
         String classname = "class:" + className;
         Vertex vertex = graph.addVertex(classname);
         return vertex;
+    }
+
+    @Override
+    public Element refresh(Element element) {
+        return graphFactory.graph().attach((OrientElement) element);
     }
 
     public String encodeId(String id) {

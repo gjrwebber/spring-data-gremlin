@@ -17,26 +17,40 @@ import java.util.HashMap;
  */
 public class GremlinJSONFieldPropertyAccessor extends AbstractGremlinFieldPropertyAccessor<String> {
 
-    private ObjectMapper mapper = new ObjectMapper();
+    private ObjectMapper mapper;
     private Class<?> serialisedType;
 
     public GremlinJSONFieldPropertyAccessor(Field field, Class<?> mixin) {
-        super(field);
-        mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        serialisedType = field.getType();
-        if (Collection.class.isAssignableFrom(serialisedType)) {
-            serialisedType = GenericsUtil.getGenericType(field);
+        this(field, mixin, null);
+    }
+
+    public GremlinJSONFieldPropertyAccessor(Field field, Class<?> mixin, AbstractGremlinFieldPropertyAccessor embeddedFieldAccessor) {
+        this(field, mixin, embeddedFieldAccessor, null);
+    }
+
+    public GremlinJSONFieldPropertyAccessor(Field field, Class<?> mixin, AbstractGremlinFieldPropertyAccessor embeddedFieldAccessor, ObjectMapper mapper) {
+        super(field, embeddedFieldAccessor);
+        if (mapper == null) {
+            mapper = new ObjectMapper();
+
+            mapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            serialisedType = field.getType();
+            if (Collection.class.isAssignableFrom(serialisedType)) {
+                serialisedType = GenericsUtil.getGenericType(field);
+            }
+            if (mixin != null) {
+                mapper.setMixInAnnotations(MapUtils.putAll(new HashMap<Class<?>, Class<?>>(), new Class[]{ serialisedType, mixin }));
+            }
         }
-        if(mixin != null) {
-            mapper.setMixInAnnotations(MapUtils.putAll(new HashMap<Class<?>, Class<?>>(), new Class[]{ serialisedType, mixin }));
-        }
+        this.mapper = mapper;
+
     }
 
     @Override
     public String get(Object object) {
 
         try {
-            Object result = field.get(object);
+            Object result = field.get(getEmbeddedObject(object, false));
 
             if (result == null) {
                 return null;
@@ -51,6 +65,7 @@ public class GremlinJSONFieldPropertyAccessor extends AbstractGremlinFieldProper
     @Override
     public void set(Object object, String serialized) {
         try {
+            object = getEmbeddedObject(object, true);
             if (serialized == null) {
                 field.set(object, null);
                 return;

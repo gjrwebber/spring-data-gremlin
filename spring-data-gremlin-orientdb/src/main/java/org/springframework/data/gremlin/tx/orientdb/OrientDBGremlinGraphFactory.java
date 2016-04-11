@@ -1,6 +1,11 @@
 package org.springframework.data.gremlin.tx.orientdb;
 
+import com.orientechnologies.common.concur.ONeedRetryException;
 import com.orientechnologies.orient.core.db.ODatabase;
+import com.orientechnologies.orient.core.db.ODatabaseDocumentInternal;
+import com.orientechnologies.orient.core.db.ODatabaseInternal;
+import com.orientechnologies.orient.core.db.ODatabaseRecordThreadLocal;
+import com.tinkerpop.blueprints.Graph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphFactory;
 import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
@@ -78,4 +83,17 @@ public class OrientDBGremlinGraphFactory extends AbstractGremlinGraphFactory<Ori
         }
     }
 
+    @Override
+    public Class<? extends RuntimeException> getRetryException() {
+        return ONeedRetryException.class;
+    }
+
+    @Override
+    public void resumeTx(OrientGraph oldGraph) {
+        try {
+            ODatabaseRecordThreadLocal.INSTANCE.set((ODatabaseDocumentInternal)((ODatabaseInternal)oldGraph.getRawGraph()).getUnderlying());
+        } catch(UnsupportedOperationException  e) {
+            LOGGER.error("Could not :" + e.getMessage());
+        }
+    }
 }

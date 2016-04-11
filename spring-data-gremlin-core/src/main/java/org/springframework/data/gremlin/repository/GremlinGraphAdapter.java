@@ -20,7 +20,7 @@ public class GremlinGraphAdapter<G extends Graph> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinGraphAdapter.class);
 
     @Autowired
-    private GremlinGraphFactory<G> graphFactory;
+    protected GremlinGraphFactory<G> graphFactory;
 
     @Transactional(readOnly = false)
     public Vertex createVertex(String className) {
@@ -55,6 +55,10 @@ public class GremlinGraphAdapter<G extends Graph> {
             vertex = graph.getVertex(id);
         }
         return vertex;
+    }
+
+    public Element refresh(Element element) {
+        return element;
     }
 
     @Transactional(readOnly = true)
