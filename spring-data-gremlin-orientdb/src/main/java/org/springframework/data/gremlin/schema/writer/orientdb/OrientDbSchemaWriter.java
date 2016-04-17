@@ -173,8 +173,8 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         String indexName = schema.getClassName() + ".lat_lon";
         if (dbf.graphNoTx().getIndex(indexName, Vertex.class) == null) {
             try {
-//                dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())))
-//                   .execute();
+                dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())))
+                   .execute();
             } catch (Exception e1) {
                 e1.printStackTrace();
             }
