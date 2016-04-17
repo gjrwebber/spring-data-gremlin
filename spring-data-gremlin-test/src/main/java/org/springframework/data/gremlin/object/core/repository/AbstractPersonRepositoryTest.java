@@ -12,6 +12,8 @@ import org.springframework.data.gremlin.object.core.domain.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.springframework.util.Assert.isNull;
+import static org.springframework.util.Assert.notNull;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
@@ -305,6 +307,44 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         person = repository.findByAddress_Area_Name("9999").get(0);
         assertEquals("9999", person.getAddress().getArea().getName());
     }
+
+    @Test
+    public void noCascadeInLink() {
+        Location location = new Location(23, 171);
+        location.setArea(new Area("TestArea"));
+        location = locationRepository.save(location);
+
+        location = locationRepository.findOne(location.getId());
+        notNull(location);
+        // Area should not be null as the vertex will be created, but the contents should be empty since properties should not be cascaded.
+        notNull(location.getArea());
+        isNull(location.getArea().getName());
+    }
+
+    @Test
+    public void overrideCascadeInLinkWithSystemProperty() {
+        System.setProperty("sdg-cascade-all", "true");
+        Location location = new Location(23, 171);
+        location.setArea(new Area("TestArea"));
+        location = locationRepository.save(location);
+
+        location = locationRepository.findOne(location.getId());
+        notNull(location);
+        notNull(location.getArea());
+        assertEquals("TestArea", location.getArea().getName());
+        System.setProperty("sdg-cascade-all", "false");
+    }
+
+    @Test
+    public void overrideCascadeOutLink() {
+        Person person = repository.findByAddress_Area_Name("2043").get(0);
+        assertEquals("2043", person.getAddress().getArea().getName());
+        person.getAddress().getArea().setName("9999");
+        repository.save(person, person.getAddress());
+        assertEquals(0, repository.findByAddress_Area_Name("9999").size());
+        assertEquals(1, repository.findByAddress_Area_Name("2043").size());
+    }
+
 
     @Test
     public void testLocations() {

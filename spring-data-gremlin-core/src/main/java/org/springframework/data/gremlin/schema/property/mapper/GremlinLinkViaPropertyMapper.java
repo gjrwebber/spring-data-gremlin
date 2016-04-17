@@ -59,7 +59,7 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
                         property.getRelatedSchema().copyToGraph(graphAdapter, linkedEdge, val);
                     }
 
-                    if(property.getDirection() == Direction.OUT) {
+                    if(Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
                         // Updates or saves the val into the linkedVertex
                         property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, val, cascadingSchemas);
                     }

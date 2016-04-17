@@ -1,7 +1,9 @@
 package org.springframework.data.gremlin.object.core.domain;
 
+import com.tinkerpop.blueprints.Direction;
 import org.springframework.data.gremlin.annotation.Id;
 import org.springframework.data.gremlin.annotation.Index;
+import org.springframework.data.gremlin.annotation.Link;
 import org.springframework.data.gremlin.annotation.Vertex;
 
 import static org.springframework.data.gremlin.annotation.Index.IndexType.SPATIAL_LATITUDE;
@@ -20,6 +22,9 @@ public class Location {
     private double latitude;
     @Index(type = SPATIAL_LONGITUDE)
     private double longitude;
+
+    @Link(value="location_in_area", direction = Direction.IN)
+    private Area area;
 
     public Location() {
     }
@@ -53,24 +58,31 @@ public class Location {
         this.longitude = longitude;
     }
 
-//    @Override
-//    public boolean equals(Object o) {
-//        if (this == o) {
-//            return true;
-//        }
-//        if (o == null || getClass() != o.getClass()) {
-//            return false;
-//        }
-//
-//        Location location = (Location) o;
-//
-//        return !(id != null ? !id.equals(location.id) : location.id != null);
-//
-//    }
-//
-//    @Override
-//    public int hashCode() {
-//        return id != null ? id.hashCode() : 0;
-//    }
+    public Area getArea() {
+        return area;
+    }
+
+    public void setArea(Area area) {
+        this.area = area;
+    }
+    //    @Override
+    //    public boolean equals(Object o) {
+    //        if (this == o) {
+    //            return true;
+    //        }
+    //        if (o == null || getClass() != o.getClass()) {
+    //            return false;
+    //        }
+    //
+    //        Location location = (Location) o;
+    //
+    //        return !(id != null ? !id.equals(location.id) : location.id != null);
+    //
+    //    }
+    //
+    //    @Override
+    //    public int hashCode() {
+    //        return id != null ? id.hashCode() : 0;
+    //    }
 
 }

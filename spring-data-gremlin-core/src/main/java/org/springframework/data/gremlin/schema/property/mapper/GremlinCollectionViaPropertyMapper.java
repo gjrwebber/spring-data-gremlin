@@ -78,7 +78,7 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
                         actualLinkedEdges.add(linkedEdge);
 
 
-                        if(property.getDirection() == Direction.OUT) {
+                        if(Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
                             // Updates or saves the val into the linkedVertex
                             adjacentProperty.getRelatedSchema().cascadeCopyToGraph(graphAdapter, adjacentVertex, adjacentObj, cascadingSchemas);
                         }
