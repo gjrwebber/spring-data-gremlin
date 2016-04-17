@@ -179,6 +179,11 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
                             annotationName = !StringUtils.isEmpty(relatedToVia.value()) ? relatedToVia.value() : relatedToVia.name();
                         }
                     }
+                } else {
+                    Dynamic dynamic = AnnotationUtils.getAnnotation(field, Dynamic.class);
+                    if (dynamic != null) {
+                        annotationName = dynamic.linkName();
+                    }
                 }
             }
         }
@@ -210,6 +215,20 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
             }
         }
         return propertyOverride;
+    }
+
+    @Override
+    protected String getDynamicClassName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
+        String dynamicClassName = super.getDynamicClassName(field, rootEmbeddedField, schemaClass);
+        Dynamic dynamicAnnotation = AnnotationUtils.getAnnotation(field, Dynamic.class);
+        if (dynamicAnnotation != null) {
+            if (!StringUtils.isEmpty(dynamicAnnotation.name())) {
+                dynamicClassName = dynamicAnnotation.name();
+            } else if(!StringUtils.isEmpty(dynamicAnnotation.value())) {
+                dynamicClassName = dynamicAnnotation.value();
+            }
+        }
+        return dynamicClassName;
     }
 
     private PropertyOverride checkPropertyOverride(Field embeddedField, Field field) {
@@ -259,6 +278,10 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     @Override
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
         return super.isEmbeddedField(cls, field) && AnnotationUtils.getAnnotation(field, Embed.class) != null;
+    }
+
+    protected boolean isDynamicVertex(Class<?> cls, Field field) {
+        return super.isDynamicVertex(cls, field) && AnnotationUtils.getAnnotation(field, Dynamic.class) != null;
     }
 
     @Override

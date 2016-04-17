@@ -14,7 +14,7 @@ public interface SchemaGenerator {
 
     <V> GremlinSchema<V> generateSchema(Class<V> clazz) throws SchemaGeneratorException;
 
-    <V> GremlinSchema<V> generateDynamicSchema(String className);
+    <V> GremlinSchema<V> generateDynamicSchema(String className, Class<? extends Map> mapType);
 
     void setVertexClasses(Set<Class<?>> entities);
 

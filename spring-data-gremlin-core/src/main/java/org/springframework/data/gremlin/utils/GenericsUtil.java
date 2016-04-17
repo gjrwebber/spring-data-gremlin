@@ -11,6 +11,10 @@ public class GenericsUtil {
 
     public static Class<?>[] getGenericTypes(Type type, int required) {
 
+        while (type != null && type instanceof Class<?>) {
+            type = ((Class<?>) type).getGenericSuperclass();
+        }
+
         if (type != null && type instanceof ParameterizedType) {
             ParameterizedType paramType = (ParameterizedType) type;
             Type[] genericTypes = paramType.getActualTypeArguments();

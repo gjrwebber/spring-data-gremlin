@@ -67,8 +67,11 @@ public class Person {
     @Property(type = Property.SerialisableType.JSON, jsonMixin = PetMxin.class)
     private Pet favouritePet;
 
-    @Link("randoms")
+    @Dynamic(name="Randoms", linkName = "has_random")
     private Map<String, Object> randoms;
+
+    @Dynamic(name = "OtherStuff", linkName = "has_other_stuff")
+    private Map<String, Object> otherStuff;
 
     public Person() {
     }
@@ -79,7 +82,7 @@ public class Person {
     }
 
     public Person(String firstName, String lastName, Address address, Boolean active) {
-        this(firstName, lastName, address, active, new HashMap<>());
+        this(firstName, lastName, address, active, new HashMap<String, Object>());
     }
 
     public Person(String firstName, String lastName, Address address, Boolean active, Map<String, Object> randoms) {
@@ -221,6 +224,14 @@ public class Person {
 
     public void setRandoms(Map<String, Object> randoms) {
         this.randoms = randoms;
+    }
+
+    public Map<String, Object> getOtherStuff() {
+        return otherStuff;
+    }
+
+    public void setOtherStuff(Map<String, Object> otherStuff) {
+        this.otherStuff = otherStuff;
     }
 
     @Override

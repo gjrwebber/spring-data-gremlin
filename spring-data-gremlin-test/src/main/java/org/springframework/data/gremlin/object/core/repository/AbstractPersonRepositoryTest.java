@@ -593,8 +593,11 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         randoms.put("boo", true);
         randoms.put("status", 1);
         randoms.put("hello", null);
-
         person.setRandoms(randoms);
+
+        Map<String, Object> other = new HashMap();
+        other.put("hello", "world");
+        person.setOtherStuff(other);
 
         String id = repository.save(person).getId();
 
@@ -602,6 +605,8 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
 
         assertNotNull(result.getRandoms());
         assertEquals(4, result.getRandoms().size());
+        assertNotNull(result.getOtherStuff());
+        assertEquals(2, result.getOtherStuff().size());
 
         result.getRandoms().remove("status");
 
@@ -611,5 +616,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
 
         assertNotNull(result.getRandoms());
         assertEquals(3, result.getRandoms().size());
+        assertNotNull(result.getOtherStuff());
+        assertEquals(2, result.getOtherStuff().size());
     }
 }

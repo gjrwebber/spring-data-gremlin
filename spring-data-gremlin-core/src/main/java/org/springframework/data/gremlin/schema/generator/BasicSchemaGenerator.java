@@ -92,10 +92,13 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         return schema;
     }
 
-    public <V> GremlinSchema<V> generateDynamicSchema(String className) {
+    public <V> GremlinSchema<V> generateDynamicSchema(String className, Class<? extends Map> mapType) {
 
         GremlinIdMapPropertyAccessor idAccessor = new GremlinIdMapPropertyAccessor();
-        GremlinDynamicSchema<V> schema = new GremlinDynamicSchema(HashMap.class);
+        if (mapType.isInterface()) {
+            mapType = HashMap.class;
+        }
+        GremlinDynamicSchema<V> schema = new GremlinDynamicSchema(mapType);
         schema.setClassName(className);
         schema.setIdAccessor(idAccessor);
         schema.setIdEncoder(idEncoder);
@@ -221,10 +224,11 @@ public class BasicSchemaGenerator implements SchemaGenerator {
             // Return now as we don't want a property for the embedded field.
             return;
         } else if (isDynamicVertex(cls, field)) {
+            String dynamicClassName = getDynamicClassName(field, rootEmbeddedField, schema.getClassType());
             if (isLinkOutward(cls, field)) {
-                property = propertyFactory.getLinkProperty(cls, name, Direction.OUT);
+                property = propertyFactory.getDynamicProperty((Class<? extends Map>)cls, name, dynamicClassName, Direction.OUT);
             } else {
-                property = propertyFactory.getLinkProperty(cls, name, Direction.IN);
+                property = propertyFactory.getDynamicProperty((Class<? extends Map>)cls, name, dynamicClassName, Direction.IN);
             }
         } else if (isSerialisableField(cls, field)) {
             accessor = new GremlinSerializableFieldPropertyAccessor(field, embeddedFieldAccessor);
@@ -336,6 +340,11 @@ public class BasicSchemaGenerator implements SchemaGenerator {
             propertyName = String.format("%s_%s", schemaClass.getSimpleName().toLowerCase(), propertyName);
         }
         return propertyName;
+    }
+
+    protected String getDynamicClassName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
+        String linkName = getPropertyName(field, rootEmbeddedField, schemaClass);
+        return "DYN_" + linkName.toUpperCase();
     }
 
     protected boolean isSerialisableField(Class<?> cls, Field field) {
