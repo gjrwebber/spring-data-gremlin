@@ -63,11 +63,11 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
     //    }
 
     @Transactional(readOnly = false)
-    private Element create(Graph graph, final T object) {
+    private Element create(Graph graph, final T object, Object... noCascade) {
         Element element;
         if (schema.isVertexSchema()) {
             element = graphAdapter.createVertex(graph, schema.getClassName());
-            schema.copyToGraph(graphAdapter, element, object);
+            schema.copyToGraph(graphAdapter, element, object, noCascade);
         } else if (schema.isEdgeSchema()) {
             GremlinEdgeSchema edgeSchema = (GremlinEdgeSchema) schema;
             GremlinAdjacentProperty adjacentOutProperty = edgeSchema.getOutProperty();
@@ -90,7 +90,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
 
             element = graphAdapter.addEdge(null, outVertex, inVertex, schema.getClassName());
 
-            schema.copyToGraph(graphAdapter, element, object);
+            schema.copyToGraph(graphAdapter, element, object, noCascade);
         } else {
             throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");
         }
@@ -135,7 +135,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
         if (!StringUtils.isEmpty(id)) {
             save(graph, s, noCascade);
         } else {
-            create(graph, s);
+            create(graph, s, noCascade);
         }
         return s;
 
