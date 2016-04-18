@@ -91,11 +91,16 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
         while (attempts++ < MAX_RETRY) {
             try {
                 graphFactory.commitTx(graph);
+
+                if (attempts > 1) {
+                    LOGGER.info("Commit successful after " + attempts + " attempts.");
+                }
                 break;
             } catch (RuntimeException e) {
                 if (graphFactory.getRetryException().isAssignableFrom(e.getClass())) {
                     LOGGER.warn("Attempted to commit Tx " + attempts + " out of " + MAX_RETRY + " times. Waiting " + RETRY_DELAY + "ms before trying again. Error: "+e.getMessage());
                 } else {
+                    LOGGER.error("Could not commit tx: " + e.getMessage(), e);
                     throw e;
                 }
             }
