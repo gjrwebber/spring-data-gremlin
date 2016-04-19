@@ -4,6 +4,8 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
@@ -24,9 +26,10 @@ import java.util.*;
  */
 public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMapper {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(GremlinCollectionViaPropertyMapper.class);
+
     @Override
     public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
-
         Assert.notNull(vertex);
 
         // Get the Set of existing linked vertices for this property
@@ -79,6 +82,7 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
 
 
                         if(Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
+                            LOGGER.debug("Cascading copy of " + property.getRelatedSchema().getClassName());
                             // Updates or saves the val into the linkedVertex
                             adjacentProperty.getRelatedSchema().cascadeCopyToGraph(graphAdapter, adjacentVertex, adjacentObj, cascadingSchemas);
                         }
@@ -89,6 +93,7 @@ public class GremlinCollectionViaPropertyMapper extends GremlinLinkPropertyMappe
 
         // For each disjointed edge, remove it
         for (Edge vertexToDelete : CollectionUtils.disjunction(existingLinkedEdges, actualLinkedEdges)) {
+            LOGGER.debug("Removing " + vertexToDelete + ".");
             vertexToDelete.remove();
         }
 

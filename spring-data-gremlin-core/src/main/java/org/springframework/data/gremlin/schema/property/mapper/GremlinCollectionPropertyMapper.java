@@ -4,6 +4,8 @@ import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
 import org.apache.commons.collections4.CollectionUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
@@ -20,6 +22,7 @@ import java.util.Set;
  * @author Gman
  */
 public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<GremlinRelatedProperty, Vertex> {
+    private static final Logger LOGGER = LoggerFactory.getLogger(GremlinCollectionPropertyMapper.class);
 
     @Override
     public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
@@ -43,6 +46,8 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
                     linkedVertex = graphAdapter.getVertex(id);
                 }
                 if (linkedVertex == null) {
+                    LOGGER.debug("No Linked Vertex for property: " + property.getName() + ". Creating " + property.getRelatedSchema().getClassName());
+
                     // No linked vertex yet, create it
                     linkedVertex = graphAdapter.createVertex(property.getRelatedSchema());
                 }
@@ -65,7 +70,8 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
             actualLinkedVertices.add(linkedVertex);
 
 
-            if(Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
+            if (Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
+                LOGGER.debug("Cascading copy of " + property.getRelatedSchema().getClassName());
                 // Updates or saves the linkedObj into the linkedVertex
                 property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, linkedObj, cascadingSchemas);
             }
@@ -74,8 +80,10 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
         // For each disjointed vertex, remove it and the Edge associated with this property
         for (Vertex vertexToDelete : CollectionUtils.disjunction(existingLinkedVertices, actualLinkedVertices)) {
             for (Edge edge : vertexToDelete.getEdges(property.getDirection().opposite(), property.getName())) {
+                LOGGER.debug("Removing edge " + edge + " of vertex " + vertexToDelete + ".");
                 graphAdapter.removeEdge(edge);
             }
+            LOGGER.debug("Removing " + vertexToDelete + ".");
             graphAdapter.removeVertex(vertexToDelete);
         }
     }

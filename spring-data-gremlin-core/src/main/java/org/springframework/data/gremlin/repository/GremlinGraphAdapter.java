@@ -91,6 +91,7 @@ public class GremlinGraphAdapter<G extends Graph> {
 
     @Transactional(readOnly = false)
     public Edge addEdge(Object o, Vertex outVertex, Vertex inVertex, String name) {
+        LOGGER.debug("Creating edge " + outVertex + " -> " + inVertex + "...");
         Edge edge = outVertex.addEdge(name, inVertex);
         return edge;
     }

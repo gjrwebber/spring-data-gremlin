@@ -3,6 +3,8 @@ package org.springframework.data.gremlin.schema.property.mapper;
 import com.tinkerpop.blueprints.Direction;
 import com.tinkerpop.blueprints.Edge;
 import com.tinkerpop.blueprints.Vertex;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinLinkProperty;
@@ -21,6 +23,8 @@ import java.util.Map;
  * @author Gman
  */
 public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(GremlinLinkViaPropertyMapper.class);
 
     @Override
     public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
@@ -56,10 +60,11 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
                         } else {
                             linkedEdge = graphAdapter.addEdge(null, adjacentVertex, vertex, property.getRelatedSchema().getClassName());
                         }
-                        property.getRelatedSchema().copyToGraph(graphAdapter, linkedEdge, val);
+                        property.getRelatedSchema().copyToGraph(graphAdapter, linkedEdge, val, cascadingSchemas);
                     }
 
                     if(Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
+                        LOGGER.debug("Cascading copy of " + property.getRelatedSchema().getClassName());
                         // Updates or saves the val into the linkedVertex
                         property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedEdge, val, cascadingSchemas);
                     }
