@@ -15,10 +15,14 @@ public class GenericsUtil {
             type = ((Class<?>) type).getGenericSuperclass();
         }
 
+        if (type != null && type instanceof TypeVariable) {
+            return new Class<?>[]{ TypeVariable.class };
+        }
+
         if (type != null && type instanceof ParameterizedType) {
             ParameterizedType paramType = (ParameterizedType) type;
             Type[] genericTypes = paramType.getActualTypeArguments();
-            if (genericTypes == null || genericTypes.length != required) {
+            if (genericTypes == null || (required > 0 && genericTypes.length != required)) {
                 throw new IllegalStateException(type.getTypeName() + " does not provide a generic type as required. Wanted " + required + " generic types, but found " + genericTypes.length);
             }
             Class<?>[] generics = new Class<?>[genericTypes.length];
@@ -29,6 +33,17 @@ public class GenericsUtil {
                     GenericArrayType arrayType = (GenericArrayType) genericTypes[i];
                     Class<?> arrayClassType = (Class<?>) arrayType.getGenericComponentType();
                     generics[i] = Array.newInstance(arrayClassType, 1).getClass();
+                } else if (genericTypes[i] instanceof TypeVariable) {
+                    String upperBoundTypeName = ((TypeVariable)genericTypes[i]).getBounds()[0].getTypeName();
+                    if(!upperBoundTypeName.equals(Object.class.getCanonicalName())) {
+                        try {
+                            generics[i] = Class.forName(upperBoundTypeName);
+                        } catch (ClassNotFoundException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        generics[i] = TypeVariable.class;
+                    }
                 } else {
                     generics[i] = (Class<?>) genericTypes[i];
                 }
@@ -71,7 +86,12 @@ public class GenericsUtil {
      *                               determined.
      */
     public static <T> Class<?> getGenericType(Class<T> clazz) {
-        return getGenericTypes(clazz, 1)[0];
+        Class<?> cls = getGenericTypes(clazz, 1)[0];
+        if (cls == TypeVariable.class) {
+            throw new TypeVariableException();
+        } else {
+            return cls;
+        }
     }
 
 
@@ -81,7 +101,12 @@ public class GenericsUtil {
     }
 
     public static Class<?> getGenericType(Field field) {
-        return getGenericTypes(field, 1)[0];
+        Class<?> cls = getGenericTypes(field, 1)[0];
+        if (cls == TypeVariable.class) {
+            throw new TypeVariableException();
+        } else {
+            return cls;
+        }
     }
 
     public static Class<?>[] getGenericTypes(Method method, int required) {
@@ -90,6 +115,35 @@ public class GenericsUtil {
     }
 
     public static Class<?> getGenericType(Method method) {
-        return getGenericTypes(method, 1)[0];
+        Class<?> cls = getGenericTypes(method, 1)[0];
+        if (cls == TypeVariable.class) {
+            throw new TypeVariableException();
+        } else {
+            return cls;
+        }
     }
+
+    public static Class<?> getGenericType(Field field, Class<?> owningClass) {
+        Class<?> cls = getGenericTypes(field, 1)[0];
+        if (cls == TypeVariable.class) {
+            Type var = field.getGenericType();
+            if (var instanceof ParameterizedType) {
+                var = ((ParameterizedType) var).getActualTypeArguments()[0];
+            }
+            int index = 0;
+            for (Type stype : field.getDeclaringClass().getTypeParameters()) {
+                if (stype instanceof TypeVariable) {
+                    if (stype.getTypeName().equals(var.getTypeName())) {
+                        cls = GenericsUtil.getGenericTypes(owningClass, -1)[index];
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        return cls;
+    }
+
+    public static class TypeVariableException extends RuntimeException { }
 }

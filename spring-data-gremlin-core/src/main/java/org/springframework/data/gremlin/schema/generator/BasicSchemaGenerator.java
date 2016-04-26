@@ -19,8 +19,7 @@ import org.springframework.data.gremlin.utils.GenericsUtil;
 import org.springframework.util.ReflectionUtils;
 
 import java.io.Serializable;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.*;
 
 /**
@@ -148,6 +147,10 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
 
         Class<?> cls = field.getType();
+        Type type = field.getGenericType();
+        if (type instanceof TypeVariable) {
+            cls = getGenericType(field, schema);
+        }
 
         GremlinPropertyAccessor accessor = new GremlinFieldPropertyAccessor(field, embeddedFieldAccessor);
         GremlinProperty property = null;
@@ -163,7 +166,7 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         //        if (acceptType(cls)) {
 
         // If it is an enum, check if it is annotated with @Enumerated
-        if (isEnumField(cls, field)) {
+        if (isEnumField(cls, field, schema)) {
             Class<?> enumType = cls;
 
             cls = getEnumType(field);
@@ -185,15 +188,15 @@ public class BasicSchemaGenerator implements SchemaGenerator {
                     accessor = new GremlinEnumOrdinalFieldPropertyAccessor(field, enumType);
                 }
             }
-        } else if (isCollectionViaField(cls, field)) {
-            cls = getCollectionType(field);
+        } else if (isCollectionViaField(cls, field, schema)) {
+            cls = getCollectionType(field, schema);
             if (isLinkOutward(cls, field)) {
                 property = propertyFactory.getCollectionViaProperty(cls, name, Direction.OUT);
             } else {
                 property = propertyFactory.getCollectionViaProperty(cls, name, Direction.IN);
             }
-        } else if (isCollectionField(cls, field)) {
-            cls = getCollectionType(field);
+        } else if (isCollectionField(cls, field, schema)) {
+            cls = getCollectionType(field, schema);
             if (isLinkOutward(cls, field)) {
                 property = propertyFactory.getCollectionProperty(cls, name, Direction.OUT);
             } else {
@@ -226,11 +229,11 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         } else if (isDynamicVertex(cls, field)) {
             String dynamicClassName = getDynamicClassName(field, rootEmbeddedField, schema.getClassType());
             if (isLinkOutward(cls, field)) {
-                property = propertyFactory.getDynamicProperty((Class<? extends Map>)cls, name, dynamicClassName, Direction.OUT);
+                property = propertyFactory.getDynamicProperty((Class<? extends Map>) cls, name, dynamicClassName, Direction.OUT);
             } else {
-                property = propertyFactory.getDynamicProperty((Class<? extends Map>)cls, name, dynamicClassName, Direction.IN);
+                property = propertyFactory.getDynamicProperty((Class<? extends Map>) cls, name, dynamicClassName, Direction.IN);
             }
-        } else if (isSerialisableField(cls, field)) {
+        } else if (isSerialisableField(cls, field, schema)) {
             accessor = new GremlinSerializableFieldPropertyAccessor(field, embeddedFieldAccessor);
             cls = getSerializableType(field);
         } else if (isJsonField(cls, field)) {
@@ -347,8 +350,8 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         return "DYN_" + linkName.toUpperCase();
     }
 
-    protected boolean isSerialisableField(Class<?> cls, Field field) {
-        return !stdType(cls) && (Serializable.class.isAssignableFrom(cls) || (Collection.class.isAssignableFrom(cls) && Serializable.class.isAssignableFrom(getCollectionType(field))));
+    protected boolean isSerialisableField(Class<?> cls, Field field, GremlinSchema schema) {
+        return !stdType(cls) && (Serializable.class.isAssignableFrom(cls) || (Collection.class.isAssignableFrom(cls) && Serializable.class.isAssignableFrom(getCollectionType(field, schema))));
     }
 
     protected boolean isJsonField(Class<?> cls, Field field) {
@@ -359,8 +362,8 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         return null;
     }
 
-    protected boolean isEnumField(Class<?> cls, Field field) {
-        return cls.isEnum() || (Collection.class.isAssignableFrom(cls) && getCollectionType(field).isEnum());
+    protected boolean isEnumField(Class<?> cls, Field field, GremlinSchema schema) {
+        return cls.isEnum() || (Collection.class.isAssignableFrom(cls) && getCollectionType(field, schema).isEnum());
     }
 
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
@@ -391,16 +394,38 @@ public class BasicSchemaGenerator implements SchemaGenerator {
         return true;
     }
 
-    protected boolean isCollectionField(Class<?> cls, Field field) {
-        return Collection.class.isAssignableFrom(cls) && isVertexClass(getCollectionType(field));
+    protected boolean isCollectionField(Class<?> cls, Field field, GremlinSchema schema) {
+        return Collection.class.isAssignableFrom(cls) && isVertexClass(getCollectionType(field, schema));
     }
 
-    protected boolean isCollectionViaField(Class<?> cls, Field field) {
-        return Collection.class.isAssignableFrom(cls) && isEdgeClass(getCollectionType(field));
+    protected boolean isCollectionViaField(Class<?> cls, Field field, GremlinSchema schema) {
+        return Collection.class.isAssignableFrom(cls) && isEdgeClass(getCollectionType(field, schema));
     }
 
-    private Class<?> getCollectionType(Field field) {
-        return GenericsUtil.getGenericType(field);
+    private Class<?> getCollectionType(Field field, GremlinSchema schema) {
+        return getGenericType(field, schema);
+    }
+
+    public Class<?> getGenericType(Field field, GremlinSchema schema) {
+        Class<?> cls = GenericsUtil.getGenericTypes(field, 1)[0];
+        if (cls == TypeVariable.class || !isVertexClass(cls) && !isEdgeClass(cls)) {
+            Type var = field.getGenericType();
+            if (var instanceof ParameterizedType) {
+                var = ((ParameterizedType) var).getActualTypeArguments()[0];
+            }
+            int index = 0;
+            for (Type stype : field.getDeclaringClass().getTypeParameters()) {
+                if (stype instanceof TypeVariable) {
+                    if (stype.getTypeName().equals(var.getTypeName())) {
+                        cls = GenericsUtil.getGenericTypes(schema.getClassType(), -1)[index];
+                        break;
+                    }
+                }
+
+            }
+        }
+
+        return cls;
     }
 
     /**

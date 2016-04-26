@@ -1,5 +1,7 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
+import com.orientechnologies.orient.core.id.ORecordId;
+import com.orientechnologies.orient.core.metadata.security.OIdentity;
 import com.tinkerpop.blueprints.Element;
 import com.tinkerpop.blueprints.Vertex;
 import com.tinkerpop.blueprints.impls.orient.OrientElement;
@@ -53,4 +55,8 @@ public class OrientDBGraphAdapter extends GremlinGraphAdapter<OrientGraph> {
         return id;
     }
 
+    @Override
+    public boolean isValidId(String id) {
+        return super.isValidId(id) && !id.contains("-");
+    }
 }

@@ -12,7 +12,7 @@ import static com.tinkerpop.blueprints.Direction.OUT;
 import static org.springframework.data.gremlin.annotation.Enumerated.EnumeratedType.STRING;
 
 @Vertex
-public class Person {
+public class Person extends Bipod<Area> {
 
     public enum AWESOME {
         YES,
@@ -27,9 +27,6 @@ public class Person {
         HOVERCRAFT,
         SPACESHIP
     }
-
-    @Id
-    private String id;
 
     private String firstName;
 
@@ -95,13 +92,6 @@ public class Person {
             address.getPeople().add(this);
         }
         this.randoms = randoms;
-    }
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
     }
 
     public String getFirstName() {
@@ -238,7 +228,6 @@ public class Person {
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Person{");
-        sb.append("id='").append(id).append('\'');
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append(", lastName='").append(lastName).append('\'');
         sb.append(", active=").append(active);
@@ -258,9 +247,6 @@ public class Person {
 
         Person person = (Person) o;
 
-        if (id != null ? !id.equals(person.id) : person.id != null) {
-            return false;
-        }
         if (firstName != null ? !firstName.equals(person.firstName) : person.firstName != null) {
             return false;
         }
@@ -276,7 +262,7 @@ public class Person {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = 10;
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + (active != null ? active.hashCode() : 0);

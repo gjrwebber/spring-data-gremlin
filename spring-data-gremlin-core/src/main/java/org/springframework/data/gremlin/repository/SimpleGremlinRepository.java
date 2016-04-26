@@ -127,15 +127,26 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
 
     @Transactional(readOnly = false)
     @Override
-    public <S extends T> S save(S s, Object... noCascade) {
+    public <S extends T> S save(final S s, final Object... noCascade) {
 
         Graph graph = dbf.graph();
 
         String id = schema.getObjectId(s);
-        if (!StringUtils.isEmpty(id)) {
+        if (graphAdapter.isValidId(id)) {
             save(graph, s, noCascade);
         } else {
             create(graph, s, noCascade);
+
+            if (TransactionSynchronizationManager.isSynchronizationActive()) {
+                TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                    @Override
+                    public void afterCommit() {
+                        if (!graphAdapter.isValidId(schema.getObjectId(s))) {
+//                            throw dbf.getForceRetryException();
+                        }
+                    }
+                });
+            }
         }
         return s;
 

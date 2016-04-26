@@ -266,13 +266,13 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     }
 
     @Override
-    protected boolean isSerialisableField(Class<?> cls, Field field) {
+    protected boolean isSerialisableField(Class<?> cls, Field field, GremlinSchema schema) {
         Property property = field.getAnnotation(Property.class);
         if (property != null) {
             return property.type() == Property.SerialisableType.SERIALIZABLE;
         }
 
-        return super.isSerialisableField(cls, field);
+        return super.isSerialisableField(cls, field, schema);
     }
 
     @Override
@@ -329,13 +329,13 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     }
 
     @Override
-    protected boolean isCollectionField(Class<?> cls, Field field) {
-        return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, Link.class) != null;
+    protected boolean isCollectionField(Class<?> cls, Field field, GremlinSchema schema) {
+        return super.isCollectionField(cls, field, schema) && AnnotationUtils.getAnnotation(field, Link.class) != null;
     }
 
     @Override
-    protected boolean isCollectionViaField(Class<?> cls, Field field) {
-        return super.isCollectionViaField(cls, field) && AnnotationUtils.getAnnotation(field, LinkVia.class) != null;
+    protected boolean isCollectionViaField(Class<?> cls, Field field, GremlinSchema schema) {
+        return super.isCollectionViaField(cls, field, schema) && AnnotationUtils.getAnnotation(field, LinkVia.class) != null;
     }
 
     /**

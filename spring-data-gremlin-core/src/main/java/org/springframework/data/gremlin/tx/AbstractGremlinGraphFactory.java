@@ -187,6 +187,11 @@ public abstract class AbstractGremlinGraphFactory<T extends Graph> implements Gr
     }
 
     @Override
+    public RuntimeException getForceRetryException() {
+        return new RuntimeException("Forcing a retry.");
+    }
+
+    @Override
     public void resumeTx(T oldGraph) {
 
     }

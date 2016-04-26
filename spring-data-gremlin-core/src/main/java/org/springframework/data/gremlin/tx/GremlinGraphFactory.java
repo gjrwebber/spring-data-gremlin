@@ -59,5 +59,7 @@ public interface GremlinGraphFactory<T extends Graph> {
 
     Class<? extends RuntimeException> getRetryException();
 
+    RuntimeException getForceRetryException();
+
     void resumeTx(T oldGraph);
 }

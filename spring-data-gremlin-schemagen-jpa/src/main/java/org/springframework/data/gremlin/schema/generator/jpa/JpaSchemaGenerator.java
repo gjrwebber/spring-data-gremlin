@@ -247,8 +247,8 @@ public class JpaSchemaGenerator extends BasicSchemaGenerator implements Annotate
     }
 
     @Override
-    protected boolean isCollectionField(Class<?> cls, Field field) {
-        return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, OneToMany.class) != null;
+    protected boolean isCollectionField(Class<?> cls, Field field, GremlinSchema schema) {
+        return super.isCollectionField(cls, field, schema) && AnnotationUtils.getAnnotation(field, OneToMany.class) != null;
     }
 
     @Override

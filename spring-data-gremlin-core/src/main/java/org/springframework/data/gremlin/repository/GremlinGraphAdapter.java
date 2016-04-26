@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 /**
  * Base class for creating verticies and edges on the Graph. This class can be
@@ -114,4 +115,7 @@ public class GremlinGraphAdapter<G extends Graph> {
         return id;
     }
 
+    public boolean isValidId(String id) {
+        return !StringUtils.isEmpty(id);
+    }
 }

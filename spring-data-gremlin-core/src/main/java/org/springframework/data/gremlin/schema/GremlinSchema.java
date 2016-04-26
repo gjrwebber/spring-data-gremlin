@@ -20,6 +20,10 @@ import org.springframework.data.gremlin.utils.GenericsUtil;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 
@@ -209,9 +213,9 @@ public abstract class GremlinSchema<V> {
                 LOGGER.warn(String.format("Could not save property %s of %s", property, obj.toString()), e);
             }
         }
-        final Element finalElement = element;
 
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+        if (getGraphId(obj) == null && TransactionSynchronizationManager.isSynchronizationActive()) {
+            final Element finalElement = element;
             TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
                 @Override
                 public void afterCommit() {

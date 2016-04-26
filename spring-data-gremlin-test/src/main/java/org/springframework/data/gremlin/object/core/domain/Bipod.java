@@ -5,17 +5,17 @@ import org.springframework.data.gremlin.annotation.Id;
 import org.springframework.data.gremlin.annotation.Vertex;
 
 @Vertex
-public class Area extends Place {
+public class Bipod<T extends Place> extends Animal<T> {
 
     @Id
     private String id;
 
     private String name;
 
-    public Area() {
+    public Bipod() {
     }
 
-    public Area(String name) {
+    public Bipod(String name) {
         this.name = name;
     }
 
