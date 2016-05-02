@@ -4,6 +4,7 @@ import com.orientechnologies.orient.core.sql.OCommandSQL;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.query.AbstractNativeGremlinQuery;
 import org.springframework.data.gremlin.query.GremlinQueryMethod;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.tx.orientdb.OrientDBGremlinGraphFactory;
@@ -25,8 +26,8 @@ public class NativeOrientdbGremlinQuery extends AbstractNativeGremlinQuery {
 
     private OrientDBGremlinGraphFactory orientGraphFactory;
 
-    public NativeOrientdbGremlinQuery(GremlinGraphFactory dbf, GremlinQueryMethod method, GremlinSchemaFactory schemaFactory, String query) {
-        super(dbf, method, schemaFactory, query);
+    public NativeOrientdbGremlinQuery(GremlinGraphFactory dbf, GremlinQueryMethod method, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter, String query) {
+        super(dbf, method, schemaFactory, graphAdapter, query);
         this.orientGraphFactory = (OrientDBGremlinGraphFactory) dbf;
     }
 

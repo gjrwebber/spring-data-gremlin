@@ -98,7 +98,7 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
      */
     @Override
     protected QueryLookupStrategy getQueryLookupStrategy(Key key, EvaluationContextProvider provider) {
-        return GremlinQueryLookupStrategy.create(dbf, schemaFactory, nativeQueryType, key);
+        return GremlinQueryLookupStrategy.create(dbf, schemaFactory, graphAdapter, nativeQueryType, key);
     }
 
 }

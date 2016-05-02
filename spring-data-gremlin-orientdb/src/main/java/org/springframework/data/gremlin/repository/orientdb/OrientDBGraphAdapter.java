@@ -32,7 +32,8 @@ public class OrientDBGraphAdapter extends GremlinGraphAdapter<OrientGraph> {
 
     @Override
     public Element refresh(Element element) {
-        return graphFactory.graph().attach((OrientElement) element);
+        ((OrientElement) element).reload();
+        return element;
     }
 
     public String encodeId(String id) {

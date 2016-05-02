@@ -3,6 +3,7 @@ package org.springframework.data.gremlin.query.execution;
 import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.query.CompositeResult;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.repository.query.DefaultParameters;
@@ -22,8 +23,8 @@ public class CompositeExecution extends AbstractGremlinExecution {
     /**
      * Instantiates a new {@link CountExecution}.
      */
-    public CompositeExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters) {
-        super(schemaFactory, parameters);
+    public CompositeExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters, GremlinGraphAdapter graphAdapter) {
+        super(schemaFactory, parameters, graphAdapter);
     }
 
     @Override
@@ -45,7 +46,7 @@ public class CompositeExecution extends AbstractGremlinExecution {
 
         Class<?> mappedType = query.getQueryMethod().getReturnedObjectType();
         GremlinSchema mapper = schemaFactory.getSchema(mappedType);
-        Object entity = mapper.loadFromGraph(vertex);
+        Object entity = mapper.loadFromGraph(graphAdapter, vertex);
 
         return new CompositeResult<Object>(entity, map);
     }

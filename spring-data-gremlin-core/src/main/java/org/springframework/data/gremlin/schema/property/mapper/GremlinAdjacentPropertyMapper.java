@@ -35,11 +35,12 @@ public class GremlinAdjacentPropertyMapper implements GremlinPropertyMapper<Grem
     }
 
     @Override
-    public <K> Object loadFromVertex(GremlinAdjacentProperty property, Edge edge, Map<Object, Object> cascadingSchemas) {
+    public <K> Object loadFromVertex(GremlinAdjacentProperty property, GremlinGraphAdapter graphAdapter, Edge edge, Map<Object, Object> cascadingSchemas) {
         Object val = null;
         Vertex linkedVertex = edge.getVertex(property.getDirection());
         if (linkedVertex != null) {
-            val = property.getRelatedSchema().cascadeLoadFromGraph(linkedVertex, cascadingSchemas);
+            graphAdapter.refresh(linkedVertex);
+            val = property.getRelatedSchema().cascadeLoadFromGraph(graphAdapter, linkedVertex, cascadingSchemas);
         }
         return val;
     }

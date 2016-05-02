@@ -25,7 +25,7 @@ public class GremlinStandardPropertyMapper implements GremlinPropertyMapper<Grem
     }
 
     @Override
-    public <K> Object loadFromVertex(GremlinProperty property, Element element, Map<Object, Object> cascadingSchemas) {
+    public <K> Object loadFromVertex(GremlinProperty property, GremlinGraphAdapter graphAdapter, Element element, Map<Object, Object> cascadingSchemas) {
         return element.getProperty(property.getName());
     }
 }

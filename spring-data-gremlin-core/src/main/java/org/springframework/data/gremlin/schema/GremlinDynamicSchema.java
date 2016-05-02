@@ -4,16 +4,11 @@ import com.tinkerpop.blueprints.Element;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
-import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinMapPropertyAccessor;
 import org.springframework.transaction.support.TransactionSynchronizationAdapter;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 
 /**
@@ -49,7 +44,7 @@ public class GremlinDynamicSchema<V> extends GremlinVertexSchema<V> {
                     continue;
                 }
                 Object val = map.get(key);
-                if(val != null) {
+                if (val != null) {
                     element.setProperty(key, val);
                 }
             }
@@ -74,9 +69,9 @@ public class GremlinDynamicSchema<V> extends GremlinVertexSchema<V> {
     }
 
     @Override
-    public V cascadeLoadFromGraph(Element element, Map<Object, Object> noCascadingMap) {
+    public V cascadeLoadFromGraph(GremlinGraphAdapter graphAdapter, Element element, Map<Object, Object> noCascadingMap) {
 
-        Map<String, Object> obj = (Map<String, Object>) super.cascadeLoadFromGraph(element, noCascadingMap);
+        Map<String, Object> obj = (Map<String, Object>) super.cascadeLoadFromGraph(graphAdapter, element, noCascadingMap);
         for (String key : element.getPropertyKeys()) {
             obj.put(key, element.getProperty(key));
         }

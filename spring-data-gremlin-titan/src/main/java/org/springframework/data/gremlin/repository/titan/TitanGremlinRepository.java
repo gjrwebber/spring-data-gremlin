@@ -72,7 +72,7 @@ public class TitanGremlinRepository<T> extends SimpleGremlinRepository<T> {
         int offset = pageable.getOffset() + pageable.getPageSize();
         for (Element element : findAllElementsForSchema()) {
             if (total >= prevOffset && total < offset) {
-                result.add(schema.loadFromGraph(element));
+                result.add(schema.loadFromGraph(graphAdapter, element));
             }
             total++;
         }
@@ -83,7 +83,7 @@ public class TitanGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public Iterable<T> findAll() {
         List<T> result = new ArrayList<T>();
         for (Element vertex : findAllElementsForSchema()) {
-            result.add(schema.loadFromGraph(vertex));
+            result.add(schema.loadFromGraph(graphAdapter, vertex));
         }
         return result;
     }

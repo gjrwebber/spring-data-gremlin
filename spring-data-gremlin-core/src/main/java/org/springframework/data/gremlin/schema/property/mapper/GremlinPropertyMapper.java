@@ -18,5 +18,5 @@ public interface GremlinPropertyMapper<E extends GremlinProperty, V extends Elem
 
     void copyToVertex(E property, GremlinGraphAdapter graphAdapter, V element, Object val, Map<Object, Object> cascadingSchemas);
 
-    <K> Object loadFromVertex(E property, V element, Map<Object, Object> cascadingSchemas);
+    <K> Object loadFromVertex(E property, GremlinGraphAdapter graphAdapter, V element, Map<Object, Object> cascadingSchemas);
 }

@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.query.execution;
 
 import com.tinkerpop.blueprints.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.repository.query.DefaultParameters;
 
@@ -20,8 +21,8 @@ public class MapExecution extends AbstractGremlinExecution {
     /**
      * Instantiates a new {@link CountExecution}.
      */
-    public MapExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters) {
-        super(schemaFactory, parameters);
+    public MapExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters, GremlinGraphAdapter graphAdapter) {
+        super(schemaFactory, parameters, graphAdapter);
     }
 
     @Override

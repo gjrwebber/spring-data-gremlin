@@ -225,12 +225,12 @@ public abstract class GremlinSchema<V> {
         }
     }
 
-    public V loadFromGraph(Element element) {
+    public V loadFromGraph(GremlinGraphAdapter graphAdapter, Element element) {
 
-        return cascadeLoadFromGraph(element, new HashMap<>());
+        return cascadeLoadFromGraph(graphAdapter, element, new HashMap<>());
     }
 
-    public V cascadeLoadFromGraph(Element element, Map<Object, Object> noCascadingMap) {
+    public V cascadeLoadFromGraph(GremlinGraphAdapter graphAdapter, Element element, Map<Object, Object> noCascadingMap) {
 
         V obj = (V) noCascadingMap.get(element.getId());
         if (obj == null) {
@@ -245,7 +245,7 @@ public abstract class GremlinSchema<V> {
             }
             for (GremlinProperty property : getProperties()) {
 
-                Object val = property.loadFromVertex(element, noCascadingMap);
+                Object val = property.loadFromVertex(graphAdapter, element, noCascadingMap);
 
                 GremlinPropertyAccessor accessor = property.getAccessor();
                 try {

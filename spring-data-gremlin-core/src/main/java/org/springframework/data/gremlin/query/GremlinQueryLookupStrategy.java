@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.query;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.repository.core.NamedQueries;
@@ -29,11 +30,13 @@ public final class GremlinQueryLookupStrategy {
 
         protected GremlinGraphFactory dbf;
         protected GremlinSchemaFactory schemaFactory;
+        protected GremlinGraphAdapter graphAdapter;
 
-        private AbstractQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory) {
+        private AbstractQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter) {
             super();
             this.schemaFactory = schemaFactory;
             this.dbf = dbf;
+            this.graphAdapter = graphAdapter;
         }
 
         public final RepositoryQuery resolveQuery(java.lang.reflect.Method method, RepositoryMetadata metadata, NamedQueries namedQueries) {
@@ -45,12 +48,12 @@ public final class GremlinQueryLookupStrategy {
 
     private static class CreateQueryLookupStrategy extends AbstractQueryLookupStrategy {
 
-        private CreateQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory) {super(dbf, schemaFactory);}
+        private CreateQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter) {super(dbf, schemaFactory, graphAdapter);}
 
         @Override
         protected RepositoryQuery resolveQuery(GremlinQueryMethod method, NamedQueries namedQueries) {
             try {
-                return new PartTreeGremlinQuery(dbf, schemaFactory, method);
+                return new PartTreeGremlinQuery(dbf, schemaFactory, graphAdapter, method);
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(String.format("Could not create query metamodel for method %s!", method.toString()), e);
             }
@@ -61,8 +64,9 @@ public final class GremlinQueryLookupStrategy {
 
         protected Class<? extends AbstractNativeGremlinQuery> nativeQueryType;
 
-        private DeclaredQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, Class<? extends AbstractNativeGremlinQuery> nativeQueryType) {
-            super(dbf, schemaFactory);
+        private DeclaredQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter,
+                                            Class<? extends AbstractNativeGremlinQuery> nativeQueryType) {
+            super(dbf, schemaFactory, graphAdapter);
             this.nativeQueryType = nativeQueryType;
         }
 
@@ -77,13 +81,14 @@ public final class GremlinQueryLookupStrategy {
                                 "Native query wanted, but no implemented NativeGremlinQuery provided. You need to provide the type when setting up the GremlinRepositoryContext.");
                     }
                     try {
-                        Constructor<?> constructor = nativeQueryType.getConstructor(GremlinGraphFactory.class, GremlinQueryMethod.class, GremlinSchemaFactory.class, String.class);
-                        repoQuery = (RepositoryQuery) constructor.newInstance(dbf, method, schemaFactory, query);
+                        Constructor<?> constructor = nativeQueryType.getConstructor(GremlinGraphFactory.class, GremlinQueryMethod.class, GremlinSchemaFactory.class, GremlinGraphAdapter.class,
+                                                                                    String.class);
+                        repoQuery = (RepositoryQuery) constructor.newInstance(dbf, method, schemaFactory, graphAdapter, query);
                     } catch (Exception e) {
                         throw new IllegalStateException(String.format("Could not create a %s! Error: %s", nativeQueryType, e.getMessage()), e);
                     }
                 } else {
-                    repoQuery = new StringBasedGremlinQuery(dbf, schemaFactory, query, method);
+                    repoQuery = new StringBasedGremlinQuery(dbf, schemaFactory, graphAdapter, query, method);
                 }
             }
             return repoQuery;
@@ -103,10 +108,11 @@ public final class GremlinQueryLookupStrategy {
          *
          * @param dbf
          */
-        public CreateIfNotFoundQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, Class<? extends AbstractNativeGremlinQuery> nativeQueryType) {
-            super(dbf, schemaFactory);
-            this.strategy = new DeclaredQueryLookupStrategy(dbf, schemaFactory, nativeQueryType);
-            this.createStrategy = new CreateQueryLookupStrategy(dbf, schemaFactory);
+        public CreateIfNotFoundQueryLookupStrategy(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter,
+                                                   Class<? extends AbstractNativeGremlinQuery> nativeQueryType) {
+            super(dbf, schemaFactory, graphAdapter);
+            this.strategy = new DeclaredQueryLookupStrategy(dbf, schemaFactory, graphAdapter, nativeQueryType);
+            this.createStrategy = new CreateQueryLookupStrategy(dbf, schemaFactory, graphAdapter);
         }
 
         @Override
@@ -125,18 +131,19 @@ public final class GremlinQueryLookupStrategy {
         }
     }
 
-    public static QueryLookupStrategy create(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, Class<? extends AbstractNativeGremlinQuery> nativeQueryType, Key key) {
+    public static QueryLookupStrategy create(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter, Class<? extends AbstractNativeGremlinQuery> nativeQueryType,
+                                             Key key) {
         if (key == null) {
-            return new CreateIfNotFoundQueryLookupStrategy(dbf, schemaFactory, nativeQueryType);
+            return new CreateIfNotFoundQueryLookupStrategy(dbf, schemaFactory, graphAdapter, nativeQueryType);
         }
 
         switch (key) {
         case CREATE:
-            return new CreateQueryLookupStrategy(dbf, schemaFactory);
+            return new CreateQueryLookupStrategy(dbf, schemaFactory, graphAdapter);
         case USE_DECLARED_QUERY:
-            return new DeclaredQueryLookupStrategy(dbf, schemaFactory, nativeQueryType);
+            return new DeclaredQueryLookupStrategy(dbf, schemaFactory, graphAdapter, nativeQueryType);
         case CREATE_IF_NOT_FOUND:
-            return new CreateIfNotFoundQueryLookupStrategy(dbf, schemaFactory, nativeQueryType);
+            return new CreateIfNotFoundQueryLookupStrategy(dbf, schemaFactory, graphAdapter, nativeQueryType);
         default:
             throw new IllegalArgumentException(String.format("Unsupported query lookup strategy %s!", key));
         }

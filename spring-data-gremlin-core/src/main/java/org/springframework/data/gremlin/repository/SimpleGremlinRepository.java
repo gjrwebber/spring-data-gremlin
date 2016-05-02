@@ -174,7 +174,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
         }
 
         if (element != null) {
-            object = schema.loadFromGraph(element);
+            object = schema.loadFromGraph(graphAdapter, element);
         }
 
         return object;

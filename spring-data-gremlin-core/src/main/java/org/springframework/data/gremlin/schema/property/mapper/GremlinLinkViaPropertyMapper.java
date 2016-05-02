@@ -76,13 +76,14 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
     }
 
     @Override
-    public <K> Object loadFromVertex(GremlinRelatedProperty property, Vertex vertex, Map<Object, Object> cascadingSchemas) {
+    public <K> Object loadFromVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Map<Object, Object> cascadingSchemas) {
 
         //        GremlinRelatedProperty adjacentProperty = getAdjacentProperty(property);
 
         Object val = null;
         for (Edge linkedEdge : vertex.getEdges(property.getDirection(), property.getRelatedSchema().getClassName())) {
-            val = property.getRelatedSchema().cascadeLoadFromGraph(linkedEdge, cascadingSchemas);
+            graphAdapter.refresh(linkedEdge);
+            val = property.getRelatedSchema().cascadeLoadFromGraph(graphAdapter, linkedEdge, cascadingSchemas);
         }
 
         return val;

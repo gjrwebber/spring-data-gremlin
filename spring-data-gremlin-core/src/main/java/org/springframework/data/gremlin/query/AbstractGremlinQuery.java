@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.query;
 
 import org.springframework.data.gremlin.query.execution.*;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.repository.query.DefaultParameters;
 import org.springframework.data.repository.query.RepositoryQuery;
@@ -17,16 +18,19 @@ public abstract class AbstractGremlinQuery implements RepositoryQuery {
     /** The query method. */
     protected final GremlinQueryMethod method;
     protected final GremlinSchemaFactory schemaFactory;
+    protected final GremlinGraphAdapter graphAdapter;
 
     /**
      * Instantiates a new {@link AbstractGremlinQuery}.
      *
      * @param method the query method
+     * @param graphAdapter
      */
-    public AbstractGremlinQuery(GremlinSchemaFactory schemaFactory, GremlinQueryMethod method) {
+    public AbstractGremlinQuery(GremlinSchemaFactory schemaFactory, GremlinQueryMethod method, GremlinGraphAdapter graphAdapter) {
         super();
         this.schemaFactory = schemaFactory;
         this.method = method;
+        this.graphAdapter = graphAdapter;
     }
 
     /* (non-Javadoc)
@@ -99,19 +103,19 @@ public abstract class AbstractGremlinQuery implements RepositoryQuery {
         final DefaultParameters parameters = (DefaultParameters) method.getParameters();
 
         if (method.isCollectionQuery()) {
-            return new CollectionExecution(schemaFactory, parameters);
+            return new CollectionExecution(schemaFactory, parameters, graphAdapter);
         } else if (method.isPageQuery()) {
-            return new CollectionExecution(schemaFactory, parameters);
+            return new CollectionExecution(schemaFactory, parameters, graphAdapter);
         } else if (method.isQueryForEntity()) {
-            return new SingleEntityExecution(schemaFactory, parameters);
+            return new SingleEntityExecution(schemaFactory, parameters, graphAdapter);
         } else if (isModifyingQuery()) {
-            return new ModifyExecution(schemaFactory, parameters);
+            return new ModifyExecution(schemaFactory, parameters, graphAdapter);
         } else if (isCountQuery()) {
-            return new CountExecution(schemaFactory, parameters);
+            return new CountExecution(schemaFactory, parameters, graphAdapter);
         } else if (isMapQuery()) {
-            return new MapExecution(schemaFactory, parameters);
+            return new MapExecution(schemaFactory, parameters, graphAdapter);
         } else if (isCompositeQuery()) {
-            return new CompositeExecution(schemaFactory, parameters);
+            return new CompositeExecution(schemaFactory, parameters, graphAdapter);
         }
 
         throw new IllegalArgumentException();
