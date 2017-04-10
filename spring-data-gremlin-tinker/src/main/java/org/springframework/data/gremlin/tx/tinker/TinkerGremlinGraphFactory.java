@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.tx.tinker;
 
+import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,7 +19,9 @@ public class TinkerGremlinGraphFactory extends AbstractGremlinGraphFactory<Tinke
 
     @Override
     protected void createPool() {
-        graph = TinkerGraph.empty();
+        BaseConfiguration config = new BaseConfiguration();
+        config.setProperty("gremlin.tinkergraph.vertexIdManager", "LONG");
+        graph = TinkerGraph.open(config);
     }
 
     @Override

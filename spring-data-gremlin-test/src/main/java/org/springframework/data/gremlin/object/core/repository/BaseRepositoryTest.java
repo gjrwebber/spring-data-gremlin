@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 
+import static org.apache.tinkerpop.gremlin.process.traversal.P.within;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -140,7 +141,7 @@ public abstract class BaseRepositoryTest {
         ScriptEngine engine = new GremlinGroovyScriptEngine();
 
         Bindings bindings = engine.createBindings();
-        bindings.put("g", graph);
+        bindings.put("g", graph.traversal());
         bindings.put("firstName", "Jake");
 
         try {
@@ -154,9 +155,9 @@ public abstract class BaseRepositoryTest {
 
 
 
-        GraphTraversalSource source = GraphTraversalSource.build().create(graph);
+        GraphTraversalSource source = graph.traversal();
 
-        GraphTraversal<Vertex, Vertex> pipe = source.V().or(source.V().has("firstName", "Jake"), source.V().has("firstName", "Graham"));
+        GraphTraversal<Vertex, Vertex> pipe = source.V().has("firstName", within("Jake", "Graham"));
 
         assertTrue("No Jake or Graham in Pipe!", pipe.hasNext());
         while (pipe.hasNext()) {

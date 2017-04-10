@@ -94,7 +94,7 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
     public Iterable<Element> findALlVerticiesForSchema() {
         final List<Element> result = new ArrayList<>();
-        graphFactory.graph().vertices("label", schema.getClassName()).forEachRemaining(new Consumer<Vertex>() {
+        graphFactory.graph().traversal().V().hasLabel(schema.getClassName()).forEachRemaining(new Consumer<Vertex>() {
             @Override
             public void accept(Vertex vertex) {
 
@@ -106,7 +106,7 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
     public Iterable<Element> findAllEdgesForSchema() {
         final List<Element> result = new ArrayList<>();
-        graphFactory.graph().edges("label", schema.getClassName()).forEachRemaining(new Consumer<Edge>() {
+        graphFactory.graph().traversal().E().hasLabel(schema.getClassName()).forEachRemaining(new Consumer<Edge>() {
             @Override
             public void accept(Edge edge) {
                 result.add(edge);
