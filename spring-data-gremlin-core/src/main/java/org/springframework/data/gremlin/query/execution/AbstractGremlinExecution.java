@@ -55,7 +55,7 @@ public abstract class AbstractGremlinExecution {
     protected Map<String, Object> elementToMap(Element element) {
         Map<String, Object> map = new HashMap<String, Object>();
         for (String key : element.keys()) {
-            map.put(key, element.property(key));
+            map.put(key, element.value(key));
         }
         return map;
     }
