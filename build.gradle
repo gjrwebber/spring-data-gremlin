@@ -9,6 +9,8 @@ buildscript {
 
 ext {
     springVersion = "4.2.4.RELEASE"
+    gremlinVersion = "3.3.0-SNAPSHOT"
+    jacksonVersion = "2.8.8"
 }
 
 
@@ -38,21 +40,21 @@ allprojects {
     }
 
     dependencies {
-        compile('org.springframework:spring-core:${springVersion}')
-        compile('org.springframework:spring-context:${springVersion}')
-        compile('org.springframework:spring-tx:${springVersion}')
+        compile("org.springframework:spring-core:${springVersion}")
+        compile("org.springframework:spring-context:${springVersion}")
+        compile("org.springframework:spring-tx:${springVersion}")
         compile('org.springframework.data:spring-data-commons:1.10.0.RELEASE')
-        compile('org.apache.tinkerpop:gremlin-core:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:gremlin-core:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
         compile('com.carrotsearch:hppc:0.6.0')
-        compile('org.apache.tinkerpop:gremlin-driver:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:gremlin-driver:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
-        compile('org.apache.tinkerpop:gremlin-groovy:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:gremlin-groovy:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
-        compile('org.apache.tinkerpop:tinkergraph-gremlin:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:tinkergraph-gremlin:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
 
@@ -62,9 +64,9 @@ allprojects {
             exclude group: 'com.google.guava'
         }
         compile('com.google.guava:guava:15.0')
-        compile('com.fasterxml.jackson.core:jackson-core:2.8.8')
-        compile('com.fasterxml.jackson.core:jackson-parent:2.8.8')
-        compile('com.fasterxml.jackson.core:jackson-databind:2.8.8')
+        compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+        compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+        compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
         testCompile('junit:junit:4.12')
         testCompile('org.mockito:mockito-core:1.10.19')
         testCompile("org.springframework:spring-test:${springVersion}")
