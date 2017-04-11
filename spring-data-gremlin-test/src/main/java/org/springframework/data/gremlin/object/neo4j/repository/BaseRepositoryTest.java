@@ -131,7 +131,7 @@ public abstract class BaseRepositoryTest {
         assertNotNull(addresses);
         for (Vertex addr : addresses) {
             assertNotNull(addr);
-            assertTrue(addr.property("street").equals("Wilson St") || addr.property("street").equals("Scenic Dr"));
+            assertTrue(addr.value("street").equals("Wilson St") || addr.value("street").equals("Scenic Dr"));
         }
 
         ScriptEngine engine = new GremlinGroovyScriptEngine();
@@ -157,7 +157,7 @@ public abstract class BaseRepositoryTest {
         while (pipe.hasNext()) {
             Vertex obj = pipe.next();
             assertNotNull(obj);
-            assertTrue(obj.property("firstName").equals("Graham") || obj.property("firstName").equals("Jake"));
+            assertTrue(obj.value("firstName").equals("Graham") || obj.value("firstName").equals("Jake"));
         }
 
 
@@ -167,7 +167,7 @@ public abstract class BaseRepositoryTest {
         while (linkedPipe.hasNext()) {
             Vertex obj = linkedPipe.next();
             assertNotNull(obj);
-            assertTrue(obj.property("city").equals("Newcastle"));
+            assertTrue(obj.value("city").equals("Newcastle"));
         }
 
         GraphTraversal<Vertex, Edge> likesPipe = source.V().has("firstName", "Lara").inE("Likes");
@@ -177,7 +177,7 @@ public abstract class BaseRepositoryTest {
             Edge edge = likesPipe.next();
             assertNotNull(edge);
             Vertex v = edge.outVertex();
-            assertTrue(v.property("firstName").equals("Graham"));
+            assertTrue(v.value("firstName").equals("Graham"));
         }
 
         factory.commitTx(graph);
