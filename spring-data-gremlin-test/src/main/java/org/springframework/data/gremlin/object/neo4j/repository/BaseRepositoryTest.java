@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.object.neo4j.repository;
 
 import org.apache.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
@@ -150,8 +151,8 @@ public abstract class BaseRepositoryTest {
         }
 
 
-        GraphTraversalSource source = GraphTraversalSource.build().create(graph);
-        GraphTraversal<Vertex, Vertex> pipe = source.V().or(source.V().has("firstName", "Jake"), source.V().has("firstName", "Graham"));
+        GraphTraversalSource source = graph.traversal();
+        GraphTraversal<Vertex, Vertex> pipe = source.V().has("firstName", P.within( "Jake", "Graham"));
 
         assertTrue("No Jake or Graham in Pipe!", pipe.hasNext());
         while (pipe.hasNext()) {
