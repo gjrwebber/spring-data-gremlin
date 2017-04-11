@@ -1,15 +1,13 @@
 package org.springframework.data.gremlin.query.execution;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.repository.query.DefaultParameters;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * Executes the query to return a single entity.
@@ -30,22 +28,16 @@ public class SingleEntityExecution extends AbstractGremlinExecution {
     protected Object doExecute(AbstractGremlinQuery query, Object[] values) {
         Class<?> mappedType = query.getQueryMethod().getReturnedObjectType();
 
-        Iterator<Vertex> result = ((Iterable<Vertex>) query.runQuery(parameters, values)).iterator();
-        if (!result.hasNext()) {
-            return null;
-        }
+        List<Vertex> vertices = ((GraphTraversal)query.runQuery(parameters, values)).toList();
         Vertex vertex;
-        try {
-            vertex = result.next();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
-
-        if (vertex == null) {
-            return null;
-        }
-        if (result.hasNext()) {
+        if (vertices.size() > 1) {
             throw new IllegalArgumentException("The query resulted in multiple Vertices. Expected only one result for this Execution.");
+        }
+        else if(vertices.size() == 1) {
+            vertex = vertices.get(0);
+        }
+        else {
+            return null;
         }
 
         if (mappedType.isAssignableFrom(Map.class)) {
