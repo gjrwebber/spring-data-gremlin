@@ -4,6 +4,10 @@ import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Property;
+import org.apache.tinkerpop.gremlin.structure.VertexProperty;
+import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyProperty;
+import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyVertexProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
@@ -229,6 +233,12 @@ public abstract class GremlinSchema<V> {
 
                 Object val = property.loadFromVertex(element, noCascadingMap);
 
+                if (val instanceof Property) {
+                    Property prop = ((Property)val);
+                    if (prop.isPresent()) {
+                        val = ((Property) val).value();
+                    }
+                }
                 GremlinPropertyAccessor accessor = property.getAccessor();
                 try {
                     accessor.set(obj, val);
