@@ -56,7 +56,7 @@ public class NativeOrientdbGremlinQuery extends AbstractNativeGremlinQuery {
         // TODO: Hack until OLuceneSpatialIndexManager.searchIntersect handles the context
         //        if (queryString.contains("$spatial")) {
         for (String key : params.keySet()) {
-            queryString = queryString.replaceAll("\\b" + key + "\\b", convertObject(params.get(key)));
+            queryString = queryString.replaceAll("\\b" + key + "\\b", `convertObject(params.get(key)));
         }
         //        }
 

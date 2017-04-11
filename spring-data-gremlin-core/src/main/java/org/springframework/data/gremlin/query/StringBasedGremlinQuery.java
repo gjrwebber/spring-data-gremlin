@@ -44,9 +44,9 @@ public class StringBasedGremlinQuery extends AbstractGremlinQuery {
         ScriptEngine engine = new GremlinGroovyScriptEngine();
         Bindings bindings = engine.createBindings();
         Graph graph = dbf.graph();
-        bindings.put("g", graph);
-        bindings.put("graph", graph);
-        bindings.put("G", graph);
+        bindings.put("g", graph.traversal());
+        bindings.put("graph", graph.traversal());
+        bindings.put("G", graph.traversal());
 
         String queryString = this.queryString;
 

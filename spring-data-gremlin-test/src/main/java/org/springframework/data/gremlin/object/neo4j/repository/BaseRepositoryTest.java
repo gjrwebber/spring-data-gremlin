@@ -137,7 +137,7 @@ public abstract class BaseRepositoryTest {
         ScriptEngine engine = new GremlinGroovyScriptEngine();
 
         Bindings bindings = engine.createBindings();
-        bindings.put("g", graph);
+        bindings.put("g", graph.traversal());
         bindings.put("firstName", "Jake");
 
         try {
