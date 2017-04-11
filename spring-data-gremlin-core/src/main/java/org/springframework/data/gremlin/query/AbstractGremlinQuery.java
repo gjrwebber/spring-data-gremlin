@@ -127,11 +127,6 @@ public abstract class AbstractGremlinQuery implements RepositoryQuery {
      */
     protected abstract boolean isModifyingQuery();
 
-    /**
-     * @return true if this query is returning a collection like List
-     */
-    protected abstract boolean isCollectionQuery();
-
     private boolean isMapQuery() {
         return method.getReturnedObjectType().isAssignableFrom(Map.class);
     }

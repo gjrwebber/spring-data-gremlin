@@ -38,7 +38,7 @@ public class CollectionExecution extends AbstractGremlinExecution {
     protected Object doExecute(AbstractGremlinQuery query, Object[] values) {
         Class<?> mappedType = query.getQueryMethod().getReturnedObjectType();
 
-        Iterable<Element> elements = (Iterable<Element>) query.runQuery(parameters, values);
+        Iterable<Element> elements = ((GraphTraversal) query.runQuery(parameters, values)).toList();
 
         List<Object> objects = new ArrayList<Object>();
         if (mappedType.isAssignableFrom(Map.class)) {

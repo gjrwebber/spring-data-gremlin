@@ -60,8 +60,4 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
         return modifyingQuery;
     }
 
-    @Override
-    public boolean isCollectionQuery() {
-        return collectionQuery;
-    }
 }
