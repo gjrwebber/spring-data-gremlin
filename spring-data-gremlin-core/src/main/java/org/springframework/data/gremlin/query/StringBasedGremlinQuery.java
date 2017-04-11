@@ -12,6 +12,7 @@ import org.springframework.data.repository.query.ParametersParameterAccessor;
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
 import javax.script.ScriptException;
+import java.util.Collection;
 
 
 /**
@@ -29,12 +30,15 @@ public class StringBasedGremlinQuery extends AbstractGremlinQuery {
 
     private boolean modifyingQuery;
 
+    private boolean iterableQuery;
+
     public StringBasedGremlinQuery(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, String query, GremlinQueryMethod method) {
         super(schemaFactory, method);
         this.dbf = dbf;
         this.queryString = query;
         this.countQuery = method.hasAnnotatedQuery() && method.getQueryAnnotation().count();
         this.modifyingQuery = method.hasAnnotatedQuery() && method.getQueryAnnotation().modify();
+        this.iterableQuery = Collection.class.isAssignableFrom(method.getMethod().getReturnType());
     }
 
     @Override
@@ -68,6 +72,10 @@ public class StringBasedGremlinQuery extends AbstractGremlinQuery {
         Pageable pageable = accessor.getPageable();
         if (pageable != null && !ignorePaging) {
             queryString = String.format("%s[%d..%d]", queryString, pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
+        }
+
+        if(iterableQuery) {
+            queryString += ".toList()";
         }
 
         try {
