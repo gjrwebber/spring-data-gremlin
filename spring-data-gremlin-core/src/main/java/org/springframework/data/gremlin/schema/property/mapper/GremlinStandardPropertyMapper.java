@@ -4,6 +4,7 @@ import org.apache.tinkerpop.gremlin.structure.Element;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
+import org.springframework.data.gremlin.schema.property.accessor.*;
 
 import java.util.Map;
 
@@ -21,6 +22,16 @@ public class GremlinStandardPropertyMapper implements GremlinPropertyMapper<Grem
 
     @Override
     public <K> Object loadFromVertex(GremlinProperty property, Element element, Map<Object, Object> cascadingSchemas) {
-        return element.property(property.getName());
+        if (property.getAccessor() instanceof GremlinFieldPropertyAccessor) {
+            if (element.property(property.getName()).isPresent()) {
+                return element.value(property.getName());
+            }
+            else {
+                return element;
+            }
+        }
+        else {
+            return element.property(property.getName());
+        }
     }
 }
