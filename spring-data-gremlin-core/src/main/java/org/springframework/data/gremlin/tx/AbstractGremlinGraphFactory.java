@@ -184,4 +184,19 @@ public abstract class AbstractGremlinGraphFactory<T extends Graph> implements Gr
     public void setAutoCreate(boolean autoCreate) {
         this.autoCreate = autoCreate;
     }
+
+    @Override
+    public Class<? extends RuntimeException> getRetryException() {
+        return RuntimeException.class;
+    }
+
+    @Override
+    public RuntimeException getForceRetryException() {
+        return new RuntimeException("Forcing a retry.");
+    }
+
+    @Override
+    public void resumeTx(T oldGraph) {
+
+    }
 }

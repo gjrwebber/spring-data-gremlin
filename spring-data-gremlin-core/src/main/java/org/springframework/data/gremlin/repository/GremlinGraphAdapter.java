@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 
 import java.util.Iterator;
 
@@ -22,7 +23,7 @@ public class GremlinGraphAdapter<G extends Graph> {
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinGraphAdapter.class);
 
     @Autowired
-    private GremlinGraphFactory<G> graphFactory;
+    protected GremlinGraphFactory<G> graphFactory;
 
     @Transactional(readOnly = false)
     public Vertex createVertex(String className) {
@@ -62,6 +63,10 @@ public class GremlinGraphAdapter<G extends Graph> {
             playerVertex = it.next();
         }
         return playerVertex;
+    }
+
+    public Element refresh(Element element) {
+        return element;
     }
 
     @Transactional(readOnly = true)
@@ -111,6 +116,7 @@ public class GremlinGraphAdapter<G extends Graph> {
 
     @Transactional(readOnly = false)
     public Edge addEdge(Object o, Vertex outVertex, Vertex inVertex, String name) {
+        LOGGER.debug("Creating edge " + outVertex + " -> " + inVertex + "...");
         Edge edge = outVertex.addEdge(name, inVertex);
         return edge;
     }
@@ -133,4 +139,7 @@ public class GremlinGraphAdapter<G extends Graph> {
         return id;
     }
 
+    public boolean isValidId(String id) {
+        return !StringUtils.isEmpty(id);
+    }
 }

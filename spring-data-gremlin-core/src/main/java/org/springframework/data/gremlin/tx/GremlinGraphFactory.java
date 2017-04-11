@@ -57,4 +57,9 @@ public interface GremlinGraphFactory<T extends Graph> {
 
     void setMaxPoolSize(int maxPoolSize);
 
+    Class<? extends RuntimeException> getRetryException();
+
+    RuntimeException getForceRetryException();
+
+    void resumeTx(T oldGraph);
 }

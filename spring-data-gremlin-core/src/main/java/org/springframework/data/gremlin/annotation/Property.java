@@ -29,6 +29,12 @@ public @interface Property {
     String name() default "";
 
     /**
+     * If the SerialisableType is JSON, then a mixin class can be provided.
+     * @return
+     */
+    Class<?> jsonMixin() default Void.class;
+
+    /**
      * (Optional) The type used when serialising the property.
      */
     SerialisableType type() default STANDARD;

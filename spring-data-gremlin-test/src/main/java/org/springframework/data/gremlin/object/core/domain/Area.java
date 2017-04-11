@@ -5,7 +5,7 @@ import org.springframework.data.gremlin.annotation.Id;
 import org.springframework.data.gremlin.annotation.Vertex;
 
 @Vertex
-public class Area {
+public class Area extends Place {
 
     @Id
     private String id;

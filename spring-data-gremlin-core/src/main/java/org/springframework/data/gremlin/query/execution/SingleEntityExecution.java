@@ -3,6 +3,7 @@ package org.springframework.data.gremlin.query.execution;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.repository.query.DefaultParameters;
@@ -20,8 +21,8 @@ public class SingleEntityExecution extends AbstractGremlinExecution {
     /**
      * Instantiates a new {@link CountExecution}.
      */
-    public SingleEntityExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters) {
-        super(schemaFactory, parameters);
+    public SingleEntityExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters, GremlinGraphAdapter graphAdapter) {
+        super(schemaFactory, parameters, graphAdapter);
     }
 
     @Override
@@ -46,7 +47,7 @@ public class SingleEntityExecution extends AbstractGremlinExecution {
             return map;
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);
-            return mapper.loadFromGraph(vertex);
+            return mapper.loadFromGraph(graphAdapter, vertex);
 
         }
     }

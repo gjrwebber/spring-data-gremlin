@@ -3,6 +3,8 @@ package org.springframework.data.gremlin.schema.property;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.springframework.data.gremlin.annotation.Index;
 
+import java.util.Map;
+
 /**
  * Factory for {@link GremlinProperty}s.
  *
@@ -24,6 +26,10 @@ public class GremlinPropertyFactory {
 
     public <V> GremlinProperty<V> getLinkProperty(Class<V> cls, String name, Direction direction) {
         return new GremlinLinkProperty<V>(cls, name, direction);
+    }
+
+    public <V extends Map> GremlinProperty<V> getDynamicProperty(Class<V> cls, String name, String relatedClassName, Direction direction) {
+        return new GremlinDynamicProperty<V>(cls, name, relatedClassName, direction);
     }
 
     public <V> GremlinProperty<V> getLinkViaProperty(Class<V> cls, String name, Direction direction) {

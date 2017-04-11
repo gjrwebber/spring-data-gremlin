@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.object.core.repository;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +12,8 @@ import org.springframework.data.gremlin.object.core.domain.*;
 import java.util.*;
 
 import static org.junit.Assert.*;
+import static org.springframework.util.Assert.isNull;
+import static org.springframework.util.Assert.notNull;
 
 @SuppressWarnings("SpringJavaAutowiringInspection")
 public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
@@ -306,6 +309,44 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
     }
 
     @Test
+    public void noCascadeInLink() {
+        Location location = new Location(23, 171);
+        location.setArea(new Area("TestArea"));
+        location = locationRepository.save(location);
+
+        location = locationRepository.findOne(location.getId());
+        notNull(location);
+        // Area should not be null as the vertex will be created, but the contents should be empty since properties should not be cascaded.
+        notNull(location.getArea());
+        isNull(location.getArea().getName());
+    }
+
+    @Test
+    public void overrideCascadeInLinkWithSystemProperty() {
+        System.setProperty("sdg-cascade-all", "true");
+        Location location = new Location(23, 171);
+        location.setArea(new Area("TestArea"));
+        location = locationRepository.save(location);
+
+        location = locationRepository.findOne(location.getId());
+        notNull(location);
+        notNull(location.getArea());
+        assertEquals("TestArea", location.getArea().getName());
+        System.setProperty("sdg-cascade-all", "false");
+    }
+
+    @Test
+    public void overrideCascadeOutLink() {
+        Person person = repository.findByAddress_Area_Name("2043").get(0);
+        assertEquals("2043", person.getAddress().getArea().getName());
+        person.getAddress().getArea().setName("9999");
+        repository.save(person, person.getAddress());
+        assertEquals(0, repository.findByAddress_Area_Name("9999").size());
+        assertEquals(1, repository.findByAddress_Area_Name("2043").size());
+    }
+
+
+    @Test
     public void testLocations() {
         Person graham = repository.findByFirstName("Graham").get(0);
         assertNotNull(graham);
@@ -531,4 +572,91 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         assertTrue("TOC was not serialized properly", toc);
     }
 
+    @Test
+    public void shouldContainLikes() throws Exception {
+        Person graham = repository.findByFirstName("Graham").get(0);
+        assertEquals(2, graham.getLikes().size());
+    }
+
+    @Test
+    public void shouldRemoveLikes() throws Exception {
+
+        // Sanity check
+        List<Likes> allLikes = new ArrayList<>();
+        CollectionUtils.addAll(allLikes, likesRepository.findAll());
+        assertEquals(5, allLikes.size());
+
+        Person graham = repository.findByFirstName("Graham").get(0);
+        Likes like = graham.getLikes().iterator().next();
+        graham.getLikes().remove(like);
+        repository.save(graham);
+
+        graham = repository.findByFirstName("Graham").get(0);
+
+        assertEquals(1, graham.getLikes().size());
+
+        allLikes.clear();
+        CollectionUtils.addAll(allLikes, likesRepository.findAll());
+        assertEquals(4, allLikes.size());
+    }
+
+
+    @Test
+    public void saveDynamicMap() {
+        Person person = new Person("Sasa", "Brown");
+
+        Map<String, Object> randoms = new HashMap();
+        randoms.put("date", new Date());
+        randoms.put("boo", true);
+        randoms.put("status", 1);
+        randoms.put("hello", null);
+
+        person.setRandoms(randoms);
+
+        String id = repository.save(person).getId();
+
+        Person result = repository.findOne(id);
+
+        assertEquals(result.getFirstName(), person.getFirstName());
+        assertEquals(result.getLastName(), person.getLastName());
+        assertNotNull(result.getRandoms());
+        assertEquals(4, result.getRandoms().size()); // 4 = - hello + _id_
+    }
+
+
+    @Test
+    public void saveDynamicMap_and_RemoveOldProperty() {
+        Person person = new Person("Sasa", "Brown");
+
+        Map<String, Object> randoms = new HashMap();
+        randoms.put("date", new Date());
+        randoms.put("boo", true);
+        randoms.put("status", 1);
+        randoms.put("hello", null);
+        person.setRandoms(randoms);
+
+        Map<String, Object> other = new HashMap();
+        other.put("hello", "world");
+        person.setOtherStuff(other);
+
+        String id = repository.save(person).getId();
+
+        Person result = repository.findOne(id);
+
+        assertNotNull(result.getRandoms());
+        assertEquals(4, result.getRandoms().size());
+        assertNotNull(result.getOtherStuff());
+        assertEquals(2, result.getOtherStuff().size());
+
+        result.getRandoms().remove("status");
+
+        repository.save(result);
+
+        result = repository.findOne(id);
+
+        assertNotNull(result.getRandoms());
+        assertEquals(3, result.getRandoms().size());
+        assertNotNull(result.getOtherStuff());
+        assertEquals(2, result.getOtherStuff().size());
+    }
 }

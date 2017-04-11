@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.support;
 
-import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
+import org.springframework.data.gremlin.schema.property.accessor.GremlinIdPropertyAccessor;
 import org.springframework.data.repository.core.support.AbstractEntityInformation;
 
 /**
@@ -11,9 +11,9 @@ import org.springframework.data.repository.core.support.AbstractEntityInformatio
  */
 public class GremlinMetamodelEntityInformation<T> extends AbstractEntityInformation<T, String> {
 
-    private GremlinFieldPropertyAccessor<String> idAccessor;
+    private GremlinIdPropertyAccessor idAccessor;
 
-    public GremlinMetamodelEntityInformation(Class<T> domainClass, GremlinFieldPropertyAccessor<String> idAccessor) {
+    public GremlinMetamodelEntityInformation(Class<T> domainClass, GremlinIdPropertyAccessor idAccessor) {
         super(domainClass);
         this.idAccessor = idAccessor;
     }

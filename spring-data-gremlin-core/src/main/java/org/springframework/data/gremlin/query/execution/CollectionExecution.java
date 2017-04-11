@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.query.CompositeResult;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.utils.GenericsUtil;
@@ -26,13 +27,13 @@ public class CollectionExecution extends AbstractGremlinExecution {
     /**
      * Instantiates a new {@link org.springframework.data.gremlin.query.execution.CollectionExecution}.
      */
-    public CollectionExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters) {
-        super(schemaFactory, parameters);
+    public CollectionExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters, GremlinGraphAdapter graphAdapter) {
+        super(schemaFactory, parameters, graphAdapter);
     }
 
     /* (non-Javadoc)
-     * @see org.springframework.data.orient.repository.object.query.OrientQueryExecution#doExecute(org.springframework.data.orient.repository.object.query.AbstractOrientQuery, java.lang.Object[])
-     */
+         * @see org.springframework.data.orient.repository.object.query.OrientQueryExecution#doExecute(org.springframework.data.orient.repository.object.query.AbstractOrientQuery, java.lang.Object[])
+         */
     @Override
     @SuppressWarnings("unchecked")
     protected Object doExecute(AbstractGremlinQuery query, Object[] values) {
@@ -56,7 +57,7 @@ public class CollectionExecution extends AbstractGremlinExecution {
         ParametersParameterAccessor accessor = new ParametersParameterAccessor(parameters, values);
         Pageable pageable = accessor.getPageable();
         if (pageable != null) {
-            long total = (Long) new CountExecution(schemaFactory, parameters).doExecute(query, values);
+            long total = (Long) new CountExecution(schemaFactory, parameters, graphAdapter).doExecute(query, values);
             return new PageImpl<Object>(objects, pageable, total);
         }
 
@@ -75,14 +76,14 @@ public class CollectionExecution extends AbstractGremlinExecution {
 
         for (Element element : elements) {
             Map<String, Object> map = elementToMap(element);
-            Object entity = mapper.loadFromGraph(element);
+            Object entity = mapper.loadFromGraph(graphAdapter, element);
             resultList.add(new CompositeResult<Object>(entity, map));
         }
     }
 
     private void buildEntityList(GremlinSchema mapper, Iterable<Element> elements, List<Object> objects) {
         for (Element element : elements) {
-            objects.add(mapper.loadFromGraph(element));
+            objects.add(mapper.loadFromGraph(graphAdapter, element));
         }
     }
 }

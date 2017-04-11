@@ -67,6 +67,10 @@ public abstract class BaseRepositoryTest {
     protected Person graham;
 
     protected Person lara;
+    protected Person jake;
+
+    protected Person vanja;
+    protected Person sandra;
 
     @Before
     public void before() {
@@ -120,13 +124,29 @@ public abstract class BaseRepositoryTest {
         graham.setLocations(locations);
         graham.setCurrentLocation(locations.iterator().next());
         repository.save(graham);
-        repository.save(new Person("Vanja", "Ivanovic", address, true));
+        vanja = new Person("Vanja", "Ivanovic", address, true);
+        repository.save(vanja);
         repository.save(lara);
-        repository.save(new Person("Jake", "Webber", address, false));
-        repository.save(new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false));
+        jake = new Person("Jake", "Webber", address, false);
+        repository.save(jake);
+        sandra = new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false);
+        repository.save(sandra);
+//        Graph graph = factory.graph();
 
-        Likes like = new Likes(graham, lara);
-        likesRepository.save(like);
+        Likes like1 = new Likes(graham, lara);
+        likesRepository.save(like1);
+
+        Likes like2 = new Likes(graham, jake);
+        likesRepository.save(like2);
+
+        Likes like3 = new Likes(vanja, lara);
+        likesRepository.save(like3);
+
+        Likes like4 = new Likes(vanja, jake);
+        likesRepository.save(like4);
+
+        Likes like5 = new Likes(vanja, graham);
+        likesRepository.save(like5);
 
         List<Vertex> addresses = graph.traversal().V().has("street").toList();
         assertNotNull(addresses);
@@ -172,7 +192,9 @@ public abstract class BaseRepositoryTest {
         while (linkedPipe.hasNext()) {
             Vertex obj = linkedPipe.next();
             assertNotNull(obj);
-            assertTrue(obj.value("city").toString().equals("Newcastle"));
+            Edge edge = (Edge)obj;
+            Vertex v = edge.outVertex();
+            assertTrue(v.value("firstName").equals("Graham") || v.value("firstName").equals("Vanja"));
         }
 
         GraphTraversal<Vertex, Edge> likesPipe = source.V().has("firstName", "Lara").inE("Likes");

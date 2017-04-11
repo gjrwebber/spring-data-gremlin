@@ -113,8 +113,8 @@ public class GremlinProperty<C> {
         propertyMapper.copyToVertex(this, graphAdapter, element, val, cascadingSchemas);
     }
 
-    public <V> Object loadFromVertex(Element element, Map<GremlinSchema, V> cascadingSchemas) {
-        return propertyMapper.loadFromVertex(this, element, cascadingSchemas);
+    public <V> Object loadFromVertex(GremlinGraphAdapter graphAdapter, Element element, Map<GremlinSchema, V> cascadingSchemas) {
+        return propertyMapper.loadFromVertex(this, graphAdapter, element, cascadingSchemas);
     }
 
     //    @Override

@@ -2,14 +2,16 @@ package org.springframework.data.gremlin.object.core.domain;
 
 import org.springframework.data.gremlin.annotation.*;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import static org.apache.tinkerpop.gremlin.structure.Direction.OUT;
 import static org.springframework.data.gremlin.annotation.Enumerated.EnumeratedType.STRING;
 
 @Vertex
-public class Person {
+public class Person extends Bipod<Area> {
 
     public enum AWESOME {
         YES,
@@ -24,9 +26,6 @@ public class Person {
         HOVERCRAFT,
         SPACESHIP
     }
-
-    @Id
-    private String id;
 
     private String firstName;
 
@@ -59,10 +58,17 @@ public class Person {
 
     private Set<House> owned;
 
-    @Property(type = Property.SerialisableType.JSON)
+    @Property(type = Property.SerialisableType.JSON, jsonMixin = PetMxin.class)
     private Set<Pet> pets;
 
+    @Property(type = Property.SerialisableType.JSON, jsonMixin = PetMxin.class)
     private Pet favouritePet;
+
+    @Dynamic(name="Randoms", linkName = "has_random")
+    private Map<String, Object> randoms;
+
+    @Dynamic(name = "OtherStuff", linkName = "has_other_stuff")
+    private Map<String, Object> otherStuff;
 
     public Person() {
     }
@@ -73,6 +79,10 @@ public class Person {
     }
 
     public Person(String firstName, String lastName, Address address, Boolean active) {
+        this(firstName, lastName, address, active, new HashMap<String, Object>());
+    }
+
+    public Person(String firstName, String lastName, Address address, Boolean active, Map<String, Object> randoms) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.address = address;
@@ -80,14 +90,7 @@ public class Person {
         if (address != null) {
             address.getPeople().add(this);
         }
-    }
-
-    public String getId() {
-        return id;
-    }
-
-    public void setId(String id) {
-        this.id = id;
+        this.randoms = randoms;
     }
 
     public String getFirstName() {
@@ -205,10 +208,25 @@ public class Person {
         this.favouritePet = favouritePet;
     }
 
+    public Map<String, Object> getRandoms() {
+        return randoms;
+    }
+
+    public void setRandoms(Map<String, Object> randoms) {
+        this.randoms = randoms;
+    }
+
+    public Map<String, Object> getOtherStuff() {
+        return otherStuff;
+    }
+
+    public void setOtherStuff(Map<String, Object> otherStuff) {
+        this.otherStuff = otherStuff;
+    }
+
     @Override
     public String toString() {
         final StringBuilder sb = new StringBuilder("Person{");
-        sb.append("id='").append(id).append('\'');
         sb.append(", firstName='").append(firstName).append('\'');
         sb.append(", lastName='").append(lastName).append('\'');
         sb.append(", active=").append(active);
@@ -228,9 +246,6 @@ public class Person {
 
         Person person = (Person) o;
 
-        if (id != null ? !id.equals(person.id) : person.id != null) {
-            return false;
-        }
         if (firstName != null ? !firstName.equals(person.firstName) : person.firstName != null) {
             return false;
         }
@@ -246,7 +261,7 @@ public class Person {
 
     @Override
     public int hashCode() {
-        int result = id != null ? id.hashCode() : 0;
+        int result = 10;
         result = 31 * result + (firstName != null ? firstName.hashCode() : 0);
         result = 31 * result + (lastName != null ? lastName.hashCode() : 0);
         result = 31 * result + (active != null ? active.hashCode() : 0);

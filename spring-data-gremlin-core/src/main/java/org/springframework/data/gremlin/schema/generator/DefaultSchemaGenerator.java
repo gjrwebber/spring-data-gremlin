@@ -1,7 +1,7 @@
 package org.springframework.data.gremlin.schema.generator;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.tinkerpop.gremlin.structure.Direction;
-import org.apache.commons.lang3.ClassUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.annotation.AnnotationUtils;
@@ -32,12 +32,24 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         super();
     }
 
+    public DefaultSchemaGenerator(ObjectMapper objectMapper) {
+        super(objectMapper);
+    }
+
     public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder) {
         super(idEncoder);
     }
 
+    public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, ObjectMapper objectMapper) {
+        super(idEncoder, objectMapper);
+    }
+
     public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, GremlinPropertyFactory propertyFactory) {
         super(idEncoder, propertyFactory);
+    }
+
+    public DefaultSchemaGenerator(GremlinPropertyEncoder idEncoder, GremlinPropertyFactory propertyFactory, ObjectMapper objectMapper) {
+        super(idEncoder, propertyFactory, objectMapper);
     }
 
     protected Index.IndexType getIndexType(Field field) {
@@ -133,7 +145,8 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         return false;
     }
 
-    protected String getPropertyName(Field field, Field rootEmbeddedField) {
+    @Override
+    protected String getPropertyName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
         Property property = AnnotationUtils.getAnnotation(field, Property.class);
 
         if (rootEmbeddedField != null) {
@@ -166,11 +179,25 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
                             annotationName = !StringUtils.isEmpty(relatedToVia.value()) ? relatedToVia.value() : relatedToVia.name();
                         }
                     }
+                } else {
+                    Dynamic dynamic = AnnotationUtils.getAnnotation(field, Dynamic.class);
+                    if (dynamic != null) {
+                        annotationName = dynamic.linkName();
+                    }
                 }
             }
         }
 
-        String propertyName = !StringUtils.isEmpty(annotationName) ? annotationName : super.getPropertyName(field, rootEmbeddedField);
+        String propertyName;
+        if (!StringUtils.isEmpty(annotationName)) {
+            if (field.getDeclaringClass() != schemaClass) {
+                propertyName = String.format("%s_%s", schemaClass.getSimpleName().toLowerCase(), annotationName);
+            } else {
+                propertyName = annotationName;
+            }
+        } else {
+            propertyName = super.getPropertyName(field, rootEmbeddedField, schemaClass);
+        }
 
         return propertyName;
     }
@@ -188,6 +215,20 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
             }
         }
         return propertyOverride;
+    }
+
+    @Override
+    protected String getDynamicClassName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
+        String dynamicClassName = super.getDynamicClassName(field, rootEmbeddedField, schemaClass);
+        Dynamic dynamicAnnotation = AnnotationUtils.getAnnotation(field, Dynamic.class);
+        if (dynamicAnnotation != null) {
+            if (!StringUtils.isEmpty(dynamicAnnotation.name())) {
+                dynamicClassName = dynamicAnnotation.name();
+            } else if(!StringUtils.isEmpty(dynamicAnnotation.value())) {
+                dynamicClassName = dynamicAnnotation.value();
+            }
+        }
+        return dynamicClassName;
     }
 
     private PropertyOverride checkPropertyOverride(Field embeddedField, Field field) {
@@ -216,18 +257,31 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     }
 
     @Override
-    protected boolean isSerialisableField(Class<?> cls, Field field) {
+    protected Class<?> getJsonMixin(Field field) {
+        Property property = field.getAnnotation(Property.class);
+        if (property != null) {
+            return property.jsonMixin();
+        }
+        return null;
+    }
+
+    @Override
+    protected boolean isSerialisableField(Class<?> cls, Field field, GremlinSchema schema) {
         Property property = field.getAnnotation(Property.class);
         if (property != null) {
             return property.type() == Property.SerialisableType.SERIALIZABLE;
         }
 
-        return super.isSerialisableField(cls, field);
+        return super.isSerialisableField(cls, field, schema);
     }
 
     @Override
     protected boolean isEmbeddedField(Class<?> cls, Field field) {
         return super.isEmbeddedField(cls, field) && AnnotationUtils.getAnnotation(field, Embed.class) != null;
+    }
+
+    protected boolean isDynamicVertex(Class<?> cls, Field field) {
+        return super.isDynamicVertex(cls, field) && AnnotationUtils.getAnnotation(field, Dynamic.class) != null;
     }
 
     @Override
@@ -275,13 +329,13 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
     }
 
     @Override
-    protected boolean isCollectionField(Class<?> cls, Field field) {
-        return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, Link.class) != null;
+    protected boolean isCollectionField(Class<?> cls, Field field, GremlinSchema schema) {
+        return super.isCollectionField(cls, field, schema) && AnnotationUtils.getAnnotation(field, Link.class) != null;
     }
 
     @Override
-    protected boolean isCollectionViaField(Class<?> cls, Field field) {
-        return super.isCollectionViaField(cls, field) && AnnotationUtils.getAnnotation(field, LinkVia.class) != null;
+    protected boolean isCollectionViaField(Class<?> cls, Field field, GremlinSchema schema) {
+        return super.isCollectionViaField(cls, field, schema) && AnnotationUtils.getAnnotation(field, LinkVia.class) != null;
     }
 
     /**

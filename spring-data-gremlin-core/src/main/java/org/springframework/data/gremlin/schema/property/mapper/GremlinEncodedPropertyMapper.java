@@ -35,8 +35,8 @@ public class GremlinEncodedPropertyMapper extends GremlinStandardPropertyMapper 
     }
 
     @Override
-    public <K> Object loadFromVertex(GremlinProperty property, Element element, Map<Object, Object> cascadingSchemas) {
-        Object id = super.loadFromVertex(property, element, cascadingSchemas);
+    public <K> Object loadFromVertex(GremlinProperty property, GremlinGraphAdapter graphAdapter, Element element, Map<Object, Object> cascadingSchemas) {
+        Object id = super.loadFromVertex(property, graphAdapter, element, cascadingSchemas);
         if (propertyEncoder != null) {
             id = propertyEncoder.encode(id);
         }

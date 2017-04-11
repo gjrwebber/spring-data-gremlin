@@ -27,6 +27,8 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
     @Test
     public void should_save_simple_edge() throws Exception {
         Likes likes = new Likes(graham, lara);
+        graham.getLikes().add(likes);
+        lara.getLikes().add(likes);
         likesRepository.save(likes);
 
         List<Likes> allLikes = new ArrayList<Likes>();
@@ -66,6 +68,7 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
     @Test
     public void should_save_edge() throws Exception {
         Located located = new Located(new Date(), graham, locationRepository.save(new Location(35, 165)));
+        graham.getLocations().add(located);
         locatedRepository.save(located);
 
         List<Located> newLocated = new ArrayList<Located>();

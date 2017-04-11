@@ -12,13 +12,19 @@ import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinIdFieldPropertyAccessor;
+import org.springframework.data.gremlin.schema.property.accessor.GremlinIdPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
 import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.utils.GenericsUtil;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
+import java.lang.reflect.Field;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.*;
 
 
@@ -49,7 +55,7 @@ public abstract class GremlinSchema<V> {
     private Class<V> classType;
     private GremlinRepository<V> repository;
     private GremlinGraphFactory graphFactory;
-    private GremlinIdFieldPropertyAccessor idAccessor;
+    private GremlinIdPropertyAccessor idAccessor;
     private GremlinPropertyMapper idMapper;
     private GremlinPropertyEncoder idEncoder;
 
@@ -73,7 +79,9 @@ public abstract class GremlinSchema<V> {
         }
         properties.add(property);
         propertyMap.put(property.getName(), property);
-        fieldToPropertyMap.put(property.getAccessor().getField().getName(), property);
+        if (property.getAccessor() instanceof GremlinFieldPropertyAccessor) {
+            fieldToPropertyMap.put(((GremlinFieldPropertyAccessor) property.getAccessor()).getField().getName(), property);
+        }
         typePropertyMap.put(property.getType(), property);
     }
 
@@ -113,11 +121,11 @@ public abstract class GremlinSchema<V> {
         this.idEncoder = idEncoder;
     }
 
-    public GremlinIdFieldPropertyAccessor getIdAccessor() {
+    public GremlinIdPropertyAccessor getIdAccessor() {
         return idAccessor;
     }
 
-    public void setIdAccessor(GremlinIdFieldPropertyAccessor idAccessor) {
+    public void setIdAccessor(GremlinIdPropertyAccessor idAccessor) {
         this.idAccessor = idAccessor;
     }
 
@@ -185,7 +193,7 @@ public abstract class GremlinSchema<V> {
         cascadeCopyToGraph(graphAdapter, element, obj, new HashMap<Object, Element>());
     }
 
-    public void cascadeCopyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj, Map<Object, Element> noCascadingMap) {
+    public void cascadeCopyToGraph(GremlinGraphAdapter graphAdapter, Element element, final Object obj, Map<Object, Element> noCascadingMap) {
 
         if (noCascadingMap.containsKey(obj)) {
             return;
@@ -206,14 +214,24 @@ public abstract class GremlinSchema<V> {
                 LOGGER.warn(String.format("Could not save property %s of %s", property, obj.toString()), e);
             }
         }
+
+        if (getGraphId(obj) == null && TransactionSynchronizationManager.isSynchronizationActive()) {
+            final Element finalElement = element;
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    setObjectId(obj, finalElement);
+                }
+            });
+        }
     }
 
-    public V loadFromGraph(Element element) {
+    public V loadFromGraph(GremlinGraphAdapter graphAdapter, Element element) {
 
-        return cascadeLoadFromGraph(element, new HashMap<>());
+        return cascadeLoadFromGraph(graphAdapter, element, new HashMap<>());
     }
 
-    public V cascadeLoadFromGraph(Element element, Map<Object, Object> noCascadingMap) {
+    public V cascadeLoadFromGraph(GremlinGraphAdapter graphAdapter, Element element, Map<Object, Object> noCascadingMap) {
 
         V obj = (V) noCascadingMap.get(element.id());
         if (obj == null) {
@@ -227,7 +245,8 @@ public abstract class GremlinSchema<V> {
                 throw new IllegalStateException("Could not instantiate new " + getClassType(), e);
             }
             for (GremlinProperty property : getProperties()) {
-                Object val = property.loadFromVertex(element, noCascadingMap);
+                Object val = property.loadFromVertex(graphAdapter, element, noCascadingMap);
+
                 GremlinPropertyAccessor accessor = property.getAccessor();
                 if (val instanceof EmptyVertexProperty || val instanceof EmptyProperty) {
                     continue;
@@ -260,11 +279,11 @@ public abstract class GremlinSchema<V> {
         return decodeId(getIdAccessor().get(obj));
     }
 
-    public void setObjectId(V obj, Element element) {
+    public void setObjectId(Object obj, Element element) {
         getIdAccessor().set(obj, encodeId(element.id().toString()));
     }
 
-    public String getObjectId(V obj) {
+    public String getObjectId(Object obj) {
         String id = getIdAccessor().get(obj);
         if (id != null) {
             return decodeId(id);

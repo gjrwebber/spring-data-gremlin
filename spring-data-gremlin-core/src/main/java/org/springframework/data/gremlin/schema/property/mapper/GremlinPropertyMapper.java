@@ -14,7 +14,9 @@ import java.util.Map;
  */
 public interface GremlinPropertyMapper<E extends GremlinProperty, V extends Element> {
 
+    String CASCADE_ALL_KEY = "sdg-cascade-all";
+
     void copyToVertex(E property, GremlinGraphAdapter graphAdapter, V element, Object val, Map<Object, Object> cascadingSchemas);
 
-    <K> Object loadFromVertex(E property, V element, Map<Object, Object> cascadingSchemas);
+    <K> Object loadFromVertex(E property, GremlinGraphAdapter graphAdapter, V element, Map<Object, Object> cascadingSchemas);
 }

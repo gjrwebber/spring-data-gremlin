@@ -3,6 +3,7 @@ package org.springframework.data.gremlin.query.execution;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.query.CompositeResult;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.utils.GenericsUtil;
@@ -25,10 +26,13 @@ public abstract class AbstractGremlinExecution {
 
     protected final GremlinSchemaFactory schemaFactory;
 
-    public AbstractGremlinExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters) {
+    protected final GremlinGraphAdapter graphAdapter;
+
+    public AbstractGremlinExecution(GremlinSchemaFactory schemaFactory, DefaultParameters parameters, GremlinGraphAdapter graphAdapter) {
         super();
         this.schemaFactory = schemaFactory;
         this.parameters = parameters;
+        this.graphAdapter = graphAdapter;
     }
 
     /**
@@ -78,13 +82,13 @@ public abstract class AbstractGremlinExecution {
                 Map<String, Object> map = elementToMap(element);
                 Class<?> type = GenericsUtil.getGenericType(query.getQueryMethod().getMethod());
                 GremlinSchema mapper = schemaFactory.getSchema(type);
-                Object entity = mapper.loadFromGraph(element);
+                Object entity = mapper.loadFromGraph(graphAdapter, element);
                 objects.add(new CompositeResult<Object>(entity, map));
             }
         } else {
             GremlinSchema mapper = schemaFactory.getSchema(mappedType);
             for (Element element : result) {
-                objects.add(mapper.loadFromGraph(element));
+                objects.add(mapper.loadFromGraph(graphAdapter, element));
             }
         }
         return objects;

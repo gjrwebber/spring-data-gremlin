@@ -8,6 +8,7 @@ import org.springframework.data.gremlin.repository.GremlinRepositoryContext;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinIdFieldPropertyAccessor;
+import org.springframework.data.gremlin.schema.property.accessor.GremlinIdPropertyAccessor;
 import org.springframework.data.gremlin.schema.writer.SchemaWriter;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.repository.core.EntityInformation;
@@ -52,14 +53,10 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
     @SuppressWarnings("unchecked")
     public <T, ID extends Serializable> EntityInformation<T, ID> getEntityInformation(Class<T> domainClass) {
         GremlinSchema schema = schemaFactory.getSchema(domainClass);
-        GremlinIdFieldPropertyAccessor idAccessor = schema.getIdAccessor();
+        GremlinIdPropertyAccessor idAccessor = schema.getIdAccessor();
         return (EntityInformation<T, ID>) new GremlinMetamodelEntityInformation<T>(domainClass, idAccessor);
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getTargetRepository(org.springframework.data.repository.core.RepositoryMetadata)
-     */
-    @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
     protected Object getTargetRepository(RepositoryMetadata metadata) {
         EntityInformation<?, Serializable> entityInformation = getEntityInformation(metadata.getDomainType());
@@ -96,7 +93,7 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
      */
     @Override
     protected QueryLookupStrategy getQueryLookupStrategy(Key key, EvaluationContextProvider provider) {
-        return GremlinQueryLookupStrategy.create(dbf, schemaFactory, nativeQueryType, key);
+        return GremlinQueryLookupStrategy.create(dbf, schemaFactory, graphAdapter, nativeQueryType, key);
     }
 
 }

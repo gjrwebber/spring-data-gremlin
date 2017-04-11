@@ -1,6 +1,6 @@
 dependencies {
     compile('org.mockito:mockito-core:1.10.8')
-    compile('org.springframework:spring-test:4.1.6.RELEASE')
+    compile("org.springframework:spring-test:${springVersion}")
     compile('junit:junit:4.12')
     compile('org.hibernate.javax.persistence:hibernate-jpa-2.1-api:1.0.0.Final')
     compile('org.springframework.data:spring-data-neo4j:3.3.2.RELEASE')

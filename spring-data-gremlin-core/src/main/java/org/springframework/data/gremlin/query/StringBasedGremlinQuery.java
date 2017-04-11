@@ -3,6 +3,7 @@ package org.springframework.data.gremlin.query;
 import org.apache.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.repository.query.DefaultParameters;
@@ -29,8 +30,8 @@ public class StringBasedGremlinQuery extends AbstractGremlinQuery {
 
     private boolean modifyingQuery;
 
-    public StringBasedGremlinQuery(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, String query, GremlinQueryMethod method) {
-        super(schemaFactory, method);
+    public StringBasedGremlinQuery(GremlinGraphFactory dbf, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter, String query, GremlinQueryMethod method) {
+        super(schemaFactory, method, graphAdapter);
         this.dbf = dbf;
         this.queryString = query;
         this.countQuery = method.hasAnnotatedQuery() && method.getQueryAnnotation().count();

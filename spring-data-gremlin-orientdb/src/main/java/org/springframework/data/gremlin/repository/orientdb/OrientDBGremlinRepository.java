@@ -1,9 +1,10 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Vertex;
+
 import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -70,7 +71,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
         int offset = pageable.getOffset() + pageable.getPageSize();
         for (Element element : findAllElementsForSchema()) {
             if (total >= prevOffset && total < offset) {
-                result.add(schema.loadFromGraph(element));
+                result.add(schema.loadFromGraph(graphAdapter, element));
             }
             total++;
         }
@@ -84,7 +85,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
         List<T> result = new ArrayList<T>();
         for (Element edge : findAllElementsForSchema()) {
-            result.add(schema.loadFromGraph(edge));
+            result.add(schema.loadFromGraph(graphAdapter, edge));
         }
         return result;
 

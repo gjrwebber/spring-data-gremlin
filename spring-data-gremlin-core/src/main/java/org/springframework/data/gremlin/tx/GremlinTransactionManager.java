@@ -21,6 +21,8 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinTransactionManager.class);
+    private static final int RETRY_DELAY = Integer.getInteger("sdg-retry-delay", 50);
+    private static final int MAX_RETRY = Integer.getInteger("sdg-max-retry", 10);
 
     private GremlinGraphFactory graphFactory;
 
@@ -85,7 +87,31 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
 
         LOGGER.debug("committing transaction, db.hashCode() = {}", graph.hashCode());
 
-        graphFactory.commitTx(graph);
+//        int attempts = 0;
+//        while (attempts++ < MAX_RETRY) {
+//            try {
+                graphFactory.commitTx(graph);
+
+//                if (attempts > 1) {
+//                    LOGGER.info("Commit successful after " + attempts + " attempts.");
+//                }
+//                break;
+//            } catch (RuntimeException e) {
+//                if (graphFactory.getRetryException().isAssignableFrom(e.getClass())) {
+//                    LOGGER.warn("Attempted to commit Tx " + attempts + " out of " + MAX_RETRY + " times. Waiting " + RETRY_DELAY + "ms before trying again. Error: "+e.getMessage());
+//                } else {
+//                    LOGGER.error("Could not commit tx: " + e.getMessage(), e);
+//                    throw e;
+//                }
+//            }
+//
+//            try {
+//                Thread.sleep(RETRY_DELAY);
+//            } catch (InterruptedException e1) {
+//                e1.printStackTrace();
+//            }
+//        }
+
     }
 
     /* (non-Javadoc)
@@ -147,6 +173,8 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
 
         Graph oldGraph = (Graph) suspendedResources;
         TransactionSynchronizationManager.bindResource(graphFactory, oldGraph);
+
+        graphFactory.resumeTx(oldGraph);
     }
 
     /* (non-Javadoc)

@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.schema.generator;
 
 import org.springframework.data.gremlin.schema.GremlinSchema;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -12,6 +13,8 @@ import java.util.Set;
 public interface SchemaGenerator {
 
     <V> GremlinSchema<V> generateSchema(Class<V> clazz) throws SchemaGeneratorException;
+
+    <V> GremlinSchema<V> generateDynamicSchema(String className, Class<? extends Map> mapType);
 
     void setVertexClasses(Set<Class<?>> entities);
 

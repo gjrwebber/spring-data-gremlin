@@ -14,6 +14,4 @@ public interface GremlinPropertyAccessor<V> {
     V get(Object object);
 
     void set(Object object, V val);
-
-    Field getField();
 }

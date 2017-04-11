@@ -65,7 +65,7 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
         int offset = pageable.getOffset() + pageable.getPageSize();
         for (Element element : findAllElementsForSchema()) {
             if (total >= prevOffset && total < offset) {
-                result.add(schema.loadFromGraph(element));
+                result.add(schema.loadFromGraph(graphAdapter, element));
             }
             total++;
         }
@@ -76,7 +76,7 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public Iterable<T> findAll() {
         List<T> result = new ArrayList<T>();
         for (Element edge : findAllElementsForSchema()) {
-            result.add(schema.loadFromGraph(edge));
+            result.add(schema.loadFromGraph(graphAdapter, edge));
         }
         return result;
     }

@@ -3,6 +3,7 @@ package org.springframework.data.gremlin.schema.generator;
 import org.neo4j.graphdb.Direction;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.gremlin.annotation.Index;
+import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.neo4j.annotation.*;
 import org.springframework.util.ReflectionUtils;
 import org.springframework.util.StringUtils;
@@ -78,8 +79,8 @@ public class Neo4jSchemaGenerator extends BasicSchemaGenerator implements Annota
     }
 
     @Override
-    protected String getPropertyName(Field field, Field rootEmbeddedField) {
-        String name = super.getPropertyName(field, rootEmbeddedField);
+    protected String getPropertyName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
+        String name = super.getPropertyName(field, rootEmbeddedField, schemaClass);
 
         // If annotated with @GraphProperty, use the propertyName parameter of the annotation
         GraphProperty graphProperty = AnnotationUtils.getAnnotation(field, GraphProperty.class);
@@ -192,13 +193,13 @@ public class Neo4jSchemaGenerator extends BasicSchemaGenerator implements Annota
     }
 
     @Override
-    protected boolean isCollectionField(Class<?> cls, Field field) {
-        return super.isCollectionField(cls, field) && AnnotationUtils.getAnnotation(field, RelatedTo.class) != null;
+    protected boolean isCollectionField(Class<?> cls, Field field, GremlinSchema schema) {
+        return super.isCollectionField(cls, field, schema) && AnnotationUtils.getAnnotation(field, RelatedTo.class) != null;
     }
 
     @Override
-    protected boolean isCollectionViaField(Class<?> cls, Field field) {
-        return super.isCollectionViaField(cls, field) && AnnotationUtils.getAnnotation(field, RelatedToVia.class) != null;
+    protected boolean isCollectionViaField(Class<?> cls, Field field, GremlinSchema schema) {
+        return super.isCollectionViaField(cls, field, schema) && AnnotationUtils.getAnnotation(field, RelatedToVia.class) != null;
     }
     //    @Override
     //    protected boolean isLinkViaEdge(Class<?> cls, Field field) {

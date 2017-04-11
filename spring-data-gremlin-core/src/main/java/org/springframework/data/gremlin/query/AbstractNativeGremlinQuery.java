@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.query;
 
+import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 
@@ -16,22 +17,22 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
     protected final GremlinGraphFactory dbf;
     protected final GremlinQueryMethod method;
     protected final GremlinSchemaFactory schemaFactory;
+    protected final GremlinGraphAdapter graphAdapter;
     protected final String query;
     private boolean countQuery;
     private boolean modifyingQuery;
 
-    private boolean collectionQuery;
+    public AbstractNativeGremlinQuery(GremlinGraphFactory dbf, GremlinQueryMethod method, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter, String query) {
+        super(schemaFactory, method, graphAdapter);
 
-    public AbstractNativeGremlinQuery(GremlinGraphFactory dbf, GremlinQueryMethod method, GremlinSchemaFactory schemaFactory, String query) {
-        super(schemaFactory, method);
 
         this.dbf = dbf;
         this.method = method;
         this.schemaFactory = schemaFactory;
+        this.graphAdapter = graphAdapter;
         this.query = query;
         this.countQuery = method.hasAnnotatedQuery() && method.getQueryAnnotation().count();
         this.modifyingQuery = method.hasAnnotatedQuery() && method.getQueryAnnotation().modify();
-        this.collectionQuery = Collection.class.isAssignableFrom(method.getMethod().getReturnType());
     }
 
     public GremlinGraphFactory getDbf() {
@@ -44,6 +45,10 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
 
     public GremlinSchemaFactory getSchemaFactory() {
         return schemaFactory;
+    }
+
+    public GremlinGraphAdapter getGraphAdapter() {
+        return graphAdapter;
     }
 
     public String getQuery() {

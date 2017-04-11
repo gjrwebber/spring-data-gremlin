@@ -13,9 +13,6 @@ public class Pet {
 
     private TYPE type;
 
-    public Pet() {
-    }
-
     public Pet(String name, TYPE type) {
         this.name = name;
         this.type = type;
