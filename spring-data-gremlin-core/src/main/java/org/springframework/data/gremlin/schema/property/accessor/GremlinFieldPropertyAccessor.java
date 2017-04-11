@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.property.accessor;
 
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,6 +57,8 @@ public class GremlinFieldPropertyAccessor<V> extends AbstractGremlinFieldPropert
                 }
                 object = embeddedObj;
             }
+
+
             field.set(object, val);
         } catch (IllegalAccessException e) {
             throw new IllegalStateException(e.getMessage(), e);

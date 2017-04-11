@@ -2,10 +2,7 @@ package org.springframework.data.gremlin.schema;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import org.apache.tinkerpop.gremlin.structure.Direction;
-import org.apache.tinkerpop.gremlin.structure.Element;
-import org.apache.tinkerpop.gremlin.structure.Property;
-import org.apache.tinkerpop.gremlin.structure.VertexProperty;
+import org.apache.tinkerpop.gremlin.structure.*;
 import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyProperty;
 import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyVertexProperty;
 import org.slf4j.Logger;
@@ -230,8 +227,11 @@ public abstract class GremlinSchema<V> {
                 throw new IllegalStateException("Could not instantiate new " + getClassType(), e);
             }
             for (GremlinProperty property : getProperties()) {
-
                 Object val = property.loadFromVertex(element, noCascadingMap);
+                GremlinPropertyAccessor accessor = property.getAccessor();
+                if (val instanceof EmptyVertexProperty || val instanceof EmptyProperty) {
+                    continue;
+                }
 
                 if (val instanceof Property) {
                     Property prop = ((Property)val);
@@ -239,7 +239,13 @@ public abstract class GremlinSchema<V> {
                         val = ((Property) val).value();
                     }
                 }
-                GremlinPropertyAccessor accessor = property.getAccessor();
+
+                if (val instanceof Edge || val instanceof Vertex) {
+                    continue;
+                }
+
+
+
                 try {
                     accessor.set(obj, val);
                 } catch (Exception e) {

@@ -124,8 +124,6 @@ public abstract class BaseRepositoryTest {
         repository.save(lara);
         repository.save(new Person("Jake", "Webber", address, false));
         repository.save(new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false));
-        //        Graph graph = factory.graph();
-
 
         Likes like = new Likes(graham, lara);
         likesRepository.save(like);
