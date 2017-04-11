@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.ParametersParameterAccessor;
 import org.springframework.data.repository.query.parser.PartTree;
 
 import java.util.ArrayList;
+import java.util.Collection;
 
 /**
  * A concrete {@link AbstractGremlinQuery} implementation based on a {@link PartTree}.
@@ -57,6 +58,11 @@ public class PartTreeGremlinQuery extends AbstractGremlinQuery {
         if (pageable != null && !ignorePaging) {
             return pipeline.range(pageable.getOffset(), pageable.getOffset() + pageable.getPageSize() - 1);
         }
+
+        if(isCollectionQuery()) {
+            return pipeline.toList();
+        }
+
         return pipeline;
     }
 
@@ -71,5 +77,10 @@ public class PartTreeGremlinQuery extends AbstractGremlinQuery {
     @Override
     protected boolean isModifyingQuery() {
         return tree.isDelete();
+    }
+
+    @Override
+    protected boolean isCollectionQuery() {
+        return Collection.class.isAssignableFrom(method.getMethod().getReturnType());
     }
 }

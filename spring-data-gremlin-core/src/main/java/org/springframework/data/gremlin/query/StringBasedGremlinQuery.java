@@ -95,4 +95,9 @@ public class StringBasedGremlinQuery extends AbstractGremlinQuery {
         return this.modifyingQuery;
     }
 
+    @Override
+    protected boolean isCollectionQuery() {
+        return iterableQuery;
+    }
+
 }

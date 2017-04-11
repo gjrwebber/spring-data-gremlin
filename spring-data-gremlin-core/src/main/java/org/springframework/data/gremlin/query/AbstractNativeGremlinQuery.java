@@ -3,6 +3,8 @@ package org.springframework.data.gremlin.query;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 
+import java.util.Collection;
+
 /**
  * Native query abstraction for {@link AbstractGremlinQuery}s.
  *
@@ -18,6 +20,8 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
     private boolean countQuery;
     private boolean modifyingQuery;
 
+    private boolean collectionQuery;
+
     public AbstractNativeGremlinQuery(GremlinGraphFactory dbf, GremlinQueryMethod method, GremlinSchemaFactory schemaFactory, String query) {
         super(schemaFactory, method);
 
@@ -27,6 +31,7 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
         this.query = query;
         this.countQuery = method.hasAnnotatedQuery() && method.getQueryAnnotation().count();
         this.modifyingQuery = method.hasAnnotatedQuery() && method.getQueryAnnotation().modify();
+        this.collectionQuery = Collection.class.isAssignableFrom(method.getMethod().getReturnType());
     }
 
     public GremlinGraphFactory getDbf() {
@@ -53,5 +58,10 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
     @Override
     protected boolean isModifyingQuery() {
         return modifyingQuery;
+    }
+
+    @Override
+    public boolean isCollectionQuery() {
+        return collectionQuery;
     }
 }

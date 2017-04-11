@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.query.execution;
 
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Element;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
