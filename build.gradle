@@ -28,6 +28,8 @@ allprojects {
         mavenLocal()
         maven { url 'https://repo.spring.io/libs-release' }
         maven { url 'https://repo.spring.io/libs-snapshot' }
+        maven { url 'http://repository.apache.org/snapshots' }
+        maven { url "https://jitpack.io" }
         mavenCentral()
     }
 
@@ -36,17 +38,17 @@ allprojects {
         compile('org.springframework:spring-context:4.1.6.RELEASE')
         compile('org.springframework:spring-tx:4.1.6.RELEASE')
         compile('org.springframework.data:spring-data-commons:1.10.0.RELEASE')
-        compile('org.apache.tinkerpop:gremlin-core:3.2.4') {
+        compile('org.apache.tinkerpop:gremlin-core:3.3.0-SNAPSHOT') {
             exclude group: 'com.carrotsearch'
         }
         compile('com.carrotsearch:hppc:0.6.0')
-        compile('org.apache.tinkerpop:gremlin-driver:3.2.4') {
+        compile('org.apache.tinkerpop:gremlin-driver:3.3.0-SNAPSHOT') {
             exclude group: 'com.carrotsearch'
         }
-        compile('org.apache.tinkerpop:gremlin-groovy:3.2.4') {
+        compile('org.apache.tinkerpop:gremlin-groovy:3.3.0-SNAPSHOT') {
             exclude group: 'com.carrotsearch'
         }
-        compile('org.apache.tinkerpop:tinkergraph-gremlin:3.2.4') {
+        compile('org.apache.tinkerpop:tinkergraph-gremlin:3.3.0-SNAPSHOT') {
             exclude group: 'com.carrotsearch'
         }
 //        compile('org.apache.tinkerpop:tinkergraph:3.0.0.M9-incubating')
@@ -56,6 +58,9 @@ allprojects {
             exclude group: 'com.google.guava'
         }
         compile('com.google.guava:guava:15.0')
+        compile('com.fasterxml.jackson.core:jackson-core:2.8.8')
+        compile('com.fasterxml.jackson.core:jackson-parent:2.8.8')
+        compile('com.fasterxml.jackson.core:jackson-databind:2.8.8')
         testCompile('junit:junit:4.12')
         testCompile('org.mockito:mockito-core:1.10.8')
         testCompile('org.springframework:spring-test:4.1.6.RELEASE')
@@ -84,18 +89,18 @@ allprojects {
         failOnError = false
     }
 
-    uploadArchives {
+   uploadArchives {
         repositories {
             mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
+//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+//
+//                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
 
                 pom.project {
                     name 'Spring Data Gremlin'
