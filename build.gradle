@@ -7,6 +7,12 @@ buildscript {
     }
 }
 
+ext {
+    springVersion = "4.2.4.RELEASE"
+    gremlinVersion = "3.3.0-SNAPSHOT"
+    jacksonVersion = "2.8.8"
+}
+
 
 allprojects {
     apply plugin: 'java'
@@ -34,37 +40,37 @@ allprojects {
     }
 
     dependencies {
-        compile('org.springframework:spring-core:4.1.6.RELEASE')
-        compile('org.springframework:spring-context:4.1.6.RELEASE')
-        compile('org.springframework:spring-tx:4.1.6.RELEASE')
+        compile("org.springframework:spring-core:${springVersion}")
+        compile("org.springframework:spring-context:${springVersion}")
+        compile("org.springframework:spring-tx:${springVersion}")
         compile('org.springframework.data:spring-data-commons:1.10.0.RELEASE')
-        compile('org.apache.tinkerpop:gremlin-core:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:gremlin-core:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
         compile('com.carrotsearch:hppc:0.6.0')
-        compile('org.apache.tinkerpop:gremlin-driver:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:gremlin-driver:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
-        compile('org.apache.tinkerpop:gremlin-groovy:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:gremlin-groovy:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
-        compile('org.apache.tinkerpop:tinkergraph-gremlin:3.3.0-SNAPSHOT') {
+        compile("org.apache.tinkerpop:tinkergraph-gremlin:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
-//        compile('org.apache.tinkerpop:tinkergraph:3.0.0.M9-incubating')
+
         compile('org.apache.commons:commons-collections4:4.0')
         compile('org.apache.commons:commons-lang3:3.4')
         compile('org.reflections:reflections:0.9.9-RC1') {
             exclude group: 'com.google.guava'
         }
         compile('com.google.guava:guava:15.0')
-        compile('com.fasterxml.jackson.core:jackson-core:2.8.8')
-        compile('com.fasterxml.jackson.core:jackson-parent:2.8.8')
-        compile('com.fasterxml.jackson.core:jackson-databind:2.8.8')
+        compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+        compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+        compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
         testCompile('junit:junit:4.12')
-        testCompile('org.mockito:mockito-core:1.10.8')
-        testCompile('org.springframework:spring-test:4.1.6.RELEASE')
-        testCompile('org.slf4j:slf4j-simple:1.7.7')
+        testCompile('org.mockito:mockito-core:1.10.19')
+        testCompile("org.springframework:spring-test:${springVersion}")
+//        testCompile('org.slf4j:slf4j-simple:1.7.7')
     }
 
     task javadocJar(type: Jar) {
@@ -89,7 +95,7 @@ allprojects {
         failOnError = false
     }
 
-   uploadArchives {
+    uploadArchives {
         repositories {
             mavenDeployer {
                 //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
@@ -148,6 +154,5 @@ allprojects {
     }
 
 }
-
 
 
