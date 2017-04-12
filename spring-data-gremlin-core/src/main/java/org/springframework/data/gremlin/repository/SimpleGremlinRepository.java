@@ -117,7 +117,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
             Element element;
             if (schema.isVertexSchema()) {
                 element = graphAdapter.getVertex(schema.decodeId(id));
-            } else if (schema.isVertexSchema()) {
+            } else if (schema.isEdgeSchema()) {
                 element = graphAdapter.getEdge(schema.decodeId(id));
             } else {
                 throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");

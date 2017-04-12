@@ -56,12 +56,13 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
         return (EntityInformation<T, ID>) new GremlinMetamodelEntityInformation<T>(domainClass, idAccessor);
     }
 
+
     /* (non-Javadoc)
      * @see org.springframework.data.repository.core.support.RepositoryFactorySupport#getTargetRepository(org.springframework.data.repository.core.RepositoryMetadata)
      */
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected Object getTargetRepository(RepositoryMetadata metadata) {
+    protected Object getTargetRepository(RepositoryInformation metadata) {
         EntityInformation<?, Serializable> entityInformation = getEntityInformation(metadata.getDomainType());
         Class<?> javaType = entityInformation.getJavaType();
 
