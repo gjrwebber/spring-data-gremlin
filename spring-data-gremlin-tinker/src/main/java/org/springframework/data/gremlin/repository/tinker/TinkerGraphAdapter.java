@@ -8,7 +8,7 @@ import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Created by gman on 27/06/15.
+ * Created by gman on 27/06/15..
  */
 public class TinkerGraphAdapter extends GremlinGraphAdapter<TinkerGraph> {
 

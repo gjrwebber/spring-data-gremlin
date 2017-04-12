@@ -1,7 +1,9 @@
-package org.springframework.data.gremlin.repository.tinker;
+package org.springframework.data.gremlin.repository.janus;
 
+import org.janusgraph.core.JanusGraph;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -12,28 +14,35 @@ import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.repository.SimpleGremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
-import org.springframework.data.gremlin.tx.tinker.TinkerGremlinGraphFactory;
+import org.springframework.data.gremlin.tx.janus.JanusGremlinGraphFactory;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
- * Tinker specific extension of the {@link SimpleGremlinRepository} providing custom implementations of {@code count()}, {@code deleteAll()},
+ * Janus specific extension of the {@link SimpleGremlinRepository} providing custom implementations of {@code count()}, {@code deleteAll()},
  * {@code findAll(Pageable)} and {@code findAll()}.
  *
- * @author Gman
+ * @author mmichail (zifnab87)
+ *
+ * credit to: gman's work for supplying initial code for TitanDB.
  */
-public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
+public class JanusGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(TinkerGremlinRepository.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(JanusGremlinRepository.class);
 
-    private TinkerGremlinGraphFactory graphFactory;
+    JanusGremlinGraphFactory graphFactory;
 
-    public TinkerGremlinRepository(GremlinGraphFactory dbf, GremlinGraphAdapter graphAdapter, GremlinSchema<T> mapper) {
+    public JanusGremlinRepository(GremlinGraphFactory dbf, GremlinGraphAdapter graphAdapter, GremlinSchema<T> mapper) {
         super(dbf, graphAdapter, mapper);
-        this.graphFactory = (TinkerGremlinGraphFactory) dbf;
+        this.graphFactory = (JanusGremlinGraphFactory) dbf;
+    }
+
+    @Transactional(readOnly = false)
+    protected Vertex createVertex(Graph graph) {
+        Vertex vertex = ((JanusGraph) graph).addVertex(schema.getClassName());
+        return vertex;
     }
 
     @Override
@@ -75,8 +84,8 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     @Override
     public Iterable<T> findAll() {
         List<T> result = new ArrayList<T>();
-        for (Element edge : findAllElementsForSchema()) {
-            result.add(schema.loadFromGraph(edge));
+        for (Element vertex : findAllElementsForSchema()) {
+            result.add(schema.loadFromGraph(vertex));
         }
         return result;
     }
@@ -93,25 +102,18 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     }
 
     public Iterable<Element> findALlVerticiesForSchema() {
-        final List<Element> result = new ArrayList<>();
-        graphFactory.graph().traversal().V().hasLabel(schema.getClassName()).forEachRemaining(new Consumer<Vertex>() {
-            @Override
-            public void accept(Vertex vertex) {
-
-                result.add(vertex);
-            }
-        });
+        List<Element> result = new ArrayList<>();
+        for (Vertex vertex : graphFactory.graph().traversal().V(schema.getClassName()).toList()) {
+            result.add(vertex);
+        }
         return result;
     }
 
     public Iterable<Element> findAllEdgesForSchema() {
-        final List<Element> result = new ArrayList<>();
-        graphFactory.graph().traversal().E().hasLabel(schema.getClassName()).forEachRemaining(new Consumer<Edge>() {
-            @Override
-            public void accept(Edge edge) {
-                result.add(edge);
-            }
-        });
+        List<Element> result = new ArrayList<>();
+        for (Edge edge : graphFactory.graph().traversal().E(schema.getClassName()).toList()) {
+            result.add(edge);
+        }
         return result;
     }
 
