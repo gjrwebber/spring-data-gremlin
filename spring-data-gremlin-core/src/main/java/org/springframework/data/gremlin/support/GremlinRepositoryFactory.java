@@ -58,7 +58,7 @@ public class GremlinRepositoryFactory extends RepositoryFactorySupport {
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected Object getTargetRepository(RepositoryMetadata metadata) {
+    protected Object getTargetRepository(RepositoryInformation metadata) {
         EntityInformation<?, Serializable> entityInformation = getEntityInformation(metadata.getDomainType());
         Class<?> javaType = entityInformation.getJavaType();
 

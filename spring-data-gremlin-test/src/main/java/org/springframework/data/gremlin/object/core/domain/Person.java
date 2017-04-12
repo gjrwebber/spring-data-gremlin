@@ -245,7 +245,9 @@ public class Person extends Bipod<Area> {
         }
 
         Person person = (Person) o;
-
+        if (getId() != null ? !getId().equals(person.getId()) : person.getId() != null) {
+            return false;
+        }
         if (firstName != null ? !firstName.equals(person.firstName) : person.firstName != null) {
             return false;
         }

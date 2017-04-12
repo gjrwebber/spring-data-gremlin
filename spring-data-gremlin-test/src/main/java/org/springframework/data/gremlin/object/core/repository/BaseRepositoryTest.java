@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategies;
 import org.apache.tinkerpop.gremlin.process.traversal.TraversalStrategy;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -131,22 +132,20 @@ public abstract class BaseRepositoryTest {
         repository.save(jake);
         sandra = new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false);
         repository.save(sandra);
-//        Graph graph = factory.graph();
 
-        Likes like1 = new Likes(graham, lara);
-        likesRepository.save(like1);
+//        Likes like1 = new Likes(graham, lara);
+//        likesRepository.save(like1);
+//        Likes like2 = new Likes(graham, jake);
+//        likesRepository.save(like2);
+//
+//        Likes like3 = new Likes(vanja, lara);
+//        likesRepository.save(like3);
 
-        Likes like2 = new Likes(graham, jake);
-        likesRepository.save(like2);
+//        Likes like4 = new Likes(vanja, jake);
+//        likesRepository.save(like4);
+//        Likes like5 = new Likes(vanja, graham);
+//        likesRepository.save(like5);
 
-        Likes like3 = new Likes(vanja, lara);
-        likesRepository.save(like3);
-
-        Likes like4 = new Likes(vanja, jake);
-        likesRepository.save(like4);
-
-        Likes like5 = new Likes(vanja, graham);
-        likesRepository.save(like5);
 
         List<Vertex> addresses = graph.traversal().V().has("street").toList();
         assertNotNull(addresses);
@@ -192,9 +191,7 @@ public abstract class BaseRepositoryTest {
         while (linkedPipe.hasNext()) {
             Vertex obj = linkedPipe.next();
             assertNotNull(obj);
-            Edge edge = (Edge)obj;
-            Vertex v = edge.outVertex();
-            assertTrue(v.value("firstName").equals("Graham") || v.value("firstName").equals("Vanja"));
+            assertTrue(obj.value("city").toString().equals("Newcastle"));
         }
 
         GraphTraversal<Vertex, Edge> likesPipe = source.V().has("firstName", "Lara").inE("Likes");

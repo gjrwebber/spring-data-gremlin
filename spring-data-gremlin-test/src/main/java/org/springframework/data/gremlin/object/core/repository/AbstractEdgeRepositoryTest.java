@@ -31,7 +31,7 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
 
         List<Likes> allLikes = new ArrayList<Likes>();
         CollectionUtils.addAll(allLikes, likesRepository.findAll());
-        assertEquals(6, allLikes.size());
+        assertEquals(2, allLikes.size());
 
     }
 
