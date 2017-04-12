@@ -5,6 +5,7 @@ import org.apache.tinkerpop.gremlin.process.traversal.Contains;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -57,7 +58,7 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, Gr
 
     @Override
     protected GraphTraversal create(Part part, Iterator<Object> iterator) {
-        GraphTraversal base = new DefaultGraphTraversal<>();
+        GraphTraversal base = new DefaultGraphTraversal();
         toCondition(base, part, iterator);
         return base;
     }
@@ -75,7 +76,7 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, Gr
 
     @Override
     protected GraphTraversal or(GraphTraversal base, GraphTraversal criteria) {
-        return base.or(criteria);
+        return __.or(base, criteria);
     }
 
     public boolean isCountQuery() {
@@ -84,13 +85,7 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, Gr
 
     @Override
     protected GraphTraversal complete(GraphTraversal criteria, Sort sort) {
-        Pageable pageable = accessor.getPageable();
-        GraphTraversalSource source = GraphTraversalSource.build().create(factory.graph());
-//        if (schema.isEdgeSchema()) {
-//            source = source.V().add(criteria);
-//        } else if (schema.isVertexSchema()) {
-//            source = source.V().and(criteria);
-//        }
+        GraphTraversalSource source = factory.graph().traversal();
         return source.V().and(criteria);
     }
 
