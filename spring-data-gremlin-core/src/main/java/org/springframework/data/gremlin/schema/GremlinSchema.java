@@ -73,6 +73,10 @@ public abstract class GremlinSchema<V> {
         }
         properties.add(property);
         propertyMap.put(property.getName(), property);
+        //Hacky
+        if (property.getName().equals("out")) {
+            property.setName(property.getSchema().getClassName());
+        }
         fieldToPropertyMap.put(property.getAccessor().getField().getName(), property);
         typePropertyMap.put(property.getType(), property);
     }

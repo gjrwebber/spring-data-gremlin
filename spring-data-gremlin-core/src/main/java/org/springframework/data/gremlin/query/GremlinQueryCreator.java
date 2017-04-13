@@ -14,6 +14,7 @@ import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
+import org.springframework.data.gremlin.utils.GraphUtil;
 import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.repository.query.ParameterAccessor;
 import org.springframework.data.repository.query.parser.AbstractQueryCreator;
@@ -84,7 +85,11 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, Gr
     @Override
     protected GraphTraversal complete(GraphTraversal criteria, Sort sort) {
         GraphTraversalSource source = factory.graph().traversal();
-        return source.V().and(criteria);
+
+
+         GraphTraversal traversal = source.V().and(criteria);
+         logger.info(GraphUtil.queryToString(factory.graph(), traversal));
+         return traversal;
     }
 
     protected void toCondition(final GraphTraversal pipeline, Part part, Iterator<Object> iterator) {
@@ -105,64 +110,65 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, Gr
                 }
             }
         });
+        String label = part.getProperty().getLeafProperty().getOwningType().getType().getSimpleName();
 
         switch (part.getType()) {
         case AFTER:
         case GREATER_THAN:
-            pipeline.has(property, P.gt(iterator.next()));
+            pipeline.has(label, property, P.gt(iterator.next()));
             break;
         case GREATER_THAN_EQUAL:
-            pipeline.has(property, P.gte(iterator.next()));
+            pipeline.has(label, property, P.gte(iterator.next()));
             break;
         case BEFORE:
         case LESS_THAN:
-            pipeline.has(property, P.lt(iterator.next()));
+            pipeline.has(label, property, P.lt(iterator.next()));
             break;
         case LESS_THAN_EQUAL:
-            pipeline.has(property, P.lte(iterator.next()));
+            pipeline.has(label, property, P.lte(iterator.next()));
             break;
         case BETWEEN:
             Object val = iterator.next();
-            pipeline.and(__.has(property, P.lt(val)), __.has(property, P.gt(val)));
+            pipeline.and(__.has(label, property, P.lt(val)), __.has(label, property, P.gt(val)));
             break;
         case IS_NULL:
-            pipeline.has(property);
+            pipeline.has(label, property);
             break;
         case IS_NOT_NULL:
-            pipeline.has(property);
+            pipeline.has(label, property);
             break;
         case IN:
-            pipeline.has(property, P.test(Contains.within, iterator.next()));
+            pipeline.has(label, property, P.test(Contains.within, iterator.next()));
             break;
         case NOT_IN:
-            pipeline.has(property, P.test(Contains.without, iterator.next()));
+            pipeline.has(label, property, P.test(Contains.without, iterator.next()));
             break;
         case LIKE:
-            pipeline.has(property, P.test(Like.IS, iterator.next()));
+            pipeline.has(label, property, P.test(Like.IS, iterator.next()));
             break;
         case NOT_LIKE:
-            pipeline.has(property, P.test(Like.NOT, iterator.next()));
+            pipeline.has(label, property, P.test(Like.NOT, iterator.next()));
             break;
         case STARTING_WITH:
-            pipeline.has(property, P.test(StartsWith.DOES, iterator.next()));
+            pipeline.has(label, property, P.test(StartsWith.DOES, iterator.next()));
             break;
         case ENDING_WITH:
-            pipeline.has(property, P.test(EndsWith.DOES, iterator.next()));
+            pipeline.has(label, property, P.test(EndsWith.DOES, iterator.next()));
             break;
         case CONTAINING:
-            pipeline.has(property, P.test(Like.IS, iterator.next()));
+            pipeline.has(label, property, P.test(Like.IS, iterator.next()));
             break;
         case SIMPLE_PROPERTY:
-            pipeline.has(property, iterator.next());
+            pipeline.has(label, property, iterator.next());
             break;
         case NEGATING_SIMPLE_PROPERTY:
-            pipeline.has(property, P.test(Compare.neq, iterator.next()));
+            pipeline.has(label, property, P.test(Compare.neq, iterator.next()));
             break;
         case TRUE:
-            pipeline.has(property, true);
+            pipeline.has(label, property, true);
             break;
         case FALSE:
-            pipeline.has(property, false);
+            pipeline.has(label, property, false);
             break;
         default:
             throw new IllegalArgumentException("Unsupported keyword!");
