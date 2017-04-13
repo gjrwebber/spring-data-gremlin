@@ -13,12 +13,8 @@ apply plugin: 'propdeps-idea'
 apply plugin: 'propdeps-eclipse'
 
 dependencies {
-    //compile ('com.github.gjrwebber:spring-data-gremlin-core:0.1.0-SNAPSHOT')
-    //compile ('com.github.gjrwebber:spring-data-gremlin-test:0.1.0-SNAPSHOT')
-    //compile ('com.github.gjrwebber:spring-data-gremlin-schemagen-jpa:0.1.0-SNAPSHOT')
-    //compile ('com.github.gjrwebber:spring-data-gremlin-schemagen-neo4j:0.1.0-SNAPSHOT')
-    compile('com.orientechnologies:orientdb-lucene:2.0.13')
-    compile('com.orientechnologies:orientdb-graphdb:2.0.13')
+    compile('com.orientechnologies:orientdb-core:2.2.18')
+    compile('com.michaelpollmeier:orientdb-gremlin:3.2.3.0')
     testCompile project(':spring-data-gremlin-schemagen-jpa')
     testCompile project(':spring-data-gremlin-schemagen-neo4j')
     testCompile project(':spring-data-gremlin-core')

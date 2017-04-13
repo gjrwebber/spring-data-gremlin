@@ -6,10 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.OClass;
 import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchemaProxy;
 import com.orientechnologies.orient.core.metadata.schema.OType;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.impls.orient.OrientEdgeType;
-import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
-import com.tinkerpop.blueprints.impls.orient.OrientVertexType;
+import org.apache.tinkerpop.gremlin.orientdb.OrientGraph;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -34,7 +31,7 @@ public class OrientDbSchemaWriterTest {
     ODatabaseDocumentTx db;
     OrientDBGremlinGraphFactory dbf;
     OSchemaProxy oSchema;
-    OrientGraphNoTx noTx;
+    OrientGraph noTx;
     SchemaWriter writer;
     OrientVertexType v;
     OrientEdgeType e;
@@ -44,7 +41,7 @@ public class OrientDbSchemaWriterTest {
     public void setUp() throws Exception {
 
         clazz = Mockito.mock(OClass.class);
-        noTx = Mockito.mock(OrientGraphNoTx.class);
+        noTx = Mockito.mock(OrientGraph.class);
         db = Mockito.mock(ODatabaseDocumentTx.class);
         v = Mockito.mock(OrientVertexType.class);
         e = Mockito.mock(OrientEdgeType.class);

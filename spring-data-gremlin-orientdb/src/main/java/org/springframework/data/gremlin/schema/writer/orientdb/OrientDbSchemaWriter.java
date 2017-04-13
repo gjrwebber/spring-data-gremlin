@@ -37,7 +37,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         LOGGER.debug("Initialising...");
         try {
             dbf = (OrientDBGremlinGraphFactory) tgf;
-            oSchema = dbf.graphNoTx().getRawGraph().getMetadata().getSchema();
+            oSchema = dbf.graphNoTx().getRawDatabase().getMetadata().getSchema();
 
         } catch (RuntimeException e) {
             String msg = String.format("Could not create schema %s. ERROR: %s", schema, e.getMessage());
@@ -169,12 +169,10 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
 
     @Override
     protected void createSpatialIndex(GremlinSchema<?> schema, GremlinProperty latitude, GremlinProperty longitude) {
-
         String indexName = schema.getClassName() + ".lat_lon";
         if (dbf.graphNoTx().getIndex(indexName, Vertex.class) == null) {
             try {
-                dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())))
-                   .execute();
+                dbf.graphNoTx().executeCommand(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())));
             } catch (Exception e1) {
                 e1.printStackTrace();
             }

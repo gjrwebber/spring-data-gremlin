@@ -67,7 +67,9 @@ public class NativeOrientdbGremlinQuery extends AbstractNativeGremlinQuery {
         }
 
         try {
-            Object result = orientGraphFactory.graph().command(new OCommandSQL(queryString)).execute(params);
+
+            // TODO I don't know how to pass parameters in the orientdb query
+            Object result = orientGraphFactory.graph().executeSql(queryString);
             return result;
         } catch (RuntimeException e) {
             e.printStackTrace();

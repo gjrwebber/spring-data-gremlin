@@ -1,7 +1,7 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import org.apache.tinkerpop.gremlin.orientdb.OrientGraph;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
