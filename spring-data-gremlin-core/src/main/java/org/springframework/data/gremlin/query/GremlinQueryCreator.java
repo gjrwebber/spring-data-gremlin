@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.query;
 
 import org.apache.tinkerpop.gremlin.process.traversal.Compare;
 import org.apache.tinkerpop.gremlin.process.traversal.Contains;
+import org.apache.tinkerpop.gremlin.process.traversal.P;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.DefaultGraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
@@ -134,31 +135,31 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, Gr
             pipeline.has(property);
             break;
         case IN:
-            pipeline.has(property, Contains.within).is(iterator.next());
+            pipeline.has(property, P.test(Contains.within, iterator.next()));
             break;
         case NOT_IN:
-            pipeline.has(property, Contains.without).is(iterator.next());
+            pipeline.has(property, P.test(Contains.without, iterator.next()));
             break;
         case LIKE:
-            pipeline.has(property, Like.IS).is(iterator.next());
+            pipeline.has(property, P.test(Like.IS, iterator.next()));
             break;
         case NOT_LIKE:
-            pipeline.has(property, Like.NOT).is(iterator.next());
+            pipeline.has(property, P.test(Like.NOT, iterator.next()));
             break;
         case STARTING_WITH:
-            pipeline.has(property, StartsWith.DOES).is(iterator.next());
+            pipeline.has(property, P.test(StartsWith.DOES, iterator.next()));
             break;
         case ENDING_WITH:
-            pipeline.has(property, EndsWith.DOES).is(iterator.next());
+            pipeline.has(property, P.test(EndsWith.DOES, iterator.next()));
             break;
         case CONTAINING:
-            pipeline.has(property, Like.IS).is(iterator.next());
+            pipeline.has(property, P.test(Like.IS, iterator.next()));
             break;
         case SIMPLE_PROPERTY:
             pipeline.has(property, iterator.next());
             break;
         case NEGATING_SIMPLE_PROPERTY:
-            pipeline.has(property, Compare.neq).is(iterator.next());
+            pipeline.has(property, P.test(Compare.neq, iterator.next()));
             break;
         case TRUE:
             pipeline.has(property, true);

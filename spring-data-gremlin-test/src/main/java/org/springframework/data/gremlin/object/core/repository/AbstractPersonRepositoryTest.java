@@ -198,7 +198,9 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void findByFirstNameLike() {
-        for (Person person : repository.findByFirstNameLike("La")) {
+        List<Person> people = repository.findByFirstNameLike("La");
+        assertFalse(people.isEmpty());
+        for (Person person : people) {
             assertTrue(person.getFirstName().startsWith("La"));
         }
     }
