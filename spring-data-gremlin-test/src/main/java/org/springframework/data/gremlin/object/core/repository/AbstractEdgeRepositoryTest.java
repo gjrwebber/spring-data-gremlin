@@ -66,14 +66,11 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
 
     @Test
     public void should_save_edge() throws Exception {
-        List<Located> oldLocated = new ArrayList<Located>();
-        CollectionUtils.addAll(oldLocated, locatedRepository.findAll());
         Located located = new Located(new Date(), graham, locationRepository.save(new Location(35, 165)));
         locatedRepository.save(located);
-
         List<Located> newLocated = new ArrayList<Located>();
         CollectionUtils.addAll(newLocated, locatedRepository.findAll());
-        assertEquals(oldLocated.size() + 1, newLocated.size());
+        assertEquals(6, newLocated.size());
 
     }
 

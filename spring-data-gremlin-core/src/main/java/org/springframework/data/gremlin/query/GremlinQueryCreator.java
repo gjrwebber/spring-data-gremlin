@@ -9,13 +9,10 @@ import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSo
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.__;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
-import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
-import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.mapping.PropertyPath;
 import org.springframework.data.repository.query.ParameterAccessor;
@@ -112,21 +109,21 @@ public class GremlinQueryCreator extends AbstractQueryCreator<GraphTraversal, Gr
         switch (part.getType()) {
         case AFTER:
         case GREATER_THAN:
-            pipeline.has(property, Compare.gt).is(iterator.next());
+            pipeline.has(property, P.gt(iterator.next()));
             break;
         case GREATER_THAN_EQUAL:
-            pipeline.has(property, Compare.gte).is(iterator.next());
+            pipeline.has(property, P.gte(iterator.next()));
             break;
         case BEFORE:
         case LESS_THAN:
-            pipeline.has(property, Compare.lt).is(iterator.next());
+            pipeline.has(property, P.lt(iterator.next()));
             break;
         case LESS_THAN_EQUAL:
-            pipeline.has(property, Compare.lte).is(iterator.next());
+            pipeline.has(property, P.lte(iterator.next()));
             break;
         case BETWEEN:
             Object val = iterator.next();
-            pipeline.has(property, Compare.lt).is(val).has(property, Compare.gt).is(val);
+            pipeline.and(__.has(property, P.lt(val)), __.has(property, P.gt(val)));
             break;
         case IS_NULL:
             pipeline.has(property);

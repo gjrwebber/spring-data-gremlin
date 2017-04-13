@@ -93,7 +93,7 @@ public class JanusGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public Iterable<Element> findAllElementsForSchema() {
 
         if (schema.isVertexSchema()) {
-            return findALlVerticiesForSchema();
+            return findAllVerticiesForSchema();
         } else if (schema.isEdgeSchema()) {
             return findAllEdgesForSchema();
         } else {
@@ -101,7 +101,7 @@ public class JanusGremlinRepository<T> extends SimpleGremlinRepository<T> {
         }
     }
 
-    public Iterable<Element> findALlVerticiesForSchema() {
+    public Iterable<Element> findAllVerticiesForSchema() {
         List<Element> result = new ArrayList<>();
         for (Vertex vertex : graphFactory.graph().traversal().V(schema.getClassName()).toList()) {
             result.add(vertex);
