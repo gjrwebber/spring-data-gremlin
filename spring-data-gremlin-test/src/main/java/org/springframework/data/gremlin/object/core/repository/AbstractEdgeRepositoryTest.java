@@ -24,15 +24,15 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
     @Test
     public void should_save_simple_edge() throws Exception {
 
-        List<Likes> oldLikes = new ArrayList<Likes>();
-        CollectionUtils.addAll(oldLikes, likesRepository.findAll());
 
         Likes likes = new Likes(graham, lara);
+        graham.getLikes().add(likes);
+        lara.getLikes().add(likes);
         likesRepository.save(likes);
 
-        List<Likes> newLikes = new ArrayList<Likes>();
-        CollectionUtils.addAll(newLikes, likesRepository.findAll());
-        assertEquals(oldLikes.size() + 1, newLikes.size());
+        List<Likes> allLikes = new ArrayList<Likes>();
+        CollectionUtils.addAll(allLikes, likesRepository.findAll());
+        assertEquals(6, allLikes.size());
 
     }
 

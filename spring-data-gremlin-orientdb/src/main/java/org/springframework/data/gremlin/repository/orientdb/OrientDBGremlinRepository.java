@@ -93,7 +93,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public Iterable<Element> findAllElementsForSchema() {
 
         if (schema.isVertexSchema()) {
-            return findALlVerticiesForSchema();
+            return findAllVerticiesForSchema();
         } else if (schema.isEdgeSchema()) {
             return findAllEdgesForSchema();
         } else {
@@ -101,7 +101,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
         }
     }
 
-    public Iterable<Element> findALlVerticiesForSchema() {
+    public Iterable<Element> findAllVerticiesForSchema() {
 
         OrientGraph graph = orientGraphFactory.graph();
         List<Element> result = new ArrayList<>();
@@ -115,7 +115,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
         OrientGraph graph = orientGraphFactory.graph();
         List<Element> result = new ArrayList<>();
-        for (Edge edge : graph.traversal().E(schema.getClassName()).toList()) {
+        for (Edge edge : graph.traversal().E().hasLabel(schema.getClassName()).toList()) {
             result.add(edge);
         }
         return result;
