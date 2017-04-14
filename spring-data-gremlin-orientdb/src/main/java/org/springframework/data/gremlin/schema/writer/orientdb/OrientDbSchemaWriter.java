@@ -45,8 +45,8 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         }
         try {
 
-            v = dbf.graphNoTx().getVertexBaseType();
-            e = dbf.graphNoTx().getEdgeBaseType();
+            v = dbf.graphNoTx().getRawDatabase().getClass("Vertex");
+            e = dbf.graphNoTx().getRawDatabase().getClass("Edge");
 
         } catch (Exception e) {
 
@@ -170,7 +170,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     @Override
     protected void createSpatialIndex(GremlinSchema<?> schema, GremlinProperty latitude, GremlinProperty longitude) {
         String indexName = schema.getClassName() + ".lat_lon";
-        if (dbf.graphNoTx().getIndex(indexName, Vertex.class) == null) {
+        if (dbf.graphNoTx().getVertexIndexedKeys(indexName) == null) {
             try {
                 dbf.graphNoTx().executeCommand(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())));
             } catch (Exception e1) {

@@ -31,7 +31,7 @@ public class OrientDBGraphAdapter extends GremlinGraphAdapter<OrientGraph> {
 
     @Override
     public Element refresh(Element element) {
-        ((OrientElement) element).reload();
+        //((OrientElement) element).reload();
         return element;
     }
 
