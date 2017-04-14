@@ -26,7 +26,7 @@ public class GremlinJSONFieldPropertyAccessor extends AbstractGremlinFieldProper
     public String get(Object object) {
 
         try {
-            Object result = field.get(object);
+            Object result = field.get(getEmbeddedObject(object, false));
 
             if (result == null) {
                 return null;
@@ -42,7 +42,7 @@ public class GremlinJSONFieldPropertyAccessor extends AbstractGremlinFieldProper
     public void set(Object object, String serialized) {
         try {
             if (serialized == null) {
-                field.set(object, serialized);
+                object = getEmbeddedObject(object, true);
                 return;
             }
 
