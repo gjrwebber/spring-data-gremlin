@@ -133,7 +133,7 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
         return false;
     }
 
-    protected String getPropertyName(Field field, Field rootEmbeddedField) {
+    protected String getPropertyName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
         Property property = AnnotationUtils.getAnnotation(field, Property.class);
 
         if (rootEmbeddedField != null) {
@@ -170,7 +170,16 @@ public class DefaultSchemaGenerator extends BasicSchemaGenerator implements Anno
             }
         }
 
-        String propertyName = !StringUtils.isEmpty(annotationName) ? annotationName : super.getPropertyName(field, rootEmbeddedField);
+        String propertyName;
+        if (!StringUtils.isEmpty(annotationName)) {
+            if (field.getDeclaringClass() != schemaClass) {
+                    propertyName = String.format("%s_%s", schemaClass.getSimpleName().toLowerCase(), annotationName);
+                } else {
+                    propertyName = annotationName;
+                }
+       } else {
+            propertyName = super.getPropertyName(field, rootEmbeddedField, schemaClass);
+       }
 
         return propertyName;
     }

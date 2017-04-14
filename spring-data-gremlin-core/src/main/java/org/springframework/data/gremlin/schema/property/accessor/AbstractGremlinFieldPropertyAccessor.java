@@ -11,6 +11,13 @@ import java.lang.reflect.Field;
 public abstract class AbstractGremlinFieldPropertyAccessor<V> implements GremlinPropertyAccessor<V> {
 
     protected Field field;
+    protected AbstractGremlinFieldPropertyAccessor embeddedAccessor;
+
+    public AbstractGremlinFieldPropertyAccessor(Field field, AbstractGremlinFieldPropertyAccessor embeddedAccessor) {
+        this(field);
+        this.embeddedAccessor = embeddedAccessor;
+    }
+
 
     public AbstractGremlinFieldPropertyAccessor(Field field) {
         field.setAccessible(true);

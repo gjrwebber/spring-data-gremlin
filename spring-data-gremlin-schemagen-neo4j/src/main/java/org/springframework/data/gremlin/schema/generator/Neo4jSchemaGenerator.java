@@ -78,8 +78,8 @@ public class Neo4jSchemaGenerator extends BasicSchemaGenerator implements Annota
     }
 
     @Override
-    protected String getPropertyName(Field field, Field rootEmbeddedField) {
-        String name = super.getPropertyName(field, rootEmbeddedField);
+    protected String getPropertyName(Field field, Field rootEmbeddedField, Class<?> schemaClass) {
+        String name = super.getPropertyName(field, rootEmbeddedField, schemaClass);
 
         // If annotated with @GraphProperty, use the propertyName parameter of the annotation
         GraphProperty graphProperty = AnnotationUtils.getAnnotation(field, GraphProperty.class);
