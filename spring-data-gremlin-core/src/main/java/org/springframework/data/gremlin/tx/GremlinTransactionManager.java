@@ -21,6 +21,8 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
     private static final long serialVersionUID = 1L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinTransactionManager.class);
+    private static final int RETRY_DELAY = Integer.getInteger("sdg-retry-delay", 50);
+    private static final int MAX_RETRY = Integer.getInteger("sdg-max-retry", 10);
 
     private GremlinGraphFactory graphFactory;
 
@@ -82,10 +84,26 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
     protected void doCommit(DefaultTransactionStatus status) throws TransactionException {
         GremlinTransaction tx = (GremlinTransaction) status.getTransaction();
         Graph graph = tx.getGraph();
+        int attempts = 0;
+        while (attempts++ < MAX_RETRY) {
+            try {
+                graphFactory.commitTx(graph);
+                break;
+           } catch (RuntimeException e) {
+               if (graphFactory.getRetryException().isAssignableFrom(e.getClass())) {
+                   LOGGER.warn("Attempted to commit Tx " + attempts + " out of " + MAX_RETRY + " times. Waiting " + RETRY_DELAY + "ms before trying again. Error: "+e.getMessage());
+                } else {
+                    throw e;
+                }
+            }
 
-        LOGGER.debug("committing transaction, db.hashCode() = {}", graph.hashCode());
+            try {
+                Thread.sleep(RETRY_DELAY);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
 
-        graphFactory.commitTx(graph);
     }
 
     /* (non-Javadoc)
