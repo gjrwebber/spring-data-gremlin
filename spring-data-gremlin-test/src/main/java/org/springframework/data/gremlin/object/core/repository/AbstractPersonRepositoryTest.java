@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.object.core.repository;
 
 import com.google.common.collect.Lists;
+import org.apache.commons.collections4.CollectionUtils;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -531,6 +532,34 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         assertTrue("Milo was not serialized properly", milo);
         assertTrue("Charlie was not serialized properly", charlie);
         assertTrue("TOC was not serialized properly", toc);
+    }
+
+    @Test
+    public void shouldContainLikes() throws Exception {
+        Person graham = repository.findByFirstName("Graham").get(0);
+        assertEquals(2, graham.getLikes().size());
+    }
+
+    @Test
+    public void shouldRemoveLikes() throws Exception {
+
+        // Sanity check
+        List<Likes> allLikes = new ArrayList<>();
+        CollectionUtils.addAll(allLikes, likesRepository.findAll());
+        assertEquals(5, allLikes.size());
+
+        Person graham = repository.findByFirstName("Graham").get(0);
+        Likes like = graham.getLikes().iterator().next();
+        graham.getLikes().remove(like);
+        repository.save(graham);
+
+        graham = repository.findByFirstName("Graham").get(0);
+
+        assertEquals(1, graham.getLikes().size());
+
+        allLikes.clear();
+        CollectionUtils.addAll(allLikes, likesRepository.findAll());
+        assertEquals(4, allLikes.size());
     }
 
 }

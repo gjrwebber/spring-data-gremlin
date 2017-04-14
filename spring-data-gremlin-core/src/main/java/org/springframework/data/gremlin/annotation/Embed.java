@@ -16,6 +16,6 @@ public @interface Embed {
      * The list of @Property to override
      * @return
      */
-    PropertyOverride[] propertyOverrides();
+    PropertyOverride[] propertyOverrides() default {};
 
 }
