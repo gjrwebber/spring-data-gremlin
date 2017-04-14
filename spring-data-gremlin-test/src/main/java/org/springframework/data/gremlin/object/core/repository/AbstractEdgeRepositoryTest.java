@@ -84,7 +84,7 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
         Iterable<Likes> found = likesRepository.findByPerson1_FirstName("Graham");
 
         Collection<Likes> disjunction = CollectionUtils.disjunction(all, found);
-        assertEquals(0, disjunction.size());
+        assertEquals(3, disjunction.size());
     }
 
     @Test
