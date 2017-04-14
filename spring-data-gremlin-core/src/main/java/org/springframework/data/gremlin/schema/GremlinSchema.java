@@ -18,6 +18,8 @@ import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyE
 import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.utils.GenericsUtil;
+import org.springframework.transaction.support.TransactionSynchronizationAdapter;
+import org.springframework.transaction.support.TransactionSynchronizationManager;
 
 import java.util.*;
 
@@ -189,7 +191,7 @@ public abstract class GremlinSchema<V> {
         cascadeCopyToGraph(graphAdapter, element, obj, new HashMap<Object, Element>());
     }
 
-    public void cascadeCopyToGraph(GremlinGraphAdapter graphAdapter, Element element, Object obj, Map<Object, Element> noCascadingMap) {
+    public void cascadeCopyToGraph(GremlinGraphAdapter graphAdapter, Element element, final Object obj, Map<Object, Element> noCascadingMap) {
 
         if (noCascadingMap.containsKey(obj)) {
             return;
@@ -209,6 +211,15 @@ public abstract class GremlinSchema<V> {
             } catch (RuntimeException e) {
                 LOGGER.warn(String.format("Could not save property %s of %s", property, obj.toString()), e);
             }
+        }
+        final Element createdElement = element;
+        if (TransactionSynchronizationManager.isSynchronizationActive()) {
+            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
+                @Override
+                public void afterCommit() {
+                    setObjectId(obj, createdElement);
+                }
+            });
         }
     }
 
@@ -264,11 +275,11 @@ public abstract class GremlinSchema<V> {
         return decodeId(getIdAccessor().get(obj));
     }
 
-    public void setObjectId(V obj, Element element) {
+    public void setObjectId(Object obj, Element element) {
         getIdAccessor().set(obj, encodeId(element.id().toString()));
     }
 
-    public String getObjectId(V obj) {
+    public String getObjectId(Object obj) {
         String id = getIdAccessor().get(obj);
         if (id != null) {
             return decodeId(id);

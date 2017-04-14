@@ -95,15 +95,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
         } else {
             throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");
         }
-        final Element createdElement = element;
-        if (TransactionSynchronizationManager.isSynchronizationActive()) {
-            TransactionSynchronizationManager.registerSynchronization(new TransactionSynchronizationAdapter() {
-                @Override
-                public void afterCommit() {
-                    schema.setObjectId(object, createdElement);
-                }
-            });
-        }
+
         return element;
     }
 
