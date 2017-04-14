@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.query.execution;
 
-import com.tinkerpop.blueprints.Element;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.query.CompositeResult;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
@@ -58,8 +58,8 @@ public abstract class AbstractGremlinExecution {
 
     protected Map<String, Object> elementToMap(Element element) {
         Map<String, Object> map = new HashMap<String, Object>();
-        for (String key : element.getPropertyKeys()) {
-            map.put(key, element.getProperty(key));
+        for (String key : element.keys()) {
+            map.put(key, element.value(key));
         }
         return map;
     }

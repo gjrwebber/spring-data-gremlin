@@ -1,13 +1,13 @@
 package org.springframework.data.gremlin.tx.tinker;
 
-
-import com.tinkerpop.blueprints.impls.tg.TinkerGraph;
+import org.apache.commons.configuration.BaseConfiguration;
+import org.apache.tinkerpop.gremlin.tinkergraph.structure.TinkerGraph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.tx.AbstractGremlinGraphFactory;
 
 /**
- * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link TinkerGraph} implementation of {@link com.tinkerpop.blueprints.Graph}.
+ * An {@link AbstractGremlinGraphFactory} for OrentDB providing an {@link TinkerGraph} implementation of {@link org.apache.tinkerpop.gremlin.structure.Graph}.
  *
  * @author Gman
  */
@@ -19,7 +19,9 @@ public class TinkerGremlinGraphFactory extends AbstractGremlinGraphFactory<Tinke
 
     @Override
     protected void createPool() {
-        graph = new TinkerGraph();
+        BaseConfiguration config = new BaseConfiguration();
+        config.setProperty("gremlin.tinkergraph.vertexIdManager", "LONG");
+        graph = TinkerGraph.open(config);
     }
 
     @Override

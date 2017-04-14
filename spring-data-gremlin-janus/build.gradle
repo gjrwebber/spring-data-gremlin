@@ -1,0 +1,8 @@
+
+dependencies {
+    compile project(':spring-data-gremlin-core')
+    compile('org.janusgraph:janusgraph-core:0.1.0-SNAPSHOT')
+    testCompile project(':spring-data-gremlin-test')
+    testCompile project(':spring-data-gremlin-schemagen-jpa')
+    testCompile project(':spring-data-gremlin-schemagen-neo4j')
+}

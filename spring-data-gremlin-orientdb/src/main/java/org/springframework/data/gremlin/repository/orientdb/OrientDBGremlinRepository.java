@@ -1,9 +1,9 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import org.apache.tinkerpop.gremlin.orientdb.OrientGraph;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
@@ -42,9 +42,9 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
         long count = 0;
         try {
             if (schema.isVertexSchema()) {
-                count = orientGraphFactory.graph().countVertices(schema.getClassName());
+                count = orientGraphFactory.graph().traversal().V().hasLabel(schema.getClassName()).count().next();
             } else {
-                count = orientGraphFactory.graph().countEdges(schema.getClassName());
+                count = orientGraphFactory.graph().traversal().E(schema.getClassName()).count().next();
             }
         } catch (Exception e) {
         }
@@ -93,7 +93,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public Iterable<Element> findAllElementsForSchema() {
 
         if (schema.isVertexSchema()) {
-            return findALlVerticiesForSchema();
+            return findAllVerticiesForSchema();
         } else if (schema.isEdgeSchema()) {
             return findAllEdgesForSchema();
         } else {
@@ -101,11 +101,11 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
         }
     }
 
-    public Iterable<Element> findALlVerticiesForSchema() {
+    public Iterable<Element> findAllVerticiesForSchema() {
 
         OrientGraph graph = orientGraphFactory.graph();
         List<Element> result = new ArrayList<>();
-        for (Vertex vertex : graph.getVerticesOfClass(schema.getClassName())) {
+        for (Vertex vertex : graph.traversal().V().hasLabel(schema.getClassName()).toList()) {
             result.add(vertex);
         }
         return result;
@@ -115,7 +115,7 @@ public class OrientDBGremlinRepository<T> extends SimpleGremlinRepository<T> {
 
         OrientGraph graph = orientGraphFactory.graph();
         List<Element> result = new ArrayList<>();
-        for (Edge edge : graph.getEdgesOfClass(schema.getClassName())) {
+        for (Edge edge : graph.traversal().E().hasLabel(schema.getClassName()).toList()) {
             result.add(edge);
         }
         return result;

@@ -9,11 +9,7 @@ import java.lang.reflect.Field;
  * @author Gman
  */
 public class GremlinSerializableFieldPropertyAccessor extends AbstractGremlinFieldPropertyAccessor<byte[]> {
-
-    public GremlinSerializableFieldPropertyAccessor(Field field) {
-        super(field);
-    }
-
+    
     public GremlinSerializableFieldPropertyAccessor(Field field, GremlinFieldPropertyAccessor parentAccessor) {
         super(field, parentAccessor);
     }

@@ -2,8 +2,9 @@ package org.springframework.data.gremlin.schema;
 
 import com.google.common.collect.LinkedListMultimap;
 import com.google.common.collect.Multimap;
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Element;
+import org.apache.tinkerpop.gremlin.structure.*;
+import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyProperty;
+import org.apache.tinkerpop.gremlin.structure.util.empty.EmptyVertexProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
@@ -78,6 +79,11 @@ public abstract class GremlinSchema<V> {
         }
         properties.add(property);
         propertyMap.put(property.getName(), property);
+
+        //Hacky
+        if (property.getName().equals("out")) {
+            property.setName(property.getSchema().getClassName());
+        }
         if (property.getAccessor() instanceof GremlinFieldPropertyAccessor) {
             fieldToPropertyMap.put(((GremlinFieldPropertyAccessor) property.getAccessor()).getField().getName(), property);
         }
@@ -220,6 +226,7 @@ public abstract class GremlinSchema<V> {
                 @Override
                 public void afterCommit() {
                     setObjectId(obj, finalElement);
+
                 }
             });
         }
@@ -232,22 +239,43 @@ public abstract class GremlinSchema<V> {
 
     public V cascadeLoadFromGraph(GremlinGraphAdapter graphAdapter, Element element, Map<Object, Object> noCascadingMap) {
 
-        V obj = (V) noCascadingMap.get(element.getId());
+        V obj = (V) noCascadingMap.get(element.id());
         if (obj == null) {
             try {
                 obj = getClassType().newInstance();
 
                 GremlinPropertyAccessor idAccessor = getIdAccessor();
-                idAccessor.set(obj, encodeId(element.getId().toString()));
-                noCascadingMap.put(element.getId(), obj);
+                idAccessor.set(obj, encodeId(element.id().toString()));
+                noCascadingMap.put(element.id(), obj);
             } catch (Exception e) {
                 throw new IllegalStateException("Could not instantiate new " + getClassType(), e);
             }
             for (GremlinProperty property : getProperties()) {
-
                 Object val = property.loadFromVertex(graphAdapter, element, noCascadingMap);
 
                 GremlinPropertyAccessor accessor = property.getAccessor();
+
+
+                //heck fliters incompatible things entering here resulting in logger.warnings - and a few test failures
+
+                if (val instanceof EmptyVertexProperty || val instanceof EmptyProperty) {
+                    continue;
+                }
+
+                if (val instanceof Property) {
+                    Property prop = ((Property)val);
+                    if (prop.isPresent()) {
+                        val = ((Property) val).value();
+                    }
+                }
+
+                if (val instanceof Edge || val instanceof Vertex) {
+                    continue;
+                }
+
+                // end of hack
+
+
                 try {
                     accessor.set(obj, val);
                 } catch (Exception e) {
@@ -263,7 +291,7 @@ public abstract class GremlinSchema<V> {
     }
 
     public void setObjectId(Object obj, Element element) {
-        getIdAccessor().set(obj, encodeId(element.getId().toString()));
+        getIdAccessor().set(obj, encodeId(element.id().toString()));
     }
 
     public String getObjectId(Object obj) {

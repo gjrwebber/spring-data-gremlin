@@ -8,7 +8,10 @@ buildscript {
 }
 
 ext {
-    springVersion = "4.2.4.RELEASE"
+
+    springVersion = "4.3.7.RELEASE"
+    gremlinVersion = "3.3.0-SNAPSHOT"
+    jacksonVersion = "2.8.8"
 }
 
 
@@ -25,13 +28,18 @@ allprojects {
     apply plugin: 'propdeps-eclipse'
 
     sourceCompatibility = 1.7
-    version = '0.1.1-SNAPSHOT'
+    version = '0.2.0-SNAPSHOT'
     group = 'com.github.gjrwebber'
 
     repositories {
         mavenLocal()
         maven { url 'https://repo.spring.io/libs-release' }
         maven { url 'https://repo.spring.io/libs-snapshot' }
+        maven { url 'http://repository.apache.org/snapshots' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://oss.sonatype.org/service/local/staging/deploy/maven2' }
+        maven { url 'https://maven.oracle.com'}
+        maven { url "https://jitpack.io" }
         mavenCentral()
     }
 
@@ -39,17 +47,36 @@ allprojects {
         compile("org.springframework:spring-core:${springVersion}")
         compile("org.springframework:spring-context:${springVersion}")
         compile("org.springframework:spring-tx:${springVersion}")
-        compile('org.springframework.data:spring-data-commons:1.11.0.RELEASE')
-        compile('com.tinkerpop.blueprints:blueprints-core:2.6.0')
-        compile('com.tinkerpop.gremlin:gremlin-java:2.6.0')
-        compile('com.tinkerpop.gremlin:gremlin-groovy:2.6.0')
+        compile('org.springframework.data:spring-data-commons:1.13.1.RELEASE')
+        compile("org.apache.tinkerpop:gremlin-core:${gremlinVersion}") {
+            exclude group: 'com.carrotsearch'
+        }
+        compile('com.carrotsearch:hppc:0.6.0')
+        compile("org.apache.tinkerpop:gremlin-driver:${gremlinVersion}") {
+            exclude group: 'com.carrotsearch'
+        }
+        compile("org.apache.tinkerpop:gremlin-groovy:${gremlinVersion}") {
+            exclude group: 'com.carrotsearch'
+        }
+        compile("org.apache.tinkerpop:tinkergraph-gremlin:${gremlinVersion}") {
+            exclude group: 'com.carrotsearch'
+        }
+
         compile('org.apache.commons:commons-collections4:4.0')
         compile('org.apache.commons:commons-lang3:3.4')
-        compile('org.reflections:reflections:0.9.9-RC1')
+        compile('org.reflections:reflections:0.9.9-RC1') {
+            exclude group: 'com.google.guava'
+        }
+
+        compile('com.google.guava:guava:19.0')
+        compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
+        compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
+        compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
+        compile('org.slf4j:slf4j-simple:1.7.7')
         testCompile('junit:junit:4.12')
         testCompile('org.mockito:mockito-core:1.10.19')
         testCompile("org.springframework:spring-test:${springVersion}")
-//        testCompile('org.slf4j:slf4j-simple:1.7.7')
+
     }
 
     task javadocJar(type: Jar) {
@@ -77,15 +104,15 @@ allprojects {
     uploadArchives {
         repositories {
             mavenDeployer {
-                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
-
-                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
-                    authentication(userName: ossrhUsername, password: ossrhPassword)
-                }
+//                repository(url: "https://oss.sonatype.org/service/local/staging/deploy/maven2/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
+//
+//                snapshotRepository(url: "https://oss.sonatype.org/content/repositories/snapshots/") {
+//                    authentication(userName: ossrhUsername, password: ossrhPassword)
+//                }
 
                 pom.project {
                     name 'Spring Data Gremlin'
@@ -126,6 +153,11 @@ allprojects {
                             name 'Graham Webber'
                             email 'gjrwebber@gmail.com'
                         }
+                        developer {
+                            id 'zifnab87'
+                            name 'Michail Michailidis'
+                            email 'mmichaelid@gmail.com'
+                        }
                     }
                 }
             }
@@ -133,6 +165,5 @@ allprojects {
     }
 
 }
-
 
 

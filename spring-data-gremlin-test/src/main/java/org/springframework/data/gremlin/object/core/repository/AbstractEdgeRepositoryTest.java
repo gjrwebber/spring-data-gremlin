@@ -70,7 +70,6 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
         Located located = new Located(new Date(), graham, loc);
         graham.getLocations().add(located);
         locatedRepository.save(located);
-
         List<Located> newLocated = new ArrayList<Located>();
         CollectionUtils.addAll(newLocated, locatedRepository.findAll());
         assertEquals(6, newLocated.size());

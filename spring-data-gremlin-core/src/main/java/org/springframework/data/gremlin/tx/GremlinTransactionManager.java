@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.tx;
 
-import com.tinkerpop.blueprints.Graph;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.transaction.TransactionDefinition;
@@ -84,34 +84,25 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
     protected void doCommit(DefaultTransactionStatus status) throws TransactionException {
         GremlinTransaction tx = (GremlinTransaction) status.getTransaction();
         Graph graph = tx.getGraph();
-
-        LOGGER.debug("committing transaction, db.hashCode() = {}", graph.hashCode());
-
-//        int attempts = 0;
-//        while (attempts++ < MAX_RETRY) {
-//            try {
+        int attempts = 0;
+        while (attempts++ < MAX_RETRY) {
+            try {
                 graphFactory.commitTx(graph);
+                break;
+           } catch (RuntimeException e) {
+               if (graphFactory.getRetryException().isAssignableFrom(e.getClass())) {
+                   LOGGER.warn("Attempted to commit Tx " + attempts + " out of " + MAX_RETRY + " times. Waiting " + RETRY_DELAY + "ms before trying again. Error: "+e.getMessage());
+                } else {
+                    throw e;
+                }
+            }
 
-//                if (attempts > 1) {
-//                    LOGGER.info("Commit successful after " + attempts + " attempts.");
-//                }
-//                break;
-//            } catch (RuntimeException e) {
-//                if (graphFactory.getRetryException().isAssignableFrom(e.getClass())) {
-//                    LOGGER.warn("Attempted to commit Tx " + attempts + " out of " + MAX_RETRY + " times. Waiting " + RETRY_DELAY + "ms before trying again. Error: "+e.getMessage());
-//                } else {
-//                    LOGGER.error("Could not commit tx: " + e.getMessage(), e);
-//                    throw e;
-//                }
-//            }
-//
-//            try {
-//                Thread.sleep(RETRY_DELAY);
-//            } catch (InterruptedException e1) {
-//                e1.printStackTrace();
-//            }
-//        }
-
+            try {
+                Thread.sleep(RETRY_DELAY);
+            } catch (InterruptedException e1) {
+                e1.printStackTrace();
+            }
+        }
     }
 
     /* (non-Javadoc)
@@ -168,7 +159,7 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
         GremlinTransaction tx = (GremlinTransaction) transaction;
 
         if (!graphFactory.isClosed(tx.getGraph())) {
-            tx.getGraph().shutdown();
+            graphFactory.shutdown(tx.getGraph());
         }
 
         Graph oldGraph = (Graph) suspendedResources;

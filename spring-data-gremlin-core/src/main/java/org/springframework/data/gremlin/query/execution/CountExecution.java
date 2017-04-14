@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.query.execution;
 
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
@@ -29,16 +30,6 @@ public class CountExecution extends AbstractGremlinExecution {
          */
     @Override
     protected Object doExecute(AbstractGremlinQuery query, Object[] values) {
-        Iterator<Vertex> result = ((Iterable<Vertex>) query.runQuery(parameters, values, true)).iterator();
-        long counter = 0L;
-
-        try {
-            while (true) {
-                result.next();
-                ++counter;
-            }
-        } catch (NoSuchElementException var4) {
-            return counter;
-        }
+        return ((GraphTraversal) query.runQuery(parameters, values, true)).count().next();
     }
 }

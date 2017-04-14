@@ -4,6 +4,8 @@ import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 
+import java.util.Collection;
+
 /**
  * Native query abstraction for {@link AbstractGremlinQuery}s.
  *
@@ -22,6 +24,7 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
 
     public AbstractNativeGremlinQuery(GremlinGraphFactory dbf, GremlinQueryMethod method, GremlinSchemaFactory schemaFactory, GremlinGraphAdapter graphAdapter, String query) {
         super(schemaFactory, method, graphAdapter);
+
 
         this.dbf = dbf;
         this.method = method;
@@ -61,4 +64,5 @@ public abstract class AbstractNativeGremlinQuery extends AbstractGremlinQuery {
     protected boolean isModifyingQuery() {
         return modifyingQuery;
     }
+
 }

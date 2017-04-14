@@ -19,7 +19,7 @@ public interface LikesRepository extends GremlinRepository<Likes> {
     @Query(value = "graph.E().has('date')")
     List<Likes> findByHasDate();
 
-    @Query(value = "graph.V().has('firstName', ?).outE('Likes').as('x').inV.filter{it.firstName == ?}.back('x')")
+    @Query(value = "graph.V().has('firstName', ?).outE('Likes').as('x').inV().has('firstName', ?).select('x')")
     List<Likes> findByLiking(String liker, String liked);
 
 

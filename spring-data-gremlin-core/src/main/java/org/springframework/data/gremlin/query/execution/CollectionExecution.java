@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.query.execution;
 
-import com.tinkerpop.blueprints.Element;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.query.AbstractGremlinQuery;
@@ -38,7 +39,7 @@ public class CollectionExecution extends AbstractGremlinExecution {
     protected Object doExecute(AbstractGremlinQuery query, Object[] values) {
         Class<?> mappedType = query.getQueryMethod().getReturnedObjectType();
 
-        Iterable<Element> elements = (Iterable<Element>) query.runQuery(parameters, values);
+        Iterable<Element> elements = ((GraphTraversal) query.runQuery(parameters, values)).toList();
 
         List<Object> objects = new ArrayList<Object>();
         if (mappedType.isAssignableFrom(Map.class)) {

@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.property.accessor;
 
+import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.object.core.domain;
 
+import org.springframework.data.gremlin.annotation.Id;
 import org.springframework.data.gremlin.annotation.Link;
 import org.springframework.data.gremlin.annotation.Vertex;
 
@@ -9,6 +10,9 @@ import org.springframework.data.gremlin.annotation.Vertex;
  */
 @Vertex
 public class Meeting {
+
+    @Id
+    private String id;
 
     @Link
     private Person person1;
@@ -22,6 +26,14 @@ public class Meeting {
     public Meeting(Person person1, Person person2) {
         this.person1 = person1;
         this.person2 = person2;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public Person getPerson2() {

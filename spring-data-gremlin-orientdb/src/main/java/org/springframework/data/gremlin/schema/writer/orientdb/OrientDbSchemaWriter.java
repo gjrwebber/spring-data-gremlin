@@ -5,7 +5,7 @@ import com.orientechnologies.orient.core.metadata.schema.OProperty;
 import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.GremlinSchema;
@@ -37,7 +37,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         LOGGER.debug("Initialising...");
         try {
             dbf = (OrientDBGremlinGraphFactory) tgf;
-            oSchema = dbf.graphNoTx().getRawGraph().getMetadata().getSchema();
+            oSchema = dbf.graphNoTx().getRawDatabase().getMetadata().getSchema();
 
         } catch (RuntimeException e) {
             String msg = String.format("Could not create schema %s. ERROR: %s", schema, e.getMessage());
@@ -45,8 +45,8 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         }
         try {
 
-            v = dbf.graphNoTx().getVertexBaseType();
-            e = dbf.graphNoTx().getEdgeBaseType();
+            v = dbf.graphNoTx().getRawDatabase().getClass("Vertex");
+            e = dbf.graphNoTx().getRawDatabase().getClass("Edge");
 
         } catch (Exception e) {
 
@@ -169,12 +169,10 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
 
     @Override
     protected void createSpatialIndex(GremlinSchema<?> schema, GremlinProperty latitude, GremlinProperty longitude) {
-
         String indexName = schema.getClassName() + ".lat_lon";
-        if (dbf.graphNoTx().getIndex(indexName, Vertex.class) == null) {
+        if (dbf.graphNoTx().getVertexIndexedKeys(indexName) == null) {
             try {
-                dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())))
-                   .execute();
+                dbf.graphNoTx().executeCommand(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())));
             } catch (Exception e1) {
                 e1.printStackTrace();
             }

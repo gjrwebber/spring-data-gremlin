@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
@@ -12,6 +13,7 @@ import org.springframework.data.repository.query.QueryLookupStrategy.Key;
 import org.springframework.data.repository.query.RepositoryQuery;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Method;
 
 /**
  * Implementation of {@link QueryLookupStrategy} for Gremlin.
@@ -39,10 +41,6 @@ public final class GremlinQueryLookupStrategy {
             this.graphAdapter = graphAdapter;
         }
 
-        public final RepositoryQuery resolveQuery(java.lang.reflect.Method method, RepositoryMetadata metadata, NamedQueries namedQueries) {
-            return resolveQuery(new GremlinQueryMethod(method, metadata), namedQueries);
-        }
-
         protected abstract RepositoryQuery resolveQuery(GremlinQueryMethod method, NamedQueries namedQueries);
     }
 
@@ -57,6 +55,11 @@ public final class GremlinQueryLookupStrategy {
             } catch (IllegalArgumentException e) {
                 throw new IllegalArgumentException(String.format("Could not create query metamodel for method %s!", method.toString()), e);
             }
+        }
+
+        @Override
+        public RepositoryQuery resolveQuery(Method method, RepositoryMetadata repositoryMetadata, ProjectionFactory projectionFactory, NamedQueries namedQueries) {
+            return resolveQuery(new GremlinQueryMethod(method, repositoryMetadata, projectionFactory), namedQueries);
         }
     }
 
@@ -93,8 +96,13 @@ public final class GremlinQueryLookupStrategy {
             }
             return repoQuery;
         }
-    }
 
+        @Override
+        public RepositoryQuery resolveQuery(Method method, RepositoryMetadata repositoryMetadata, ProjectionFactory projectionFactory, NamedQueries namedQueries) {
+            return resolveQuery(new GremlinQueryMethod(method, repositoryMetadata, projectionFactory), namedQueries);
+        }
+
+    }
     private static class CreateIfNotFoundQueryLookupStrategy extends AbstractQueryLookupStrategy {
 
         /** The declared query strategy. */
@@ -128,6 +136,11 @@ public final class GremlinQueryLookupStrategy {
                 repoQuery = createStrategy.resolveQuery(method, namedQueries);
             }
             return repoQuery;
+        }
+
+        @Override
+        public RepositoryQuery resolveQuery(Method method, RepositoryMetadata repositoryMetadata, ProjectionFactory projectionFactory, NamedQueries namedQueries) {
+            return resolveQuery(new GremlinQueryMethod(method, repositoryMetadata, projectionFactory), namedQueries);
         }
     }
 

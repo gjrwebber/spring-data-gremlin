@@ -1,9 +1,9 @@
 package org.springframework.data.gremlin.repository;
 
-import com.tinkerpop.blueprints.Edge;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Graph;
-import com.tinkerpop.blueprints.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Edge;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.apache.commons.lang.NotImplementedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -106,9 +106,9 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
         } else {
             Element element;
             if (schema.isVertexSchema()) {
-                element = graph.getVertex(schema.decodeId(id));
+                element = graphAdapter.getVertex(schema.decodeId(id));
             } else if (schema.isEdgeSchema()) {
-                element = graph.getEdge(schema.decodeId(id));
+                element = graphAdapter.getEdge(schema.decodeId(id));
             } else {
                 throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");
             }
@@ -209,10 +209,10 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
     public void delete(String id) {
         if (schema.isVertexSchema()) {
             Vertex v = graphAdapter.findVertexById(id);
-            dbf.graph().removeVertex(v);
+            v.remove();;
         } else if (schema.isEdgeSchema()) {
             Edge v = graphAdapter.findEdgeById(id);
-            dbf.graph().removeEdge(v);
+            v.remove();
         }
     }
 

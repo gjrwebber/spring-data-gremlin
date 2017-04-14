@@ -1,6 +1,8 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
-import com.tinkerpop.blueprints.Element;
+
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+import org.apache.tinkerpop.gremlin.structure.Element;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;

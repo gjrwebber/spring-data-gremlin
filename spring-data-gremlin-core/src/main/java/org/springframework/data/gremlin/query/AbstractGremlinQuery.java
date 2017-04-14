@@ -138,4 +138,6 @@ public abstract class AbstractGremlinQuery implements RepositoryQuery {
     private boolean isCompositeQuery() {
         return method.getReturnedObjectType() == CompositeResult.class;
     }
+
+
 }

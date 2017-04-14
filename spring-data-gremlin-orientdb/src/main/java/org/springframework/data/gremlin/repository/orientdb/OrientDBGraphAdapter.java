@@ -1,11 +1,10 @@
 package org.springframework.data.gremlin.repository.orientdb;
 
-import com.orientechnologies.orient.core.id.ORecordId;
-import com.orientechnologies.orient.core.metadata.security.OIdentity;
-import com.tinkerpop.blueprints.Element;
-import com.tinkerpop.blueprints.Vertex;
-import com.tinkerpop.blueprints.impls.orient.OrientElement;
-import com.tinkerpop.blueprints.impls.orient.OrientGraph;
+import org.apache.tinkerpop.gremlin.orientdb.OrientElement;
+import org.apache.tinkerpop.gremlin.orientdb.OrientGraph;
+import org.apache.tinkerpop.gremlin.structure.Element;
+import org.apache.tinkerpop.gremlin.structure.Vertex;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
@@ -32,7 +31,7 @@ public class OrientDBGraphAdapter extends GremlinGraphAdapter<OrientGraph> {
 
     @Override
     public Element refresh(Element element) {
-        ((OrientElement) element).reload();
+        //((OrientElement) element).reload();
         return element;
     }
 

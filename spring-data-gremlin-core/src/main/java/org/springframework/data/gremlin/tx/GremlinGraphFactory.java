@@ -1,6 +1,6 @@
 package org.springframework.data.gremlin.tx;
 
-import com.tinkerpop.blueprints.Graph;
+import org.apache.tinkerpop.gremlin.structure.Graph;
 
 /**
  * An interface defining a Gremlin {@link Graph} factory.

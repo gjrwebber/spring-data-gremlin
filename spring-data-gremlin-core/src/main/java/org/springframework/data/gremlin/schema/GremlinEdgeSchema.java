@@ -1,23 +1,11 @@
 package org.springframework.data.gremlin.schema;
 
-import com.tinkerpop.blueprints.Direction;
-import com.tinkerpop.blueprints.Element;
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
-import org.springframework.data.gremlin.repository.GremlinRepository;
 import org.springframework.data.gremlin.schema.property.GremlinAdjacentProperty;
 import org.springframework.data.gremlin.schema.property.GremlinProperty;
 import org.springframework.data.gremlin.schema.property.accessor.GremlinFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinIdFieldPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.accessor.GremlinPropertyAccessor;
-import org.springframework.data.gremlin.schema.property.encoder.GremlinPropertyEncoder;
-import org.springframework.data.gremlin.schema.property.mapper.GremlinPropertyMapper;
-import org.springframework.data.gremlin.tx.GremlinGraphFactory;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 
 /**
