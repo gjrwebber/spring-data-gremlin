@@ -254,6 +254,10 @@ public abstract class GremlinSchema<V> {
                 Object val = property.loadFromVertex(graphAdapter, element, noCascadingMap);
 
                 GremlinPropertyAccessor accessor = property.getAccessor();
+
+
+                //heck fliters incompatible things entering here resulting in logger.warnings - and a few test failures
+
                 if (val instanceof EmptyVertexProperty || val instanceof EmptyProperty) {
                     continue;
                 }
@@ -269,6 +273,7 @@ public abstract class GremlinSchema<V> {
                     continue;
                 }
 
+                // end of hack
 
 
                 try {

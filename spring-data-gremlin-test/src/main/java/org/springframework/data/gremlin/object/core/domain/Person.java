@@ -1,6 +1,7 @@
 package org.springframework.data.gremlin.object.core.domain;
 
 import org.springframework.data.gremlin.annotation.*;
+import org.springframework.data.neo4j.annotation.RelatedToVia;
 
 import java.util.HashMap;
 import java.util.HashSet;
