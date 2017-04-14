@@ -91,7 +91,7 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
             element = graphAdapter.addEdge(null, outVertex, inVertex, schema.getClassName());
 
 
-            schema.copyToGraph(graphAdapter, element, object, outObject, inObject);
+            schema.copyToGraph(graphAdapter, element, object);
         } else {
             throw new IllegalStateException("Schema is neither EDGE nor VERTEX!");
         }
