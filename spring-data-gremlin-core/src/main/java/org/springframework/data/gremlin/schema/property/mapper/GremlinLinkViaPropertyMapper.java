@@ -67,7 +67,7 @@ public class GremlinLinkViaPropertyMapper extends GremlinLinkPropertyMapper {
                         LOGGER.debug("Cascading copy of " + property.getRelatedSchema().getClassName());
 
                         //TODO add but causes stackoverflow
-                        property.getRelatedSchema().copyToGraph(graphAdapter, linkedEdge, val);
+                        //property.getRelatedSchema().copyToGraph(graphAdapter, linkedEdge, val);
                     }
                 }
             }
