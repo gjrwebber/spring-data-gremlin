@@ -66,10 +66,8 @@ public abstract class BaseRepositoryTest {
     protected LikesRepository likesRepository;
 
     protected Person graham;
-
     protected Person lara;
     protected Person jake;
-
     protected Person vanja;
     protected Person sandra;
 
@@ -133,19 +131,20 @@ public abstract class BaseRepositoryTest {
         sandra = new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false);
         repository.save(sandra);
 
-//        Likes like1 = new Likes(graham, lara);
-//        likesRepository.save(like1);
-//        Likes like2 = new Likes(graham, jake);
-//        likesRepository.save(like2);
-//
-//        Likes like3 = new Likes(vanja, lara);
-//        likesRepository.save(like3);
+        Likes like1 = new Likes(graham, lara);
+        likesRepository.save(like1);
 
-//        Likes like4 = new Likes(vanja, jake);
-//        likesRepository.save(like4);
-//        Likes like5 = new Likes(vanja, graham);
-//        likesRepository.save(like5);
+        Likes like2 = new Likes(graham, jake);
+        likesRepository.save(like2);
 
+        Likes like3 = new Likes(vanja, lara);
+        likesRepository.save(like3);
+
+        Likes like4 = new Likes(vanja, jake);
+        likesRepository.save(like4);
+
+        Likes like5 = new Likes(vanja, graham);
+        likesRepository.save(like5);
 
         List<Vertex> addresses = graph.traversal().V().has("street").toList();
         assertNotNull(addresses);
@@ -201,7 +200,8 @@ public abstract class BaseRepositoryTest {
             Edge edge = likesPipe.next();
             assertNotNull(edge);
             Vertex v = edge.outVertex();
-            assertTrue(v.value("firstName").toString().equals("Graham"));
+            assertTrue(v.value("firstName").toString().equals("Graham") || v.value("firstName").toString().equals("Vanja"));
+
         }
 
         factory.commitTx(graph);

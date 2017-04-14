@@ -13,8 +13,6 @@ import org.springframework.data.gremlin.repository.tinker.TinkerGraphAdapter;
 import org.springframework.data.gremlin.repository.tinker.TinkerGremlinRepository;
 import org.springframework.data.gremlin.schema.GremlinBeanPostProcessor;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
-import org.springframework.data.gremlin.schema.generator.DefaultSchemaGenerator;
-import org.springframework.data.gremlin.schema.generator.SchemaGenerator;
 import org.springframework.data.gremlin.support.GremlinRepositoryFactoryBean;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.data.gremlin.tx.GremlinTransactionManager;

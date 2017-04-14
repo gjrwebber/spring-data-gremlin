@@ -31,7 +31,7 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
 
         List<Likes> allLikes = new ArrayList<Likes>();
         CollectionUtils.addAll(allLikes, likesRepository.findAll());
-        assertEquals(2, allLikes.size());
+        assertEquals(6, allLikes.size());
 
     }
 
@@ -70,7 +70,6 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
         Located located = new Located(new Date(), graham, loc);
         graham.getLocations().add(located);
         locatedRepository.save(located);
-
         List<Located> newLocated = new ArrayList<Located>();
         CollectionUtils.addAll(newLocated, locatedRepository.findAll());
         assertEquals(6, newLocated.size());
@@ -87,7 +86,7 @@ public abstract class AbstractEdgeRepositoryTest extends BaseRepositoryTest {
         Iterable<Likes> found = likesRepository.findByPerson1_FirstName("Graham");
 
         Collection<Likes> disjunction = CollectionUtils.disjunction(all, found);
-        assertEquals(0, disjunction.size());
+        assertEquals(3, disjunction.size());
     }
 
     @Test

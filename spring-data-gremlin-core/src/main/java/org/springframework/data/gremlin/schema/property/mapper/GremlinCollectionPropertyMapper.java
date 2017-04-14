@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
@@ -11,10 +12,7 @@ import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
 import org.springframework.util.Assert;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 /**
@@ -26,18 +24,18 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
     private static final Logger LOGGER = LoggerFactory.getLogger(GremlinCollectionPropertyMapper.class);
 
     @Override
-    public void copyToVertex(final GremlinRelatedProperty property, final GremlinGraphAdapter graphAdapter, final Vertex vertex, final Object val, final Map<Object, Object> cascadingSchemas) {
+    public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
 
 
         // Get the Set of existing linked vertices for this property
-        final Set<Vertex> existingLinkedVertices = new HashSet<Vertex>();
-        final Set<Vertex> actualLinkedVertices = new HashSet<Vertex>();
-        vertex.edges(Direction.IN, property.getName()).forEachRemaining(new Consumer<Edge>() {
-            @Override
-            public void accept(Edge currentEdge) {
-                existingLinkedVertices.add(currentEdge.outVertex());
-            }
-        });
+        Set<Vertex> existingLinkedVertices = new HashSet<Vertex>();
+        Set<Vertex> actualLinkedVertices = new HashSet<Vertex>();
+        Iterator<Edge> iter = vertex.edges(property.getDirection(), property.getName());
+
+        while (iter.hasNext()) {
+            Edge currentEdge = iter.next();
+            existingLinkedVertices.add(currentEdge.vertices(property.getDirection().opposite()).next());
+        }
 
         // Now go through the collection of linked Objects
         for (Object linkedObj : (Collection) val) {
@@ -73,7 +71,6 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
             // Add the linkedVertex to the actual linked vertices.
             actualLinkedVertices.add(linkedVertex);
 
-
             if (Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
                 LOGGER.debug("Cascading copy of " + property.getRelatedSchema().getClassName());
                 // Updates or saves the linkedObj into the linkedVertex
@@ -82,16 +79,12 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
         }
 
         // For each disjointed vertex, remove it and the Edge associated with this property
-        for (final Vertex vertexToDelete : CollectionUtils.disjunction(existingLinkedVertices, actualLinkedVertices)) {
-            vertexToDelete.edges(Direction.OUT, property.getName()).forEachRemaining(new Consumer<Edge>() {
-                @Override
-                public void accept(Edge edge) {
-                    LOGGER.debug("Removing edge " + edge + " of vertex " + vertexToDelete + ".");
-                    graphAdapter.removeEdge(edge);
-                }
-            });
-            LOGGER.debug("Removing " + vertexToDelete + ".");
-
+        for (Vertex vertexToDelete : CollectionUtils.disjunction(existingLinkedVertices, actualLinkedVertices)) {
+            Iterator<Edge> edgeIter = vertexToDelete.edges(property.getDirection().opposite(), property.getName());
+            while(edgeIter.hasNext()) {
+                Edge edge = edgeIter.next();
+                graphAdapter.removeEdge(edge);
+            }
             graphAdapter.removeVertex(vertexToDelete);
         }
     }
@@ -113,7 +106,6 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
                 collection.add(linkedObject);
             }
         });
-
         return collection;
     }
 }

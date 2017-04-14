@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * Titan specific extension of the {@link SimpleGremlinRepository} providing custom implementations of {@code count()}, {@code deleteAll()},
+ * Tinker specific extension of the {@link SimpleGremlinRepository} providing custom implementations of {@code count()}, {@code deleteAll()},
  * {@code findAll(Pageable)} and {@code findAll()}.
  *
  * @author Gman
@@ -84,7 +84,7 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
     public Iterable<Element> findAllElementsForSchema() {
 
         if (schema.isVertexSchema()) {
-            return findALlVerticiesForSchema();
+            return findAllVerticiesForSchema();
         } else if (schema.isEdgeSchema()) {
             return findAllEdgesForSchema();
         } else {
@@ -92,7 +92,7 @@ public class TinkerGremlinRepository<T> extends SimpleGremlinRepository<T> {
         }
     }
 
-    public Iterable<Element> findALlVerticiesForSchema() {
+    public Iterable<Element> findAllVerticiesForSchema() {
         final List<Element> result = new ArrayList<>();
         graphFactory.graph().traversal().V().hasLabel(schema.getClassName()).forEachRemaining(new Consumer<Vertex>() {
             @Override

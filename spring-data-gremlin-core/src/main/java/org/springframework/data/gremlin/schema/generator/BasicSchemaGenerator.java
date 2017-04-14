@@ -2,7 +2,6 @@ package org.springframework.data.gremlin.schema.generator;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.slf4j.Logger;
@@ -35,7 +34,7 @@ import java.util.*;
 public class BasicSchemaGenerator implements SchemaGenerator {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(BasicSchemaGenerator.class);
-    private ObjectMapper objectMapper;
+    private com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private Set<Class<?>> vertexClasses;
     private Set<Class<?>> embeddedClasses;
     private Set<Class<?>> edgeClasses;
@@ -340,9 +339,6 @@ public class BasicSchemaGenerator implements SchemaGenerator {
 
         if (rootEmbeddedField != null) {
             propertyName = String.format("%s_%s", getPropertyName(rootEmbeddedField, null, schemaClass), propertyName);
-        }
-        if (field.getDeclaringClass() != schemaClass) {
-            propertyName = String.format("%s_%s", schemaClass.getSimpleName().toLowerCase(), propertyName);
         }
         return propertyName;
     }

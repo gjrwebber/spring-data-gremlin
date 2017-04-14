@@ -8,7 +8,8 @@ buildscript {
 }
 
 ext {
-    springVersion = "4.2.4.RELEASE"
+
+    springVersion = "4.3.7.RELEASE"
     gremlinVersion = "3.3.0-SNAPSHOT"
     jacksonVersion = "2.8.8"
 }
@@ -35,6 +36,9 @@ allprojects {
         maven { url 'https://repo.spring.io/libs-release' }
         maven { url 'https://repo.spring.io/libs-snapshot' }
         maven { url 'http://repository.apache.org/snapshots' }
+        maven { url 'https://oss.sonatype.org/content/repositories/snapshots' }
+        maven { url 'https://oss.sonatype.org/service/local/staging/deploy/maven2' }
+        maven { url 'https://maven.oracle.com'}
         maven { url "https://jitpack.io" }
         mavenCentral()
     }
@@ -43,7 +47,7 @@ allprojects {
         compile("org.springframework:spring-core:${springVersion}")
         compile("org.springframework:spring-context:${springVersion}")
         compile("org.springframework:spring-tx:${springVersion}")
-        compile('org.springframework.data:spring-data-commons:1.11.0.RELEASE')
+        compile('org.springframework.data:spring-data-commons:1.13.1.RELEASE')
         compile("org.apache.tinkerpop:gremlin-core:${gremlinVersion}") {
             exclude group: 'com.carrotsearch'
         }
@@ -63,7 +67,8 @@ allprojects {
         compile('org.reflections:reflections:0.9.9-RC1') {
             exclude group: 'com.google.guava'
         }
-        compile('com.google.guava:guava:15.0')
+
+        compile('com.google.guava:guava:19.0')
         compile("com.fasterxml.jackson.core:jackson-core:${jacksonVersion}")
         compile("com.fasterxml.jackson.core:jackson-annotations:${jacksonVersion}")
         compile("com.fasterxml.jackson.core:jackson-databind:${jacksonVersion}")
@@ -96,7 +101,7 @@ allprojects {
         failOnError = false
     }
 
-   uploadArchives {
+    uploadArchives {
         repositories {
             mavenDeployer {
                 //beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
@@ -148,6 +153,11 @@ allprojects {
                             name 'Graham Webber'
                             email 'gjrwebber@gmail.com'
                         }
+                        developer {
+                            id 'zifnab87'
+                            name 'Michail Michailidis'
+                            email 'mmichaelid@gmail.com'
+                        }
                     }
                 }
             }
@@ -155,6 +165,5 @@ allprojects {
     }
 
 }
-
 
 

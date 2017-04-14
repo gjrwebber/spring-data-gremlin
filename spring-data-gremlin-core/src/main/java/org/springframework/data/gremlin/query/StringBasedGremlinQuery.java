@@ -1,11 +1,15 @@
 package org.springframework.data.gremlin.query;
 
 import org.apache.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
+import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversal;
 import org.apache.tinkerpop.gremlin.structure.Graph;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
+import org.springframework.data.gremlin.utils.GraphUtil;
 import org.springframework.data.repository.query.DefaultParameters;
 import org.springframework.data.repository.query.Parameter;
 import org.springframework.data.repository.query.ParametersParameterAccessor;
@@ -21,6 +25,8 @@ import javax.script.ScriptException;
  * @author Gman
  */
 public class StringBasedGremlinQuery extends AbstractGremlinQuery {
+
+    private static final Logger logger = LoggerFactory.getLogger(StringBasedGremlinQuery.class);
 
     private GremlinGraphFactory dbf;
 
@@ -72,6 +78,9 @@ public class StringBasedGremlinQuery extends AbstractGremlinQuery {
         }
 
         try {
+
+            logger.info(GraphUtil.queryToString(graph, (GraphTraversal)engine.eval(queryString, bindings)));
+
             return engine.eval(queryString, bindings);
         } catch (ScriptException e) {
             throw new IllegalArgumentException(String.format("Could not evaluate Gremlin query String %s. Error: %s ", queryString, e.getMessage()), e);
