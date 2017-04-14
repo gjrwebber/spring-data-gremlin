@@ -123,7 +123,7 @@ public abstract class BaseRepositoryTest {
 
         lara = new Person("Lara", "Ivanovic", address, true);
         graham.setLocations(locations);
-        //TODO this causes problems: graham.setCurrentLocation(locations.iterator().next());
+        graham.setCurrentLocation(locations.iterator().next());
         repository.save(graham);
         vanja = new Person("Vanja", "Ivanovic", address, true);
         repository.save(vanja);

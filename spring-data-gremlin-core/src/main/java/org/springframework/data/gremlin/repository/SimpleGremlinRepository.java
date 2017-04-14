@@ -150,17 +150,17 @@ public class SimpleGremlinRepository<T> implements GremlinRepository<T> {
     @Override
     public T findOne(String id) {
         T object = null;
-        Element edge;
+        Element element;
         if (schema.isVertexSchema()) {
-            edge = graphAdapter.findVertexById(id);
+            element = graphAdapter.findVertexById(id);
         } else if (schema.isEdgeSchema()) {
-            edge = graphAdapter.findEdgeById(id);
+            element = graphAdapter.findEdgeById(id);
         } else {
             throw new IllegalStateException("Schema is neither VERTEX nor EDGE!");
         }
 
-        if (edge != null) {
-            object = schema.loadFromGraph(edge);
+        if (element != null) {
+            object = schema.loadFromGraph(element);
         }
 
         return object;

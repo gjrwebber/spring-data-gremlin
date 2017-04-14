@@ -1,18 +1,15 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchema;
 import org.springframework.data.gremlin.schema.property.GremlinRelatedProperty;
+import org.springframework.util.Assert;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
-import java.util.function.Consumer;
+import java.util.*;
 
 /**
  * A concrete {@link GremlinPropertyMapper} mapping a vertices property to a Collection.
@@ -22,18 +19,18 @@ import java.util.function.Consumer;
 public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<GremlinRelatedProperty, Vertex> {
 
     @Override
-    public void copyToVertex(final GremlinRelatedProperty property, final GremlinGraphAdapter graphAdapter, final Vertex vertex, final Object val, final Map<Object, Object> cascadingSchemas) {
+    public void copyToVertex(GremlinRelatedProperty property, GremlinGraphAdapter graphAdapter, Vertex vertex, Object val, Map<Object, Object> cascadingSchemas) {
 
 
         // Get the Set of existing linked vertices for this property
-        final Set<Vertex> existingLinkedVertices = new HashSet<Vertex>();
-        final Set<Vertex> actualLinkedVertices = new HashSet<Vertex>();
-        vertex.edges(Direction.IN, property.getName()).forEachRemaining(new Consumer<Edge>() {
-            @Override
-            public void accept(Edge currentEdge) {
-                existingLinkedVertices.add(currentEdge.outVertex());
-            }
-        });
+        Set<Vertex> existingLinkedVertices = new HashSet<Vertex>();
+        Set<Vertex> actualLinkedVertices = new HashSet<Vertex>();
+        Iterator<Edge> iter = vertex.edges(property.getDirection(), property.getName());
+
+        while (iter.hasNext()) {
+            Edge currentEdge = iter.next();
+            existingLinkedVertices.add(currentEdge.vertices(property.getDirection().opposite()).next());
+        }
 
         // Now go through the collection of linked Objects
         for (Object linkedObj : (Collection) val) {
@@ -51,6 +48,7 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
                 }
             }
 
+            Assert.notNull(linkedVertex);
             // If this linked Object is new it will not be in the existingLinkedVertices Set
             if (!existingLinkedVertices.contains(linkedVertex)) {
                 // New linked Object - add an Edge
@@ -66,18 +64,20 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
             // Add the linkedVertex to the actual linked vertices.
             actualLinkedVertices.add(linkedVertex);
 
-            // Updates or saves the linkedObj into the linkedVertex
-            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, linkedObj, cascadingSchemas);
+
+            if(Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT) {
+                // Updates or saves the linkedObj into the linkedVertex
+                property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, linkedObj, cascadingSchemas);
+            }
         }
 
         // For each disjointed vertex, remove it and the Edge associated with this property
         for (Vertex vertexToDelete : CollectionUtils.disjunction(existingLinkedVertices, actualLinkedVertices)) {
-            vertexToDelete.edges(Direction.OUT, property.getName()).forEachRemaining(new Consumer<Edge>() {
-                @Override
-                public void accept(Edge edge) {
-                    graphAdapter.removeEdge(edge);
-                }
-            });
+            Iterator<Edge> edgeIter = vertexToDelete.edges(property.getDirection().opposite(), property.getName());
+            while(edgeIter.hasNext()) {
+                Edge edge = edgeIter.next();
+                graphAdapter.removeEdge(edge);
+            }
             graphAdapter.removeVertex(vertexToDelete);
         }
     }
@@ -87,16 +87,15 @@ public class GremlinCollectionPropertyMapper implements GremlinPropertyMapper<Gr
         return loadCollection(property.getRelatedSchema(), property, vertex, cascadingSchemas);
     }
 
-    private <V> Set<V> loadCollection(final GremlinSchema<V> schema, final GremlinRelatedProperty property, final Vertex vertex, final Map<Object, Object> cascadingSchemas) {
-        final Set<V> collection = new HashSet<V>();
-        vertex.edges(Direction.IN, property.getName()).forEachRemaining(new Consumer<Edge>() {
-            @Override
-            public void accept(Edge outEdge) {
-                Vertex inVertex = outEdge.outVertex();
-                V linkedObject = schema.cascadeLoadFromGraph(inVertex, cascadingSchemas);
-                collection.add(linkedObject);
-            }
-        });
+    private <V> Set<V> loadCollection(GremlinSchema<V> schema, GremlinRelatedProperty property, Vertex vertex, Map<Object, Object> cascadingSchemas) {
+        Set<V> collection = new HashSet<V>();
+        Iterator<Edge> edgeIter = vertex.edges(property.getDirection(), property.getName());
+        while (edgeIter.hasNext()) {
+            Edge outEdge = edgeIter.next();
+            Vertex inVertex = outEdge.vertices(property.getDirection().opposite()).next();
+            V linkedObject = schema.cascadeLoadFromGraph(inVertex, cascadingSchemas);
+            collection.add(linkedObject);
+        }
         return collection;
     }
 }

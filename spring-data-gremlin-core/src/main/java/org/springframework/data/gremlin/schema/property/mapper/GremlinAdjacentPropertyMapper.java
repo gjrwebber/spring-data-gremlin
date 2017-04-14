@@ -1,5 +1,6 @@
 package org.springframework.data.gremlin.schema.property.mapper;
 
+import org.apache.tinkerpop.gremlin.structure.Direction;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
@@ -19,23 +20,25 @@ public class GremlinAdjacentPropertyMapper implements GremlinPropertyMapper<Grem
     @Override
     public void copyToVertex(final GremlinAdjacentProperty property, final GremlinGraphAdapter graphAdapter, final Edge edge, final Object val, final  Map<Object, Object> cascadingSchemas) {
 
-        edge.vertices(property.getDirection()).forEachRemaining(new Consumer<Vertex>() {
-            @Override
-            public void accept(Vertex vertex) {
-                property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, vertex, val, cascadingSchemas);
-            }
-        });
+        Vertex linkedVertex = edge.vertices(property.getDirection()).next();
+
+        if (linkedVertex == null) {
+            linkedVertex = (Vertex) cascadingSchemas.get(val);
+        }
+
+        if (linkedVertex != null && (Boolean.getBoolean(CASCADE_ALL_KEY) || property.getDirection() == Direction.OUT)) {
+            //             Updates or saves the val into the linkedVertex
+            property.getRelatedSchema().cascadeCopyToGraph(graphAdapter, linkedVertex, val, cascadingSchemas);
+        }
     }
 
     @Override
     public <K> Object loadFromVertex(final GremlinAdjacentProperty property, final Edge edge, final Map<Object, Object> cascadingSchemas) {
-        final Object[] val = { null };
-        edge.vertices(property.getDirection()).forEachRemaining(new Consumer<Vertex>() {
-            @Override
-            public void accept(Vertex vertex) {
-                val[0] = property.getRelatedSchema().cascadeLoadFromGraph(vertex, cascadingSchemas);
+            Object val = null;
+            Vertex linkedVertex = edge.vertices(property.getDirection()).next();
+            if (linkedVertex != null) {
+                val = property.getRelatedSchema().cascadeLoadFromGraph(linkedVertex, cascadingSchemas);
             }
-        });
-        return val[0];
+            return val;
     }
 }
