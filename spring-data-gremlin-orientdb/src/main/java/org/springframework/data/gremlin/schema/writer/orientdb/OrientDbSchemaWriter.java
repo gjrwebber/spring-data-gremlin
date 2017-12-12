@@ -6,6 +6,7 @@ import com.orientechnologies.orient.core.metadata.schema.OSchema;
 import com.orientechnologies.orient.core.metadata.schema.OType;
 import com.orientechnologies.orient.core.sql.OCommandSQL;
 import com.tinkerpop.blueprints.Vertex;
+import com.tinkerpop.blueprints.impls.orient.OrientGraphNoTx;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.schema.GremlinSchema;
@@ -31,13 +32,16 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     private OSchema oSchema;
     private OClass v;
     private OClass e;
+    OrientGraphNoTx graph = null;
 
     public void initialise(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
 
         LOGGER.debug("Initialising...");
+
         try {
             dbf = (OrientDBGremlinGraphFactory) tgf;
-            oSchema = dbf.graphNoTx().getRawGraph().getMetadata().getSchema();
+            graph = dbf.graphNoTx();
+            oSchema = graph.getRawGraph().getMetadata().getSchema();
 
         } catch (RuntimeException e) {
             String msg = String.format("Could not create schema %s. ERROR: %s", schema, e.getMessage());
@@ -45,8 +49,8 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         }
         try {
 
-            v = dbf.graphNoTx().getVertexBaseType();
-            e = dbf.graphNoTx().getEdgeBaseType();
+            v = graph.getVertexBaseType();
+            e = graph.getEdgeBaseType();
 
         } catch (Exception e) {
 
@@ -61,6 +65,9 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
             LOGGER.error(e.getMessage(), e);
             throw new SchemaWriterException(msg, e);
         }
+
+
+
         LOGGER.debug("Initialised.");
     }
 
@@ -68,6 +75,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
     public void writeSchema(GremlinGraphFactory tgf, GremlinSchema<?> schema) throws SchemaWriterException {
         initialise(tgf, schema);
         super.writeSchema(tgf, schema);
+        //graph.shutdown();
     }
 
     @Override
@@ -173,7 +181,7 @@ public class OrientDbSchemaWriter extends AbstractSchemaWriter {
         String indexName = schema.getClassName() + ".lat_lon";
         if (dbf.graphNoTx().getIndex(indexName, Vertex.class) == null) {
             try {
-                dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE", indexName, schema.getClassName(), latitude.getName(), longitude.getName())))
+                dbf.graphNoTx().command(new OCommandSQL(String.format("CREATE INDEX %s ON %s(%s,%s) SPATIAL ENGINE LUCENE METADATA {ignoreNullValues: true}", indexName, schema.getClassName(), latitude.getName(), longitude.getName())))
                    .execute();
             } catch (Exception e1) {
                 e1.printStackTrace();

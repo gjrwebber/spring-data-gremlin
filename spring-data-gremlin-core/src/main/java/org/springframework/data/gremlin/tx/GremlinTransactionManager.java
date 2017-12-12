@@ -69,12 +69,16 @@ public class GremlinTransactionManager extends AbstractPlatformTransactionManage
 
         if (tx.getGraph() == null || graphFactory.isClosed(tx.getGraph())) {
             tx.setGraph(graphFactory.graph());
+
+            if(graphFactory.isActive(tx.getGraph())){
+                tx.setGraph(graphFactory.graph());
+            }else{
+                LOGGER.debug("beginning transaction, db.hashCode() = {}", tx.getGraph().hashCode());
+
+                graphFactory.beginTx(tx.getGraph());
+            }
             TransactionSynchronizationManager.bindResource(graphFactory, tx.getGraph());
         }
-
-        LOGGER.debug("beginning transaction, db.hashCode() = {}", tx.getGraph().hashCode());
-
-        graphFactory.beginTx(tx.getGraph());
     }
 
     /* (non-Javadoc)

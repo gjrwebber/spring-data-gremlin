@@ -45,9 +45,9 @@ public class JpaSchemaGeneratorTest {
         assertTrue(schema.getProperty("linkedEntity") instanceof GremlinLinkProperty);
         assertEquals(LinkedTestEntity.class, schema.getProperty("linkedEntity").getType());
 
-        assertTrue(propNames.contains("embeddedBla"));
-        assertTrue(propNames.contains("embeddedDate"));
-        assertTrue(propNames.contains("multiEmbedded"));
+        assertTrue(propNames.contains("testentity_embeddedTestEntity_embeddedBla"));
+        assertTrue(propNames.contains("testentity_embeddedTestEntity_embeddedDate"));
+        assertTrue(propNames.contains("testentity_embeddedTestEntity_multiEmbedded"));
         assertTrue(propNames.contains("embeddedValue"));
 
         assertFalse(propNames.contains("id"));

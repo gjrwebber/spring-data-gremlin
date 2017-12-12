@@ -2,6 +2,7 @@ package org.springframework.data.gremlin.query;
 
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.data.gremlin.annotation.Query;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryMethod;
 import org.springframework.util.StringUtils;
@@ -24,8 +25,8 @@ public final class GremlinQueryMethod extends QueryMethod {
      * @param method   the method
      * @param metadata the metadata
      */
-    public GremlinQueryMethod(Method method, RepositoryMetadata metadata) {
-        super(method, metadata);
+    public GremlinQueryMethod(Method method, RepositoryMetadata metadata, ProjectionFactory factory) {
+        super(method, metadata, factory);
         this.method = method;
     }
 

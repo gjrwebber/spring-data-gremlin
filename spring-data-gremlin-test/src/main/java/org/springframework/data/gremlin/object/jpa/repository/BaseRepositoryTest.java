@@ -143,11 +143,9 @@ public abstract class BaseRepositoryTest {
     public void after() {
 
         Graph graph = factory.graph();
-        factory.beginTx(graph);
         for (Vertex vertex : graph.getVertices()) {
             graph.removeVertex(vertex);
         }
-        factory.commitTx(graph);
     }
 
     @Test

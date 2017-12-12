@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.gremlin.repository.GremlinGraphAdapter;
 import org.springframework.data.gremlin.schema.GremlinSchemaFactory;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
+import org.springframework.data.projection.ProjectionFactory;
 import org.springframework.data.repository.core.NamedQueries;
 import org.springframework.data.repository.core.RepositoryMetadata;
 import org.springframework.data.repository.query.QueryLookupStrategy;
@@ -39,8 +40,8 @@ public final class GremlinQueryLookupStrategy {
             this.graphAdapter = graphAdapter;
         }
 
-        public final RepositoryQuery resolveQuery(java.lang.reflect.Method method, RepositoryMetadata metadata, NamedQueries namedQueries) {
-            return resolveQuery(new GremlinQueryMethod(method, metadata), namedQueries);
+        public final RepositoryQuery resolveQuery(java.lang.reflect.Method method, RepositoryMetadata metadata, ProjectionFactory factory,  NamedQueries namedQueries) {
+            return resolveQuery(new GremlinQueryMethod(method, metadata, factory), namedQueries);
         }
 
         protected abstract RepositoryQuery resolveQuery(GremlinQueryMethod method, NamedQueries namedQueries);

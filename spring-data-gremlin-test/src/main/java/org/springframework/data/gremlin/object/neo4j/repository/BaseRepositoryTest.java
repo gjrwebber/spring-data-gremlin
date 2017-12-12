@@ -66,7 +66,6 @@ public abstract class BaseRepositoryTest {
     public void before() {
 
         Graph graph = factory.graph();
-        factory.beginTx(graph);
         for (Vertex vertex : graph.getVertices()) {
             graph.removeVertex(vertex);
         }
@@ -74,7 +73,6 @@ public abstract class BaseRepositoryTest {
         for (Edge edge : graph.getEdges()) {
             graph.removeEdge(edge);
         }
-        factory.commitTx(graph);
 
         Address address = new Address("Australia", "Newcastle", "Scenic Dr", new Area("2291"));
         addressRepository.save(address);
@@ -173,7 +171,6 @@ public abstract class BaseRepositoryTest {
     public void after() {
 
         Graph graph = factory.graph();
-        factory.beginTx(graph);
         for (Vertex vertex : graph.getVertices()) {
             graph.removeVertex(vertex);
         }
@@ -181,7 +178,6 @@ public abstract class BaseRepositoryTest {
         for (Edge edge : graph.getEdges()) {
             graph.removeEdge(edge);
         }
-        factory.commitTx(graph);
     }
 
     @Test

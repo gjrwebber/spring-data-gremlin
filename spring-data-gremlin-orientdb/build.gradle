@@ -1,7 +1,10 @@
 dependencies {
     compile project(':spring-data-gremlin-core')
-    compile('com.orientechnologies:orientdb-lucene:2.1.12')
-    compile('com.orientechnologies:orientdb-graphdb:2.1.12')
+    compile('com.orientechnologies:orientdb-lucene:2.2.30')
+    compile('com.orientechnologies:orientdb-graphdb:2.2.30')
+    compile('com.orientechnologies:orientdb-spatial:2.2.30')
+
+
     testCompile project(':spring-data-gremlin-schemagen-jpa')
     testCompile project(':spring-data-gremlin-schemagen-neo4j')
     testCompile project(':spring-data-gremlin-test')

@@ -20,7 +20,8 @@ public class GremlinRepositoryFactoryBean<T extends GremlinRepository<S>, S> ext
     @Autowired
     private GremlinRepositoryContext context;
 
-    public GremlinRepositoryFactoryBean() {
+    protected GremlinRepositoryFactoryBean(Class<? extends T> repositoryInterface) {
+        super(repositoryInterface);
     }
 
     /* (non-Javadoc)
