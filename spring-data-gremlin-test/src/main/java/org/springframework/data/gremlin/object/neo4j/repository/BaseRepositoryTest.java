@@ -18,7 +18,6 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -32,7 +31,6 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@TransactionConfiguration(defaultRollback = true)
 @TestExecutionListeners(
         inheritListeners = false,
         listeners = { DependencyInjectionTestExecutionListener.class })

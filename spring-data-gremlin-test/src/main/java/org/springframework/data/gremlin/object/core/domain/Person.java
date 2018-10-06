@@ -54,7 +54,7 @@ public class Person extends Bipod<Area> {
     @LinkVia
     private Set<Likes> likes;
 
-    @Property(type = Property.SerialisableType.SERIALIZABLE)
+    @Property(type = Property.SerialisableType.JSON)
     private House owns;
 
     private Set<House> owned;
