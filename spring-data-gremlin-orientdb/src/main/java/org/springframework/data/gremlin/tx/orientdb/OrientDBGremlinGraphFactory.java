@@ -97,7 +97,7 @@ public class OrientDBGremlinGraphFactory extends AbstractGremlinGraphFactory<Ori
     @Override
     public void resumeTx(OrientGraph oldGraph) {
         try {
-            ODatabaseRecordThreadLocal.INSTANCE.set((ODatabaseDocumentInternal)((ODatabaseInternal)oldGraph.getRawGraph()).getUnderlying());
+            ODatabaseRecordThreadLocal.instance().set((ODatabaseDocumentInternal)((ODatabaseInternal)oldGraph.getRawGraph()).getUnderlying());
         } catch(UnsupportedOperationException  e) {
             LOGGER.error("Could not :" + e.getMessage());
         }
