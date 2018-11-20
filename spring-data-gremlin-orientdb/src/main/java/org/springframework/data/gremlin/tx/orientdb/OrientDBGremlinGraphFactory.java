@@ -91,18 +91,22 @@ public class OrientDBGremlinGraphFactory extends AbstractGremlinGraphFactory<Ori
 
     @Override
     public RuntimeException getForceRetryException() {
-        return new ForceRetryException();
+        return new ForceRetryException(null);
     }
 
     @Override
     public void resumeTx(OrientGraph oldGraph) {
         try {
-            ODatabaseRecordThreadLocal.INSTANCE.set((ODatabaseDocumentInternal)((ODatabaseInternal)oldGraph.getRawGraph()).getUnderlying());
+            ODatabaseRecordThreadLocal.instance().set((ODatabaseDocumentInternal)((ODatabaseInternal)oldGraph.getRawGraph()).getUnderlying());
         } catch(UnsupportedOperationException  e) {
             LOGGER.error("Could not :" + e.getMessage());
         }
     }
 
-    public class ForceRetryException extends ONeedRetryException { }
+    public class ForceRetryException extends ONeedRetryException {
+        protected ForceRetryException(ONeedRetryException exception) {
+            super(exception);
+        }
+    }
 }
 

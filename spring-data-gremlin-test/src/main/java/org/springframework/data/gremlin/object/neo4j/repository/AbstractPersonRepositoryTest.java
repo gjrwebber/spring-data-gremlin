@@ -387,17 +387,26 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
     @Test
     public void testCollectionsCascadeRemove() {
         Person graham = repository.findByFirstName("Graham").get(0);
+
         assertEquals(5, graham.getLocations().size());
 
+
         List<Located> locations = new ArrayList<Located>(graham.getLocations());
+
         locations.remove(0);
+
         graham.setLocations(new HashSet<Located>(locations));
+
         repository.save(graham);
+
 
         graham = repository.findByFirstName("Graham").get(0);
 
+
         locations = new ArrayList<Located>(graham.getLocations());
+
         assertEquals(4, locations.size());
+
     }
 
 

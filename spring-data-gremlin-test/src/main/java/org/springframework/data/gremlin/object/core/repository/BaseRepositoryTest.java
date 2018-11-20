@@ -4,7 +4,6 @@ import com.tinkerpop.blueprints.*;
 import com.tinkerpop.gremlin.groovy.jsr223.GremlinGroovyScriptEngine;
 import com.tinkerpop.gremlin.java.GremlinPipeline;
 import com.tinkerpop.pipes.util.Pipeline;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -13,17 +12,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.gremlin.object.core.TestService;
 import org.springframework.data.gremlin.object.core.domain.*;
-import org.springframework.data.gremlin.object.core.domain.Address;
-import org.springframework.data.gremlin.object.core.domain.Area;
-import org.springframework.data.gremlin.object.core.domain.Located;
-import org.springframework.data.gremlin.object.core.domain.Location;
-import org.springframework.data.gremlin.object.core.domain.Person;
 import org.springframework.data.gremlin.tx.GremlinGraphFactory;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 
 import javax.script.Bindings;
 import javax.script.ScriptEngine;
@@ -37,7 +30,6 @@ import static org.junit.Assert.assertTrue;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
-@TransactionConfiguration(defaultRollback = true)
 @TestExecutionListeners(
         inheritListeners = false,
         listeners = { DependencyInjectionTestExecutionListener.class })
@@ -74,8 +66,9 @@ public abstract class BaseRepositoryTest {
     @Before
     public void before() {
 
+        addressRepository.findAll();
+
         Graph graph = factory.graph();
-        factory.beginTx(graph);
         for (Vertex vertex : graph.getVertices()) {
             graph.removeVertex(vertex);
         }
@@ -83,7 +76,6 @@ public abstract class BaseRepositoryTest {
         for (Edge edge : graph.getEdges()) {
             graph.removeEdge(edge);
         }
-        factory.commitTx(graph);
 
         Address address = new Address(new Country("Australia"), "Newcastle", "Scenic Dr", new Area("2291"));
         addressRepository.save(address);
@@ -123,8 +115,6 @@ public abstract class BaseRepositoryTest {
         repository.save(jake);
         sandra = new Person("Sandra", "Ivanovic", new Address(new Country("Australia"), "Sydney", "Wilson St", new Area("2043")), false);
         repository.save(sandra);
-//        Graph graph = factory.graph();
-
 
         Likes like1 = new Likes(graham, lara);
         likesRepository.save(like1);
@@ -198,7 +188,6 @@ public abstract class BaseRepositoryTest {
     public void after() {
 
         Graph graph = factory.graph();
-        factory.beginTx(graph);
         for (Vertex vertex : graph.getVertices()) {
             graph.removeVertex(vertex);
         }
@@ -206,7 +195,6 @@ public abstract class BaseRepositoryTest {
         for (Edge edge : graph.getEdges()) {
             graph.removeEdge(edge);
         }
-        factory.commitTx(graph);
     }
 
     @Test

@@ -590,6 +590,7 @@ public abstract class AbstractPersonRepositoryTest extends BaseRepositoryTest {
         Likes like = graham.getLikes().iterator().next();
         graham.getLikes().remove(like);
         repository.save(graham);
+        this.factory.commitTx(this.factory.openGraph());
 
         graham = repository.findByFirstName("Graham").get(0);
 
